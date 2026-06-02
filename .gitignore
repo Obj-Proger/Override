@@ -1,0 +1,265 @@
+## IDE & Editor Configuration
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+*.iml
+.gradle/
+.run/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim & Neovim
+.vim/
+*.swp
+*.swo
+*~
+.netrwhist
+Session.vim
+.vim/undo/
+.vim/backup/
+.vim/swap/
+
+# Emacs
+*~
+\#*\#
+.\#*
+*.elc
+auto-save-list/
+tramp
+
+# Atom
+.atom/
+.atomrc
+
+# VS (Visual Studio)
+.vs/
+.vscode/
+Debug/
+Release/
+
+# Nano
+.nano_history
+
+# Gedit
+.local/share/gedit/
+
+# TextMate
+*.tmproj
+*.tmproject
+
+## Operating System Files
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+.windows-terminal.json
+
+# Linux
+.directory
+.Trash-*
+.cache/
+
+## Local Development Servers
+
+# Common dist/build folders
+dist/
+build/
+out/
+output/
+
+# Live Server
+.live-server/
+live_server.pid
+
+# Python http.server
+.http-server/
+
+# http-server npm package
+.http-server-folder/
+
+# Browsersync
+.browsersync.json
+bs-config.json.bak
+
+# Local web server caches
+.cache/
+.vite/
+.parcel-cache/
+.next/
+.nuxt/
+.astro/
+
+## Node.js & Package Managers
+
+node_modules/
+npm-debug.log
+npm-debug.log.*
+yarn-error.log
+yarn-debug.log
+pnpm-debug.log
+.npm
+.pnpm
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.npmrc
+
+## Python (if using Python server/tools)
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+.venv
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+## Ruby & Bundler
+
+Gemfile.lock
+vendor/bundle/
+.bundle/
+
+## Environment & Secrets
+
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.backup
+.config.local.*
+secrets.json
+*.key
+*.pem
+*.p12
+*.pfx
+.credentials
+.aws/
+.git/credentials
+
+## Build Tools & Task Runners
+
+# Gulp
+.gulp/
+
+# Grunt
+.grunt/
+
+# Webpack
+webpack-bundle-analyzer/
+
+# Parcel
+.cache/
+dist/
+
+# Rollup
+.rollup.cache/
+
+# Turbo
+.turbo/
+
+# ESBuild
+.esbuild/
+
+## Cache & Temporary Files
+
+tmp/
+temp/
+.tmp/
+*.log
+logs/
+*.log.*
+.cache/
+cache/
+.DS_Store
+
+## Backup & Archive Files
+
+*.bak
+*.backup
+*.orig
+*.swp
+*.swo
+*~
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+## Browser & Debugging
+
+.chrome/
+.firefox/
+.safari/
+.edge/
+debug.log
+.debugger/
+
+## Testing & Coverage
+
+coverage/
+.coverage
+.coverage.*
+htmlcov/
+.nyc_output/
+test-results/
+junit.xml
+
+## OS Sync Services
+
+# Dropbox
+.dropbox
+.dropbox.attr
+
+# OneDrive
+.onedrive
+
+# iCloud
+.icloud
+
+# Google Drive
+.gdrive
+
+## Miscellaneous
+
+.history/
+.vscode-test/
+.eslintcache
+.stylelintcache
+*.pid
+.lock
+.DS_Store
+.AppleDouble
