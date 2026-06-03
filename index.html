@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Override</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg">
+
+    <style>
+        /* Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Light theme (default) */
+        :root {
+            --bg: #ffffff;
+            --bg-card: #f6f8fa;
+            --border: #d0d7de;
+            --text: #1f2328;
+            --text-muted: #656d76;
+            --accent: #0969da;
+            --accent-hover: #0550ae;
+            --radius: 12px;
+        }
+
+        /* Dark theme via browser preference */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0d1117;
+                --bg-card: #161b22;
+                --border: #30363d;
+                --text: #c9d1d9;
+                --text-muted: #8b949e;
+                --accent: #58a6ff;
+                --accent-hover: #79c0ff;
+            }
+        }
+
+        /* Base */
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        /* Card */
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 48px 40px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+        }
+
+        /* Logo area */
+        .logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            width: 100%;
+            padding: 20px 24px;
+            text-align: center;
+        }
+
+        .footer-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .footer-copy,
+        .footer-made {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .footer-heart {
+            width: 13px;
+            height: 13px;
+            fill: none;
+            stroke: #e53e3e;
+            stroke-width: 2px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke 0.35s ease;
+            overflow: visible;
+            flex-shrink: 0;
+            display: block;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .footer-heart {
+                stroke: #93c5fd;
+            }
+        }
+
+        .logo-title {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--text);
+        }
+
+        .logo-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Divider */
+        .divider {
+            width: 100%;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Lang buttons */
+        .lang-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .lang-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font: inherit;
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s, color 0.15s;
+        }
+
+            .lang-btn:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: var(--bg-card);
+            }
+
+        .lang-btn__flag {
+            font-size: 1.4rem;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .lang-btn__text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .lang-btn__name {
+            display: block;
+            font-weight: 600;
+        }
+
+        .lang-btn__native {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .lang-btn:hover .lang-btn__native {
+            color: var(--accent);
+        }
+
+        /* noscript notice */
+        .noscript-notice {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+                justify-content: center;
+            }
+
+            .card {
+                padding: 32px 20px;
+                gap: 24px;
+                border-radius: 10px;
+            }
+
+            .logo-title {
+                font-size: 1.5rem;
+            }
+
+            .logo-subtitle {
+                font-size: 0.82rem;
+            }
+
+            .logo-icon {
+                width: 44px;
+                height: 44px;
+            }
+
+            .lang-btn {
+                padding: 12px 14px;
+            }
+
+            .lang-btn__flag {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .card {
+                padding: 24px 16px;
+            }
+
+            .logo-title {
+                font-size: 1.3rem;
+            }
+
+            .lang-btn__native {
+                display: none;
+            }
+        }
+
+        /* Landscape mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            body {
+                justify-content: flex-start;
+                padding: 16px;
+            }
+
+            .card {
+                flex-direction: row;
+                flex-wrap: wrap;
+                max-width: 640px;
+                padding: 24px 28px;
+                gap: 20px;
+                align-items: center;
+            }
+
+            .logo {
+                flex-direction: row;
+                gap: 14px;
+                flex: 1 1 200px;
+                text-align: left;
+                align-items: center;
+            }
+
+                .logo > div {
+                    text-align: left;
+                }
+
+            .divider {
+                display: none;
+            }
+
+            .lang-buttons {
+                flex: 1 1 180px;
+                gap: 8px;
+            }
+
+            .noscript-notice {
+                flex: 1 1 100%;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+
+    <!--
+        Runs before render — no defer/async intentional.
+        Redirects to the user's preferred language automatically.
+    -->
+    <script>
+        (function () {
+            var SUPPORTED = ['ru', 'en'];
+            var DEFAULT   = 'ru';
+            var KEY       = 'override-lang';
+
+            function getBrowserLang() {
+                var short = (navigator.language || '').substring(0, 2).toLowerCase();
+                return SUPPORTED.indexOf(short) !== -1 ? short : null;
+            }
+
+            function isInLangFolder() {
+                var path = window.location.pathname;
+                return SUPPORTED.some(function (lang) {
+                    return path.startsWith('/' + lang + '/') || path === '/' + lang;
+                });
+            }
+
+            if (!isInLangFolder()) {
+                var saved  = localStorage.getItem(KEY);
+                var target = (saved && SUPPORTED.indexOf(saved) !== -1)
+                           ? saved
+                           : (getBrowserLang() || DEFAULT);
+                localStorage.setItem(KEY, target);
+                window.location.replace('/' + target + '/');
+            }
+        })();
+    </script>
+</head>
+<body>
+
+    <div class="card">
+
+        <!-- Logo -->
+        <div class="logo">
+            <svg class="logo-icon" viewBox="0 0 88.94 77.02" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path fill="#3949ac" stroke="none" stroke-miterlimit="10" stroke-width="3" d="M51.76,43.35L32.99,10.84,27.6,1.5H2.6l41.87,72.52,8.82-15.27,3.68-6.38-5.21-9.02ZM44.45,56.01L18.37,10.84h7.26l22.45,38.88-3.63,6.29Z" />
+                <polygon fill="#822c98" stroke="none" stroke-miterlimit="10" stroke-width="3" points="86.34 1.5 59.46 48.06 54.25 39.04 37.97 10.84 32.58 1.5 43.68 1.5 49.07 10.84 59.8 29.43 59.81 29.45 75.95 1.5 86.34 1.5" />
+            </svg>
+            <div>
+                <div class="logo-title">Override</div>
+                <div class="logo-subtitle">Documentation for developers</div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Language selection -->
+        <div class="lang-buttons">
+            <a class="lang-btn" href="/ru/">
+                <span class="lang-btn__flag">ʀᴜ</span>
+                <span class="lang-btn__text">
+                    <span class="lang-btn__name">Русский</span>
+                    <span class="lang-btn__native">Russian</span>
+                </span>
+            </a>
+            <a class="lang-btn" href="/en/">
+                <span class="lang-btn__flag">ᴇɴ</span>
+                <span class="lang-btn__text">
+                    <span class="lang-btn__name">English</span>
+                    <span class="lang-btn__native">Английский</span>
+                </span>
+            </a>
+        </div>
+
+        <!-- Shown only if JS is disabled -->
+        <noscript>
+            <p class="noscript-notice">
+                Автоматическое определение языка недоступно.<br>
+                Automatic language detection is unavailable.<br>
+                Please choose your language above.
+            </p>
+        </noscript>
+
+    </div>
+
+    <footer>
+        <div class="footer-inner">
+            <p class="footer-copy">© 2026 Obj-Proger. All rights reserved.</p>
+            <p class="footer-made">
+                Made with
+                <svg class="footer-heart" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                for developers
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>

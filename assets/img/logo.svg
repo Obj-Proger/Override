@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="logo" data-name="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 83.74 72.52">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #3949ac;
+      }
+
+      .cls-2 {
+        fill: #822c98;
+      }
+    </style>
+  </defs>
+  <g id="icon">
+    <path class="cls-1" d="M49.16,41.85L30.39,9.34,25,0H0l41.87,72.52,8.82-15.27,3.68-6.38-5.21-9.02ZM41.85,54.51L15.77,9.34h7.26l22.45,38.88-3.63,6.29Z"/>
+    <polygon class="cls-2" points="83.74 0 56.86 46.56 51.65 37.54 35.37 9.34 29.98 0 41.08 0 46.47 9.34 57.2 27.93 57.21 27.95 73.35 0 83.74 0"/>
+  </g>
+</svg>
