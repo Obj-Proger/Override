@@ -1,0 +1,787 @@
+/* SYNTAX HIGHLIGHTING: C#
+   Light theme */
+
+/* Placeholder — generic placeholder text, usually shown in italics */
+.token-cs-placeholder {
+    color: #6a737d;
+    font-style: italic;
+    font-weight: 500;
+}
+
+/* Keyword — type and declaration keywords: int, string, class, void, etc. */
+.token-cs-keyword {
+    color: #0000ff;
+}
+
+/* Keyword control — flow-control keywords: if, else, for, return, etc. */
+.token-cs-keyword-control {
+    color: #8b008b;
+}
+
+/* String — string literals */
+.token-cs-string {
+    color: #a31515;
+}
+
+/* JSON key — keys inside embedded JSON strings */
+.token-cs-json-key {
+    color: #74531f;
+}
+
+/* Escape sequence — \n, \t, \uXXXX, etc. */
+.token-cs-escape-sequence {
+    color: #ee82ee;
+}
+
+/* Comment — single-line and multi-line comments */
+.token-cs-comment {
+    color: #008000;
+    font-style: italic;
+}
+
+/* XML tag — XML element names inside C# XML documentation comments */
+.token-cs-xml-tag {
+    color: #808080;
+}
+
+/* XML attribute — attribute names inside XML documentation comments */
+.token-cs-xml-attribute {
+    color: #808080;
+}
+
+/* Number — integer, float, and hex literals */
+.token-cs-number {
+    color: #000000;
+}
+
+/* Attribute — C# attributes such as [Obsolete], [Serializable], etc. */
+.token-cs-attribute {
+    color: #2b91af;
+}
+
+/* Class — class, delegate, and record type names */
+.token-cs-class {
+    color: #2b91af;
+}
+
+/* Struct — struct type names */
+.token-cs-struct {
+    color: #2e8b57;
+}
+
+/* Interface — interface type names */
+.token-cs-interface {
+    color: #000000;
+}
+
+/* Enum — enum type names */
+.token-cs-enum {
+    color: #000000;
+}
+
+/* Enum constant — individual enum members */
+.token-cs-enum-constant {
+    color: #000000;
+}
+
+/* Generic type parameter — T, TKey, TValue, etc. */
+.token-cs-generic {
+    color: #000000;
+}
+
+/* Method — method and function names */
+.token-cs-method {
+    color: #74531f;
+}
+
+/* Property — property names */
+.token-cs-property {
+    color: #000000;
+}
+
+/* Field — class/struct field names */
+.token-cs-field {
+    color: #000000;
+}
+
+/* Namespace — namespace names */
+.token-cs-namespace {
+    color: #000080;
+}
+
+/* Variable — local variables and method parameters */
+.token-cs-variable {
+    color: #1f377f;
+}
+
+/* Preprocessor directive — #if, #define, #region, etc. */
+.token-cs-preprocessor {
+    color: #808080;
+}
+
+/* Preprocessor symbol — symbols used in #if/#define conditions */
+.token-cs-preprocessor-symbol {
+    color: #000000;
+}
+
+/* Value — true, false, null, default */
+.token-cs-value {
+    color: #0000ff;
+}
+
+/* Operator — =, +, ->, =>, >=, etc. */
+.token-cs-operator {
+    color: #000000;
+}
+
+/* Punctuation — ( ) { } [ ] ; , . */
+.token-cs-punctuation {
+    color: #000000;
+}
+
+/* DARK C# THEME OVERRIDES */
+
+/* Placeholder — generic placeholder text, usually shown in italics */
+body.dark .token-cs-placeholder {
+    color: #8b949e;
+    font-style: italic;
+}
+
+/* Keyword — type and declaration keywords */
+body.dark .token-cs-keyword {
+    color: #569cd6;
+}
+
+/* Keyword control — flow-control keywords */
+body.dark .token-cs-keyword-control {
+    color: #d8a0df;
+}
+
+/* String — string literals */
+body.dark .token-cs-string {
+    color: #d69d85;
+}
+
+/* JSON key — keys inside embedded JSON strings */
+body.dark .token-cs-json-key {
+    color: #dcdcaa;
+}
+
+/* Escape sequence — \n, \t, \uXXXX, etc. */
+body.dark .token-cs-escape-sequence {
+    color: #ffd68f;
+}
+
+/* Comment — single-line and multi-line comments */
+body.dark .token-cs-comment {
+    color: #57a64a;
+}
+
+/* XML tag — XML element names inside C# XML documentation comments */
+body.dark .token-cs-xml-tag {
+    color: #608b4e;
+}
+
+/* XML attribute — attribute names inside XML documentation comments */
+body.dark .token-cs-xml-attribute {
+    color: #608b4e;
+}
+
+/* Number — integer, float, and hex literals */
+body.dark .token-cs-number {
+    color: #b5cea8;
+}
+
+/* Attribute — C# attributes such as [Obsolete], [Serializable], etc. */
+body.dark .token-cs-attribute {
+    color: #4ec9b0;
+}
+
+/* Class — class, delegate, and record type names */
+body.dark .token-cs-class {
+    color: #4ec9b0;
+}
+
+/* Struct — struct type names */
+body.dark .token-cs-struct {
+    color: #86c691;
+}
+
+/* Interface — interface type names */
+body.dark .token-cs-interface {
+    color: #b8d7a3;
+}
+
+/* Enum — enum type names */
+body.dark .token-cs-enum {
+    color: #b8d7a3;
+}
+
+/* Enum constant — individual enum members */
+body.dark .token-cs-enum-constant {
+    color: #dcdcdc;
+}
+
+/* Generic type parameter — T, TKey, TValue, etc. */
+body.dark .token-cs-generic {
+    color: #b8d7a3;
+}
+
+/* Method — method and function names */
+body.dark .token-cs-method {
+    color: #dcdcaa;
+}
+
+/* Property — property names */
+body.dark .token-cs-property {
+    color: #dcdcdc;
+}
+
+/* Field — class/struct field names */
+body.dark .token-cs-field {
+    color: #dcdcdc;
+}
+
+/* Namespace — namespace names */
+body.dark .token-cs-namespace {
+    color: #dcdcdc;
+}
+
+/* Variable — local variables and method parameters */
+body.dark .token-cs-variable {
+    color: #9cdcfe;
+}
+
+/* Preprocessor directive — #if, #define, #region, etc. */
+body.dark .token-cs-preprocessor {
+    color: #9b9b9b;
+}
+
+/* Preprocessor symbol — symbols used in #if/#define conditions */
+body.dark .token-cs-preprocessor-symbol {
+    color: #dcdcdc;
+}
+
+/* Value — true, false, null, default */
+body.dark .token-cs-value {
+    color: #569cd6;
+}
+
+/* Operator — =, +, ->, =>, >=, etc. */
+body.dark .token-cs-operator {
+    color: #dcdcdc;
+}
+
+/* Punctuation — ( ) { } [ ] ; , . */
+body.dark .token-cs-punctuation {
+    color: #dcdcdc;
+}
+
+/* SYNTAX HIGHLIGHTING: VB.NET
+   Light theme */
+
+/* Keyword — Dim, Function, Class, As, etc. */
+.token-vb-keyword {
+    color: #0000ff;
+}
+
+/* Keyword control — If, Then, Else, For, While, Return, etc. */
+.token-vb-keyword-control {
+    color: #8b008b;
+}
+
+/* String — string literals */
+.token-vb-string {
+    color: #a31515;
+}
+
+/* Comment — ' single-line comments */
+.token-vb-comment {
+    color: #008000;
+    font-style: italic;
+}
+
+/* Number — integer, float, and hex literals */
+.token-vb-number {
+    color: #000000;
+}
+
+/* Class — class and type names */
+.token-vb-class {
+    color: #2b91af;
+}
+
+/* Method — Sub and Function names */
+.token-vb-method {
+    color: #74531f;
+}
+
+/* Property — property names */
+.token-vb-property {
+    color: #ff0000;
+}
+
+/* Namespace — namespace names */
+.token-vb-namespace {
+    color: #000080;
+}
+
+/* Variable — local variables and parameters */
+.token-vb-variable {
+    color: #0000ff;
+}
+
+/* Punctuation — ( ) , . : */
+.token-vb-punctuation {
+    color: #000000;
+}
+
+/* Operator — =, +, &, <>, etc. */
+.token-vb-operator {
+    color: #000000;
+}
+
+/* DARK VB.NET THEME OVERRIDES */
+
+/* Keyword — Dim, Function, Class, As, etc. */
+body.dark .token-vb-keyword {
+    color: #569cd6;
+}
+
+/* Keyword control — If, Then, Else, For, While, Return, etc. */
+body.dark .token-vb-keyword-control {
+    color: #c586c0;
+}
+
+/* String — string literals */
+body.dark .token-vb-string {
+    color: #d69d85;
+}
+
+/* Comment — ' single-line comments */
+body.dark .token-vb-comment {
+    color: #57a64a;
+}
+
+/* Number — integer, float, and hex literals */
+body.dark .token-vb-number {
+    color: #b5cea8;
+}
+
+/* Class — class and type names */
+body.dark .token-vb-class {
+    color: #4ec9b0;
+}
+
+/* Method — Sub and Function names */
+body.dark .token-vb-method {
+    color: #dcdcaa;
+}
+
+/* Property — property names */
+body.dark .token-vb-property {
+    color: #dcdcdc;
+}
+
+/* Namespace — namespace names */
+body.dark .token-vb-namespace {
+    color: #c8c8c8;
+}
+
+/* Variable — local variables and parameters */
+body.dark .token-vb-variable {
+    color: #9cdcfe;
+}
+
+/* Punctuation — ( ) , . : */
+body.dark .token-vb-punctuation {
+    color: #dcdcdc;
+}
+
+/* Operator — =, +, &, <>, etc. */
+body.dark .token-vb-operator {
+    color: #dcdcdc;
+}
+
+/* SYNTAX HIGHLIGHTING: Bash
+   Light theme */
+
+/* Driver — shebang / interpreter directive (#!/bin/bash, #!/usr/bin/env bash) */
+.token-bash-driver {
+    color: #0000ff;
+}
+
+/* Command — external command names (ls, git, dotnet, grep, etc.) */
+.token-bash-command {
+    color: #0000ff;
+}
+
+/* Flag — command-line options and switches (-v, --output, etc.) */
+.token-bash-flag {
+    color: #74531f;
+}
+
+/* Parameter — positional and special parameters ($1, $@, $#, etc.) */
+.token-bash-parameter {
+    color: #008080;
+}
+
+/* Builtin — shell built-in commands (echo, cd, export, source, etc.) */
+.token-bash-builtin {
+    color: #0000ff;
+}
+
+/* Variable — shell variables ($VAR, ${VAR}, etc.) */
+.token-bash-variable {
+    color: #0000ff;
+}
+
+/* Comment — # comments */
+.token-bash-comment {
+    color: #008000;
+    font-style: italic;
+}
+
+/* Punctuation — ; | & ( ) { } [ ] */
+.token-bash-punctuation {
+    color: #000000;
+}
+
+/* Operator — =, ==, -eq, >, >>, <, &&, ||, etc. */
+.token-bash-operator {
+    color: #000000;
+}
+
+/* Dark Bash theme overrides */
+
+/* Driver — shebang / interpreter directive (#!/bin/bash, #!/usr/bin/env bash) */
+body.dark .token-bash-driver {
+    color: #569cd6;
+}
+
+/* Command — external command names (ls, git, dotnet, grep, etc.) */
+body.dark .token-bash-command {
+    color: #569cd6;
+}
+
+/* Flag — command-line options and switches (-v, --output, etc.) */
+body.dark .token-bash-flag {
+    color: #dcdcaa;
+}
+
+/* Parameter — positional and special parameters ($1, $@, $#, etc.) */
+body.dark .token-bash-parameter {
+    color: #9cdcfe;
+}
+
+/* Builtin — shell built-in commands (echo, cd, export, source, etc.) */
+body.dark .token-bash-builtin {
+    color: #569cd6;
+}
+
+/* Variable — shell variables ($VAR, ${VAR}, etc.) */
+body.dark .token-bash-variable {
+    color: #9cdcfe;
+}
+
+/* Comment — # comments */
+body.dark .token-bash-comment {
+    color: #57a64a;
+}
+
+/* Punctuation — ; | & ( ) { } [ ] */
+body.dark .token-bash-punctuation {
+    color: #dcdcdc;
+}
+
+/* Operator — =, ==, -eq, >, >>, <, &&, ||, etc. */
+body.dark .token-bash-operator {
+    color: #dcdcdc;
+}
+
+/* SYNTAX HIGHLIGHTING: INI
+   Light theme */
+
+/* Section — section headers like [section] */
+.token-ini-section {
+    color: #0000ff;
+}
+
+/* Key — names before the = sign */
+.token-ini-key {
+    color: #0000ff;
+}
+
+/* Value — values after the = sign */
+.token-ini-value {
+    color: #a31515;
+}
+
+/* Comment — ; or # comments */
+.token-ini-comment {
+    color: #008000;
+    font-style: italic;
+}
+
+/* Punctuation — [ ] */
+.token-ini-punctuation {
+    color: #000000;
+}
+
+/* Operator — = separator */
+.token-ini-operator {
+    color: #000000;
+}
+
+/* Dark INI theme overrides */
+
+/* Keyword — section headers and keys (if you keep this token name) */
+body.dark .token-ini-keyword {
+    color: #569cd6;
+}
+
+/* Value — values after the = sign */
+body.dark .token-ini-value {
+    color: #d69d85;
+}
+
+/* Comment — ; or # comments */
+body.dark .token-ini-comment {
+    color: #57a64a;
+}
+
+/* Punctuation — [ ] */
+body.dark .token-ini-punctuation {
+    color: #dcdcdc;
+}
+
+/* Operator — = separator */
+body.dark .token-ini-operator {
+    color: #dcdcdc;
+}
+
+/* SYNTAX HIGHLIGHTING: YAML
+   Light theme */
+
+/* Key — mapping keys in key: value pairs */
+.token-yaml-key {
+    color: #0000ff;
+}
+
+/* Value — scalar values, strings, numbers, booleans, and null */
+.token-yaml-value {
+    color: #a31515;
+}
+
+/* Comment — # comments */
+.token-yaml-comment {
+    color: #008000;
+    font-style: italic;
+}
+
+/* Punctuation — -, [ ], { }, |, > */
+.token-yaml-punctuation {
+    color: #000000;
+}
+
+/* Operator — : key-value separator */
+.token-yaml-operator {
+    color: #000000;
+}
+
+/* Dark YAML theme overrides */
+
+/* Key — mapping keys in key: value pairs */
+body.dark .token-yaml-key {
+    color: #569cd6;
+}
+
+/* Value — scalar values, strings, numbers, booleans, and null */
+body.dark .token-yaml-value {
+    color: #d69d85;
+}
+
+/* Comment — # comments */
+body.dark .token-yaml-comment {
+    color: #57a64a;
+}
+
+/* Punctuation — -, [ ], { }, |, > */
+body.dark .token-yaml-punctuation {
+    color: #dcdcdc;
+}
+
+/* Operator — : key-value separator */
+body.dark .token-yaml-operator {
+    color: #dcdcdc;
+}
+
+/* SYNTAX HIGHLIGHTING: JSON
+   Light theme */
+
+/* Key — property names inside quotes ("name", "version", etc.) */
+.token-json-key {
+    color: #2E75B6;
+}
+
+/* String value — "hello", "net9.0", etc. */
+.token-json-value-string {
+    color: #A31515;
+}
+
+/* Numeric value — 42, 3.14, -100, etc. */
+.token-json-value-number {
+    color: #000000;
+}
+
+/* Boolean value — true, false */
+.token-json-value-boolean {
+    color: #0000FF;
+}
+
+/* Null value — null */
+.token-json-value-null {
+    color: #0000FF;
+}
+
+/* Punctuation — { }, [ ], :, , */
+.token-json-punctuation {
+    color: #000000;
+}
+
+/* Dark JSON theme overrides */
+
+/* Key — property names inside quotes ("name", "version", etc.) */
+body.dark .token-json-key {
+    color: #D7BA7D;
+}
+
+/* String value — "hello", "net9.0", etc. */
+body.dark .token-json-value-string {
+    color: #D69D85;
+}
+
+/* Numeric value — 42, 3.14, -100, etc. */
+body.dark .token-json-value-number {
+    color: #B5CEA8;
+}
+
+/* Boolean value — true, false */
+body.dark .token-json-value-boolean {
+    color: #569CD6;
+}
+
+/* Null value — null */
+body.dark .token-json-value-null {
+    color: #569CD6;
+}
+
+/* Punctuation — { }, [ ], :, , */
+body.dark .token-json-punctuation {
+    color: #808080;
+}
+
+/* SYNTAX HIGHLIGHTING: XML
+   Light theme */
+
+/* Tag — element names (<Project>, <PropertyGroup>, etc.) */
+.token-xml-tag {
+    color: #A31515;
+}
+
+/* Attribute — attribute names (Version, Include, Condition, etc.) */
+.token-xml-attribute {
+    color: #FF0000;
+}
+
+/* Value — quoted attribute values ("net9.0", "Newtonsoft.Json", etc.) */
+.token-xml-value {
+    color: #000000;
+}
+
+/* Comment — <!-- Сomments --> */
+.token-xml-comment {
+    color: #008000;
+}
+
+/* CDATA — <![CDATA[ ... ]]> sections */
+.token-xml-cdata {
+    color: #808080;
+}
+
+/* XML declaration — <?xml version="1.0" encoding="utf-8"?> */
+.token-xml-declaration {
+    color: #FF0000;
+}
+
+/* Document type declaration — <!DOCTYPE ...> */
+.token-xml-doctype {
+    color: #FF0000;
+}
+
+/* Entity reference — &amp;, &lt;, &gt;, &quot;, etc. */
+.token-xml-entity {
+    color: #FF0000;
+}
+
+/* Punctuation — <, >, </, />, ?, ! */
+.token-xml-punctuation {
+    color: #0000FF;
+}
+
+/* Operator — = in attribute assignments */
+.token-xml-operator {
+    color: #0000FF;
+}
+
+/* Dark XML theme overrides */
+
+/* Tag — element names (<Project>, <PropertyGroup>, etc.) */
+body.dark .token-xml-tag {
+    color: #569CD6;
+}
+
+/* Attribute — attribute names (Version, Include, Condition, etc.) */
+body.dark .token-xml-attribute {
+    color: #92CAF4;
+}
+
+/* Value — quoted attribute values ("net9.0", "Newtonsoft.Json", etc.) */
+body.dark .token-xml-value {
+    color: #C8C8C8;
+}
+
+/* Comment — <!-- Сomments --> */
+body.dark .token-xml-comment {
+    color: #57A64A;
+}
+
+/* CDATA — <![CDATA[ ... ]]> sections */
+body.dark .token-xml-cdata {
+    color: #E9D585;
+}
+
+/* XML declaration — <?xml version="1.0" encoding="utf-8"?> */
+body.dark .token-xml-declaration {
+    color: #92CAF4;
+}
+
+/* Document type declaration — <!DOCTYPE ...> */
+body.dark .token-xml-doctype {
+    color: #92CAF4;
+}
+
+/* Entity reference — &amp;, &lt;, &gt;, &quot;, etc. */
+body.dark .token-xml-entity {
+    color: #92CAF4;
+}
+
+/* Punctuation — <, >, </, />, ?, ! */
+body.dark .token-xml-punctuation {
+    color: #808080;
+}
+
+/* Operator — = in attribute assignments */
+body.dark .token-xml-operator {
+    color: #808080;
+}

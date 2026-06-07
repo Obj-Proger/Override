@@ -327,17 +327,18 @@
             function isInLangFolder() {
                 var path = window.location.pathname;
                 return SUPPORTED.some(function (lang) {
-                    return path.startsWith('/' + lang + '/') || path === '/' + lang;
+                    return path.endsWith('/' + lang + '/') || path.endsWith('/' + lang);
                 });
             }
 
             if (!isInLangFolder()) {
-                var saved  = localStorage.getItem(KEY);
+                var saved = localStorage.getItem(KEY);
                 var target = (saved && SUPPORTED.indexOf(saved) !== -1)
-                           ? saved
-                           : (getBrowserLang() || DEFAULT);
+                    ? saved
+                    : (getBrowserLang() || DEFAULT);
+
                 localStorage.setItem(KEY, target);
-                window.location.replace('/' + target + '/');
+                window.location.replace(target + '/');
             }
         })();
     </script>

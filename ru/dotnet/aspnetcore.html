@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ASP.NET Core</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/img/dotnet.svg">
+    <link rel="stylesheet" href="/assets/css/style.css" />
+    <script src="/assets/js/main.js" defer></script>
+    <script src="/assets/js/search-index.js" defer></script>
+    <script src="/assets/js/search.js" defer></script>
+</head>
+<body>
+    <header>
+        <button id="toggle" aria-controls="menu" aria-expanded="false">
+            <svg class="btn-icon" viewBox="0 0 49.6 40.74" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M0,2.66C0,1.19,1.19,0,2.66,0h44.28c1.47,0,2.66,1.19,2.66,2.66s-1.19,2.66-2.66,2.66H2.66c-1.47,0-2.66-1.19-2.66-2.66ZM0,20.37c0-1.47,1.19-2.66,2.66-2.66h44.28c1.47,0,2.66,1.19,2.66,2.66s-1.19,2.66-2.66,2.66H2.66c-1.47,0-2.66-1.19-2.66-2.66ZM2.66,35.43h44.28c1.47,0,2.66,1.19,2.66,2.66s-1.19,2.66-2.66,2.66H2.66c-1.47,0-2.66-1.19-2.66-2.66s1.19-2.66,2.66-2.66Z" /></svg>
+            <span class="btn-label">Меню</span>
+        </button>
+        <button id="collapse-all" class="collapse-all-btn" title="Свернуть все разделы">
+            <svg class="btn-icon" viewBox="0 0 58.75 33.78" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1.29,32.49c-1.72-1.72-1.72-4.5,0-6.22,0,0,0,0,0,0L26.26,1.29c1.72-1.72,4.5-1.72,6.22,0,0,0,0,0,0,0l24.97,24.97c1.72,1.72,1.72,4.51,0,6.23-1.72,1.72-4.51,1.72-6.23,0L29.37,10.64,7.52,32.49c-1.72,1.72-4.5,1.72-6.22,0,0,0,0,0,0,0Z" /></svg>
+            <span class="btn-label">Свернуть</span>
+        </button>
+        <button id="theme-switch" class="theme-toggle" aria-label="Переключить тему"></button>
+    </header>
+
+    <nav id="menu">
+        <details class="details">
+            <summary class="summary">.Net</summary>
+            <div class="sub">
+                <a href="/ru/dotnet/aspnetcore.html">
+                    <img src="/assets/img/dotnet.svg" alt="ASP.NET Core" width="16" height="16">
+                    ASP.NET Core
+                </a>
+                <a href="/ru/dotnet/csharp.html">
+                    <img src="/assets/img/csharp.svg" alt="C#" width="16" height="16">
+                    C#
+                </a>
+                <a href="/ru/dotnet/efcore.html">
+                    <img src="/assets/img/dotnet.svg" alt="EF Core" width="16" height="16">
+                    Entity Framework Core
+                </a>
+                <a href="/ru/dotnet/maui.html">
+                    <img src="/assets/img/dotnet.svg" alt="MAUI" width="16" height="16">
+                    MAUI
+                </a>
+            </div>
+        </details>
+        <a href="/ru/postgresql.html" class="nav-single">
+            <img src="/assets/img/postgresql.svg" alt="PostgreSQL" width="16" height="16">
+            PostgreSQL
+        </a>
+    </nav>
+
+    <main>
+        <div class="page-title">
+            <img src="/assets/img/dotnet.svg" alt="ASP.NET Core" width="50" height="50">
+            <h1>ASP.NET Core</h1>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <p class="footer-copy">© 2026 Obj-Proger. Все права защищены.</p>
+            <p class="footer-made">
+                Сделано с <svg class="footer-heart" viewBox="0 0 24 24" xmlns="http://w3.org" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> для разработчиков
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

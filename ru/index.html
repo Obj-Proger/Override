@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Override</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg">
+    <link rel="stylesheet" href="/assets/css/style.css" />
+    <script src="/assets/js/main.js" defer></script>
+    <script src="/assets/js/search-index.js" defer></script>
+    <script src="/assets/js/search.js" defer></script>
+</head>
+<body>
+    <header>
+        <button id="toggle" aria-controls="menu" aria-expanded="false">
+            <svg class="btn-icon" viewBox="0 0 49.6 40.74" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M0,2.66C0,1.19,1.19,0,2.66,0h44.28c1.47,0,2.66,1.19,2.66,2.66s-1.19,2.66-2.66,2.66H2.66c-1.47,0-2.66-1.19-2.66-2.66ZM0,20.37c0-1.47,1.19-2.66,2.66-2.66h44.28c1.47,0,2.66,1.19,2.66,2.66s-1.19,2.66-2.66,2.66H2.66c-1.47,0-2.66-1.19-2.66-2.66ZM2.66,35.43h44.28c1.47,0,2.66,1.19,2.66,2.66s-1.19,2.66-2.66,2.66H2.66c-1.47,0-2.66-1.19-2.66-2.66s1.19-2.66,2.66-2.66Z" /></svg>
+            <span class="btn-label">Меню</span>
+        </button>
+        <button id="collapse-all" class="collapse-all-btn" title="Свернуть все разделы" style="visibility: hidden">
+            <svg class="btn-icon" viewBox="0 0 58.75 33.78" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1.29,32.49c-1.72-1.72-1.72-4.5,0-6.22,0,0,0,0,0,0L26.26,1.29c1.72-1.72,4.5-1.72,6.22,0,0,0,0,0,0,0l24.97,24.97c1.72,1.72,1.72,4.51,0,6.23-1.72,1.72-4.51,1.72-6.23,0L29.37,10.64,7.52,32.49c-1.72,1.72-4.5,1.72-6.22,0,0,0,0,0,0,0Z" /></svg>
+            <span class="btn-label">Свернуть</span>
+        </button>
+        <button id="theme-switch" class="theme-toggle" aria-label="Переключить тему"></button>
+    </header>
+
+    <nav id="menu">
+        <details class="details">
+            <summary class="summary">.Net</summary>
+            <div class="sub">
+                <a href="/ru/dotnet/aspnetcore.html">
+                    <img src="/assets/img/dotnet.svg" alt="ASP.NET Core" width="16" height="16">
+                    ASP.NET Core
+                </a>
+                <a href="/ru/dotnet/csharp.html">
+                    <img src="/assets/img/csharp.svg" alt="C#" width="16" height="16">
+                    C#
+                </a>
+                <a href="/ru/dotnet/efcore.html">
+                    <img src="/assets/img/dotnet.svg" alt="EF Core" width="16" height="16">
+                    Entity Framework Core
+                </a>
+                <a href="/ru/dotnet/maui.html">
+                    <img src="/assets/img/dotnet.svg" alt="MAUI" width="16" height="16">
+                    MAUI
+                </a>
+            </div>
+        </details>
+        <a href="/ru/postgresql.html" class="nav-single">
+            <img src="/assets/img/postgresql.svg" alt="PostgreSQL" width="16" height="16">
+            PostgreSQL
+        </a>
+    </nav>
+
+    <main>
+
+        <div class="page-title">
+            <svg viewBox="0 0 88.94 77.02" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="50" height="50">
+                <path fill="#3949ac" d="M51.76,43.35L32.99,10.84,27.6,1.5H2.6l41.87,72.52,8.82-15.27,3.68-6.38-5.21-9.02ZM44.45,56.01L18.37,10.84h7.26l22.45,38.88-3.63,6.29Z" />
+                <polygon fill="#822c98" points="86.34 1.5 59.46 48.06 54.25 39.04 37.97 10.84 32.58 1.5 43.68 1.5 49.07 10.84 59.8 29.43 59.81 29.45 75.95 1.5 86.34 1.5" />
+            </svg>
+            <h1>Добро пожаловать в Override</h1>
+        </div>
+
+        <p class="home-intro">Справочник для разработчиков — краткие и структурированные материалы по языкам и технологиям. Выберите раздел из списка ниже.</p>
+
+        <div class="home-sections">
+            <details class="section-card">
+                <summary>
+                    <img class="section-card-icon" src="/assets/img/dotnet.svg" alt=".NET">
+                    <span class="section-card-meta">
+                        <span class="section-card-title">.NET</span>
+                        <span class="section-card-desc">Кроссплатформенная платформа для разработки приложений: веб-сервисов, мобильных, десктопных и облачных решений.</span>
+                    </span>
+                    <svg class="section-card-chevron" viewBox="0 0 24 24" aria-hidden="true">
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                </summary>
+                <div class="section-card-body">
+                    <div class="section-card-group">
+                        <div class="section-card-group-title">Платформа и язык</div>
+                        <a href="/ru/dotnet/csharp.html">
+                            <img src="/assets/img/csharp.svg" alt="C#">
+                            <span>C#</span>
+                            <span class="link-desc">Основной язык экосистемы .NET для разработки приложений любого типа.</span>
+                        </a>
+                    </div>
+                    <div class="section-card-group">
+                        <div class="section-card-group-title">Веб-разработка</div>
+                        <a href="/ru/dotnet/aspnetcore.html">
+                            <img src="/assets/img/dotnet.svg" alt="ASP.NET Core">
+                            <span>ASP.NET Core</span>
+                            <span class="link-desc">Фреймворк для создания веб-приложений, REST API и серверной логики.</span>
+                        </a>
+                    </div>
+                    <div class="section-card-group">
+                        <div class="section-card-group-title">Работа с данными</div>
+                        <a href="/ru/dotnet/efcore.html">
+                            <img src="/assets/img/dotnet.svg" alt="EF Core">
+                            <span>Entity Framework Core</span>
+                            <span class="link-desc">ORM для работы с базами данных через объекты C#.</span>
+                        </a>
+                    </div>
+                    <div class="section-card-group">
+                        <div class="section-card-group-title">Мобильные и десктоп</div>
+                        <a href="/ru/dotnet/maui.html">
+                            <img src="/assets/img/dotnet.svg" alt="MAUI">
+                            <span>MAUI</span>
+                            <span class="link-desc">Фреймворк для создания кроссплатформенных мобильных и десктопных приложений.</span>
+                        </a>
+                    </div>
+                </div>
+            </details>
+
+            <a class="section-card-link" href="/ru/postgresql.html">
+                <img class="section-card-icon" src="/assets/img/postgresql.svg" alt="PostgreSQL">
+                <span class="section-card-meta">
+                    <span class="section-card-title">PostgreSQL</span>
+                    <span class="section-card-desc">Объектно-реляционная СУБД для хранения и обработки данных.</span>
+                </span>
+                <svg class="section-card-chevron" viewBox="0 0 24 24" aria-hidden="true">
+                    <polyline points="9 18 15 12 9 6" />
+                </svg>
+            </a>
+
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <p class="footer-copy">© 2026 Obj-Proger. Все права защищены.</p>
+            <p class="footer-made">
+                Сделано с <svg class="footer-heart" viewBox="0 0 24 24" xmlns="http://w3.org" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> для разработчиков
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

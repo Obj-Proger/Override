@@ -48,6 +48,7 @@ tramp
 .vscode/
 Debug/
 Release/
+Web.config
 
 # Nano
 .nano_history

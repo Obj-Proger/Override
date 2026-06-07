@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>C#</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/img/csharp.svg">
+    <link rel="stylesheet" href="/assets/css/style.css" />
+    <link rel="stylesheet" href="/assets/css/syntax-highlighting.css" />
+    <script src="/assets/js/main.js" defer></script>
+    <script src="/assets/js/search-index.js" defer></script>
+    <script src="/assets/js/search.js" defer></script>
+</head>
+<body>
+    <header>
+        <button id="toggle" aria-controls="menu" aria-expanded="false">
+            <svg class="btn-icon" viewBox="0 0 49.6 40.74" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M0,2.66C0,1.19,1.19,0,2.66,0h44.28c1.47,0,2.66,1.19,2.66,2.66s-1.19,2.66-2.66,2.66H2.66c-1.47,0-2.66-1.19-2.66-2.66ZM0,20.37c0-1.47,1.19-2.66,2.66-2.66h44.28c1.47,0,2.66,1.19,2.66,2.66s-1.19,2.66-2.66,2.66H2.66c-1.47,0-2.66-1.19-2.66-2.66ZM2.66,35.43h44.28c1.47,0,2.66,1.19,2.66,2.66s-1.19,2.66-2.66,2.66H2.66c-1.47,0-2.66-1.19-2.66-2.66s1.19-2.66,2.66-2.66Z" /></svg>
+            <span class="btn-label">Меню</span>
+        </button>
+        <button id="collapse-all" class="collapse-all-btn" title="Свернуть все разделы">
+            <svg class="btn-icon" viewBox="0 0 58.75 33.78" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1.29,32.49c-1.72-1.72-1.72-4.5,0-6.22,0,0,0,0,0,0L26.26,1.29c1.72-1.72,4.5-1.72,6.22,0,0,0,0,0,0,0l24.97,24.97c1.72,1.72,1.72,4.51,0,6.23-1.72,1.72-4.51,1.72-6.23,0L29.37,10.64,7.52,32.49c-1.72,1.72-4.5,1.72-6.22,0,0,0,0,0,0,0Z" /></svg>
+            <span class="btn-label">Свернуть</span>
+        </button>
+        <button id="theme-switch" class="theme-toggle" aria-label="Переключить тему"></button>
+    </header>
+
+    <nav id="menu">
+        <details class="details">
+            <summary class="summary">.Net</summary>
+            <div class="sub">
+                <a href="/ru/dotnet/aspnetcore.html">
+                    <img src="/assets/img/dotnet.svg" alt="ASP.NET Core" width="16" height="16">
+                    ASP.NET Core
+                </a>
+                <a href="/ru/dotnet/efcore.html">
+                    <img src="/assets/img/dotnet.svg" alt="EF Core" width="16" height="16">
+                    Entity Framework Core
+                </a>
+                <a href="/ru/dotnet/maui.html">
+                    <img src="/assets/img/dotnet.svg" alt="MAUI" width="16" height="16">
+                    MAUI
+                </a>
+            </div>
+        </details>
+        <a href="/ru/postgresql.html" class="nav-single">
+            <img src="/assets/img/postgresql.svg" alt="PostgreSQL" width="16" height="16">
+            PostgreSQL
+        </a>
+    </nav>
+
+    <main>
+        <div class="page-title">
+            <img src="/assets/img/csharp.svg" alt="C#" width="50" height="50">
+            <h1>Си шарп</h1>
+        </div>
+
+        <!-- 1. Введение в C# и платформу .NET -->
+        <details id="section-1">
+            <summary>1. Введение в C# и платформу .NET</summary>
+
+            <!-- 1.1. Обзор платформы .NET -->
+            <details id="section-1.1">
+                <summary>1.1. Обзор платформы .NET</summary>
+                <div>
+                    <h3>История и эволюция:</h3>
+                    <ul>
+                        <li>
+                            <strong>.NET Framework:</strong>
+                            <ul>
+                                <li>Исходная реализация платформы.</li>
+                                <li>Глубокая интеграция с операционной системой, ограниченная кроссплатформенность.</li>
+                                <li>Предназначена исключительно для Windows.</li>
+                                <li>Основные версии: от 1.0 до 4.8.1.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>.NET Core:</strong>
+                            <ul>
+                                <li>Полная переработка платформы с ориентацией на кроссплатформенность (Windows, Linux, macOS).</li>
+                                <li>Модульная архитектура, допускающая развёртывание только необходимых компонентов.</li>
+                                <li>Высокая производительность.</li>
+                                <li>Основные версии: от 1.0 до 3.1.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>.NET (начиная с версии 5):</strong>
+                            <ul>
+                                <li>Развитие платформы .NET Core в виде единой современной платформы .NET.</li>
+                                <li>.NET Framework остался отдельной платформой, поддерживаемой только на Windows.</li>
+                                <li>Общий runtime и единая экосистема для большинства типов приложений.</li>
+                                <li>Начиная с .NET 6 Microsoft придерживается стратегии, при которой версии с чётными номерами обычно получают статус <strong>LTS (Long Term Support)</strong> с продолжительным периодом сопровождения.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Составляющие платформы .NET:</h3>
+                    <ul>
+                        <li>
+                            <strong>CLR (Common Language Runtime)</strong> — среда выполнения управляемого кода. Обеспечивает загрузку сборок, <code>JIT</code>-компиляцию, управление памятью (сборку мусора), проверку типов и обработку исключений.
+                            <ul>
+                                <li>В .NET для настольных и серверных платформ (Windows, Linux, macOS) среда выполнения основана на <strong>CoreCLR</strong>. Для мобильных платформ (Android, iOS) и Mac Catalyst в .NET MAUI используется среда выполнения <strong>Mono</strong>.</li>
+                            </ul>
+                        </li>
+                        <li><strong>BCL (Base Class Library)</strong> — базовая библиотека классов. Включает фундаментальные типы данных, коллекции, средства работы с файловой системой, сетью, потоками, текстом и XML. В состав платформы также входят современные API сериализации JSON (<code>System.Text.Json</code>) и другие стандартные библиотеки.</li>
+                        <li><strong>SDK (Software Development Kit)</strong> — комплект средств разработки. Включает компилятор Roslyn, интерфейс командной строки <code>dotnet</code>, шаблоны проектов и утилиты сборки.</li>
+                        <li>
+                            <strong>Рабочие нагрузки (Workloads)</strong> — специализированные наборы компонентов, устанавливаемые поверх SDK или через установщик Visual Studio для поддержки конкретных типов приложений. В интерфейсе Visual Studio они представлены следующими типовыми наборами:
+                            <ul>
+                                <li><strong>ASP.NET and Web Development</strong> — создание веб-приложений, API и одностраничных приложений (Blazor, React, Angular).</li>
+                                <li><strong>.NET Desktop Development</strong> — разработка настольных приложений Windows с использованием WPF и Windows Forms.</li>
+                                <li><strong>Windows App SDK (WinUI)</strong> — разработка современных настольных приложений Windows с использованием WinUI 3.</li>
+                                <li><strong>.NET Multi-platform App UI (MAUI)</strong> — создание кроссплатформенных приложений для Android, iOS, macOS и Windows из единой кодовой базы.</li>
+                                <li><strong>Azure Development</strong> — инструменты для создания приложений, развёртываемых в облаке Azure, и работы с рабочими процессами.</li>
+                                <li><strong>Game Development with Unity</strong> — средства разработки игр на языке C#.</li>
+                            </ul>
+                        </li>
+                        <li>При использовании командной строки (CLI) для управления рабочими нагрузками применяются идентификаторы рабочих нагрузок (workload IDs) (например, <code>dotnet workload install maui</code>, <code>dotnet workload install wasm-tools</code>). Базовые шаблоны SDK позволяют создавать консольные приложения и библиотеки классов без установки дополнительных workloads.</li>
+                    </ul>
+
+                    <h3>Управляемый код и среда CLR:</h3>
+                    <ul>
+                        <li><strong>Управляемый код (Managed Code)</strong> — код, выполняемый под контролем среды CLR.</li>
+                        <li>
+                            <strong>Процесс компиляции и выполнения:</strong>
+                            <ul>
+                                <li>Исходный код на языке C# компилируется в промежуточный язык — <code>IL</code> (также обозначается как <code>CIL</code> или <code>MSIL</code>) — платформонезависимый набор инструкций.</li>
+                                <li><code>IL</code>-код сохраняется в сборке (файле с расширением <code>.exe</code> или <code>.dll</code>) совместно с метаданными, описывающими типы и их члены.</li>
+                                <li>При запуске приложения CLR загружает сборку и применяет <code>JIT</code>-компилятор для преобразования <code>IL</code> в машинный код, специфичный для текущей архитектуры процессора (<code>x86</code>, <code>x64</code>, <code>ARM</code>).</li>
+                                <li>Обычно <code>JIT</code>-компиляция выполняется при первом использовании метода.</li>
+                                <li>Сгенерированный машинный код хранится в памяти процесса во время выполнения приложения.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong><code>JIT</code>-компиляция (Just-In-Time):</strong>
+                            <ul>
+                                <li>Преобразование <code>IL</code> в машинный код непосредственно перед выполнением метода.</li>
+                                <li><strong>Преимущества:</strong> переносимость сборок, возможность runtime-оптимизаций под конкретную архитектуру процессора.</li>
+                                <li><strong>Недостатки:</strong> незначительная задержка при первом вызове метода, расход памяти на хранение скомпилированного кода.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong><code>AOT</code>-компиляция (Ahead-Of-Time):</strong>
+                            <ul>
+                                <li>Основная часть <code>IL</code>-кода заранее компилируется в машинный код на этапе публикации приложения.</li>
+                                <li>Режим <strong><code>Native AOT</code></strong> доступен начиная с .NET 7.</li>
+                                <li><strong>Преимущества:</strong> сокращённое время запуска, сниженное потребление памяти, возможность выполнения на системах без отдельно установленного .NET Runtime, поскольку необходимые компоненты среды выполнения включаются в публикацию.</li>
+                                <li><strong>Недостатки:</strong> увеличение размера исполняемого файла. Некоторые <code>JIT</code>-оптимизации времени выполнения недоступны, поскольку код компилируется заранее, ограничения на использование рефлексии и динамической генерации кода.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Сборка мусора (Garbage Collection, GC):</h3>
+                    <ul>
+                        <li><strong>Назначение</strong> — автоматическое освобождение памяти, занятой объектами, которые больше не достижимы из корневых ссылок приложения (GC Roots).</li>
+                        <li>Управляемая куча (Managed Heap) используется главным образом для размещения объектов ссылочных типов и других данных, требующих динамического выделения памяти (упакованные значимые типы, массивы, строки и т.д.).</li>
+                        <li>
+                            <strong>Поколения (Generations):</strong>
+                            <ul>
+                                <li>Поколение 0 — новые объекты. Сборка выполняется наиболее часто.</li>
+                                <li>Поколение 1 — объекты, пережившие одну сборку поколения 0.</li>
+                                <li>Поколение 2 — долгоживущие объекты. Сборка выполняется редко.</li>
+                            </ul>
+                        </li>
+                        <li>Крупные объекты дополнительно размещаются в Large Object Heap (LOH).</li>
+                        <li>
+                            <strong>Принцип работы:</strong>
+                            <ul>
+                                <li>GC запускается автоматически CLR на основе эвристик (набора гибких правил) использования памяти.</li>
+                                <li>Некоторые фазы GC могут временно приостанавливать управляемые потоки.</li>
+                                <li>Освобождает память, занятую недостижимыми объектами.</li>
+                                <li>Может выполнять уплотнение кучи для уменьшения фрагментации памяти (не для всех поколений и не во всех режимах).</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Финализаторы (деструкторы):</strong>
+                            <ul>
+                                <li>Методы вида <code>~ClassName()</code>, вызываемые сборщиком мусора перед окончательным освобождением памяти объекта. Финализатор может выполняться значительно позже момента потери всех ссылок на объект.</li>
+                                <li>Обычно используются как резервный механизм освобождения неуправляемых ресурсов.</li>
+                                <li>Использование без крайней необходимости не рекомендуется.</li>
+                                <li>Предпочтительным является применение интерфейса <code>IDisposable</code> и конструкции <code>using</code>.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Языки платформы .NET (Common Language Infrastructure, CLI):</h3>
+                    <ul>
+                        <li><strong>C#</strong> — основной язык платформы. Объектно-ориентированный, со строгой статической типизацией.</li>
+                        <li><strong>F#</strong> — мультипарадигмальный язык с акцентом на функциональное программирование.</li>
+                        <li><strong>Visual Basic .NET</strong> — объектно-ориентированный язык с синтаксисом, приближенным к естественному английскому.</li>
+                        <li><strong>Совместимость языков</strong> обеспечивается общей системой типов CTS (Common Type System) и инфраструктурой CLI. Большинство языков платформы используют типы BCL. Допускается вызов кода, написанного на одном языке, из другого.</li>
+                    </ul>
+
+                    <h3>Пример межъязыкового взаимодействия (C# и Visual Basic .NET):</h3>
+                    <ul>
+                        <li>
+                            <strong>Класс библиотеки на C#:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">namespace</span><span class="token-cs-punctuation"> </span><span class="token-cs-namespace">Utilities</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Calculator</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Add</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Код на Visual Basic .NET, использующий класс из C#:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>VB.NET</span></div>
+                                <pre><code class="language-vbnet"><span class="token-vb-keyword">Imports</span><span class="token-vb-punctuation"> </span><span class="token-vb-namespace">System</span>
+<span class="token-vb-keyword">Imports</span><span class="token-vb-punctuation"> </span><span class="token-vb-namespace">Utilities</span>
+<span class="token-vb-keyword">Module</span><span class="token-vb-punctuation"> </span><span class="token-vb-class">Program</span>
+<span class="token-vb-punctuation">    </span><span class="token-vb-keyword">Sub</span><span class="token-vb-punctuation"> </span><span class="token-vb-method">Main</span><span class="token-vb-punctuation">()</span>
+<span class="token-vb-punctuation">        </span><span class="token-vb-keyword">Dim</span><span class="token-vb-punctuation"> </span><span class="token-vb-variable">calc</span><span class="token-vb-punctuation"> </span><span class="token-vb-keyword">As</span><span class="token-vb-punctuation"> </span><span class="token-vb-keyword">New</span><span class="token-vb-punctuation"> </span><span class="token-vb-class">Calculator</span><span class="token-vb-punctuation">()</span>
+<span class="token-vb-punctuation">        </span><span class="token-vb-class">Console</span><span class="token-vb-operator">.</span><span class="token-vb-method">WriteLine</span><span class="token-vb-punctuation">(</span><span class="token-vb-variable">calc</span><span class="token-vb-operator">.</span><span class="token-vb-method">Add</span><span class="token-vb-punctuation">(</span><span class="token-vb-number">2</span><span class="token-vb-punctuation">, </span><span class="token-vb-number">3</span><span class="token-vb-punctuation">))</span>
+<span class="token-vb-punctuation">    </span><span class="token-vb-keyword">End</span><span class="token-vb-punctuation"> </span><span class="token-vb-keyword">Sub</span>
+<span class="token-vb-keyword">End</span><span class="token-vb-punctuation"> </span><span class="token-vb-keyword">Module</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 1.2. Установка и инструменты разработки -->
+            <details id="section-1.2">
+                <summary>1.2. Установка и инструменты разработки</summary>
+                <div>
+                    <h3>Установка .NET SDK:</h3>
+                    <ul>
+                        <li>Для начала разработки на языке C# с использованием платформы .NET требуется установка .NET SDK (Software Development Kit). SDK включает компилятор, инструменты сборки, шаблоны проектов, CLI и соответствующую версию .NET Runtime.</li>
+                        <li>Дистрибутивы .NET SDK доступны для загрузки с официального веб-сайта dotnet.microsoft.com. Платформа поддерживает операционные системы Windows, Linux и macOS. Предоставляются установщики для графической установки, а также скрипты и пакеты для менеджеров пакетов операционных систем (APT, DNF/YUM, Homebrew).</li>
+                        <li>
+                            <strong>Версии .NET SDK классифицируются по типу поддержки:</strong>
+                            <ul>
+                                <li><strong>LTS (Long Term Support)</strong> — версии с долгосрочной поддержкой продолжительностью три года. Рекомендуются для промышленной эксплуатации и проектов, требующих стабильности.</li>
+                                <li><strong>STS (Standard Term Support)</strong> — версии со стандартным сроком поддержки (начиная с .NET 9 — два года). Содержат более новые возможности языка и платформы.</li>
+                            </ul>
+                        </li>
+                        <li>Допускается параллельная установка нескольких версий .NET SDK и соответствующих сред выполнения на одной рабочей станции. <code>TargetFramework</code> задаёт целевую платформу. Версия SDK дополнительно может фиксироваться через файл <code>global.json</code>.</li>
+                        <li>
+                            Проверка корректности установки и получение сведений о текущем окружении выполняется командой:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-flag">--info</span></code></pre>
+                            </div>
+                            <ul>
+                                <li>Данная команда выводит информацию об установленных версиях SDK и runtime, путях их расположения, а также сведения об операционной системе и архитектуре процессора.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Среды разработки:</h3>
+                    <ul>
+                        <li>
+                            Для создания, редактирования и отладки исходного кода на C# могут использоваться различные интегрированные среды разработки (IDE) и редакторы кода. Основными вариантами являются:
+                            <ul>
+                                <li><strong>Microsoft Visual Studio (Windows)</strong> — полнофункциональная среда разработки, предоставляющая средства визуального проектирования пользовательских интерфейсов (WPF, Windows Forms), расширенные инструменты отладки, профилирования и интеграции с облачными службами Azure. Распространяется в редакциях Community (бесплатная для индивидуальных разработчиков и небольших команд), Professional и Enterprise.</li>
+                                <li><strong>Visual Studio Code (кроссплатформенный)</strong> — легковесный редактор исходного кода с расширяемой архитектурой. Для комфортной работы с C# в VS Code рекомендуется установить расширения C# и C# Dev Kit, которые вместе обеспечивают поддержку языка (IntelliSense, навигация), отладку, управление решениями, шаблоны и инструменты тестирования. Часто используется для веб-разработки, облачных приложений и микросервисной архитектуры, но применим и для других типов проектов (десктоп, библиотеки классов, консольные приложения).</li>
+                                <li><strong>JetBrains Rider (кроссплатформенный)</strong> — коммерческая среда разработки, построенная на платформе IntelliJ и интегрирующая механизмы анализа кода ReSharper. Отличается высокой производительностью при работе с крупными решениями и расширенными возможностями статического анализа и рефакторинга.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Структура проекта .NET:</h3>
+                    <ul>
+                        <li><strong>NuGet</strong> — стандартный менеджер пакетов для платформы .NET, используемый для добавления, восстановления и публикации внешних библиотек.</li>
+                        <li>
+                            Проект .NET представляет собой совокупность файлов исходного кода, ресурсов и метаданных, организованных для компиляции в единый выходной файл (исполняемое приложение или библиотеку). Проект описывается файлом с расширением <code>.csproj</code> в формате XML. Основные элементы описания проекта включают:
+                            <ul>
+                                <li><code>OutputType</code> — определяет тип выходного файла: <code>Exe</code> для исполняемого приложения или <code>Library</code> для библиотеки классов.</li>
+                                <li><code>TargetFramework</code> задаёт целевую версию .NET, для которой компилируется приложение.</li>
+                                <li><code>ImplicitUsings</code> — включает автоматическое добавление глобальных директив <code>using</code> для часто используемых пространств имён.</li>
+                                <li><code>Nullable</code> — активирует контекст анализа допустимости значений <code>null</code> для ссылочных типов.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Пример минимального файла проекта (<code>.csproj</code>):</strong>
+                            <div class="code">
+                                <div class="code-header"><span>.csproj</span><span>XML</span></div>
+                                <pre><code class="language-xml"><span class="token-xml-tag"><span class="token-xml-punctuation">&lt;</span>Project</span> <span class="token-xml-attribute">Sdk</span><span class="token-xml-operator">=</span><span class="token-xml-value">"Microsoft.NET.Sdk"</span><span class="token-xml-punctuation">&gt;</span>
+
+<span class="token-xml-tag"><span class="token-xml-punctuation">  &lt;</span>PropertyGroup</span><span class="token-xml-punctuation">&gt;</span>
+<span class="token-xml-tag"><span class="token-xml-punctuation">    &lt;</span>OutputType</span><span class="token-xml-punctuation">&gt;</span>Exe<span class="token-xml-tag"><span class="token-xml-punctuation">&lt;/</span>OutputType</span><span class="token-xml-punctuation">&gt;</span>
+<span class="token-xml-tag"><span class="token-xml-punctuation">    &lt;</span>TargetFramework</span><span class="token-xml-punctuation">&gt;</span>net10.0<span class="token-xml-tag"><span class="token-xml-punctuation">&lt;/</span>TargetFramework</span><span class="token-xml-punctuation">&gt;</span>
+<span class="token-xml-tag"><span class="token-xml-punctuation">    &lt;</span>ImplicitUsings</span><span class="token-xml-punctuation">&gt;</span>enable<span class="token-xml-tag"><span class="token-xml-punctuation">&lt;/</span>ImplicitUsings</span><span class="token-xml-punctuation">&gt;</span>
+<span class="token-xml-tag"><span class="token-xml-punctuation">    &lt;</span>Nullable</span><span class="token-xml-punctuation">&gt;</span>enable<span class="token-xml-tag"><span class="token-xml-punctuation">&lt;/</span>Nullable</span><span class="token-xml-punctuation">&gt;</span>
+<span class="token-xml-tag"><span class="token-xml-punctuation">  &lt;/</span>PropertyGroup</span><span class="token-xml-punctuation">&gt;</span>
+
+<span class="token-xml-tag"><span class="token-xml-punctuation">&lt;/</span>Project</span><span class="token-xml-punctuation">&gt;</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Совокупность проектов может быть объединена в решение (Solution). Решение описывается файлом с расширением .sln и содержит ссылки на входящие в него проекты, а также конфигурации сборки.</li>
+                        <li>
+                            <strong>В рамках проекта зависимости подразделяются на три категории:</strong>
+                            <ul>
+                                <li><strong>Framework References</strong> — ссылки на общие компоненты (shared frameworks), предоставляемые целевой платформой (например, <code>Microsoft.AspNetCore.App</code>, <code>Microsoft.WindowsDesktop.App</code>).</li>
+                                <li><strong>Packages</strong> — внешние библиотеки, полученные через менеджер пакетов NuGet.</li>
+                                <li><strong>Projects</strong> — ссылки на другие проекты, входящие в состав того же решения.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Файловая структура типового проекта включает следующие каталоги:
+                            <ul>
+                                <li><code>bin/</code> — каталог для размещения скомпилированных выходных файлов. Внутри создаются подкаталоги по конфигурациям (<code>Debug</code>/ и <code>Release</code>/), а внутри них — подкаталог целевой платформы (например, <code>net8.0</code>). Полный путь может выглядеть как <code>bin/Debug/net10.0/</code>.</li>
+                                <li><code>obj/</code> — каталог для временных объектных файлов, создаваемых в процессе компиляции. Структура аналогична: <code>obj/Debug/net10.0/</code>.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Иерархия решения и проектов:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Структура</span></div>
+                                <pre><code class="language-text">ИмяРешения.sln                   # Решение
+│
+├── ИмяПроекта.App/              # Основной проект
+│   ├── ИмяПроекта.App.csproj    # Настройки проекта
+│   ├── Program.cs               # Точка входа
+│   ├── ИмяТипа1.cs              # Файл с описанием класса
+│   └── ИмяПапки/                # Папка (подпространство имен)
+│       └── ИмяТипа2.cs
+│
+└── ИмяПроекта.Tests/            # Проект с модульными тестами
+    ├── ИмяПроекта.Tests.csproj
+    └── UnitTests.cs</code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Создание и запуск консольного приложения:</h3>
+                    <ul>
+                        <li>
+                            Создание нового проекта консольного приложения осуществляется командой:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">new</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">console</span><span class="token-bash-punctuation"> </span><span class="token-bash-flag">-n</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">ИмяПроекта</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            После создания проекта для его сборки и запуска используется команда:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">run</span></code></pre>
+                            </div>
+                            <ul>
+                                <li>Данная команда автоматически выполняет восстановление зависимостей, компиляцию исходного кода и запуск полученного исполняемого файла.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Управление конфигурациями сборки:</h3>
+                    <ul>
+                        <li>
+                            <strong>Проекты .NET поддерживают две стандартные конфигурации сборки: <code>Debug</code> и <code>Release</code>.</strong>
+                            <ul>
+                                <li><strong><code>Debug</code></strong> — конфигурация, предназначенная для этапа разработки и отладки. Оптимизация кода отключена, генерируются полные символы отладки (PDB-файлы), определены символы условной компиляции <code>DEBUG</code> и <code>TRACE</code>.</li>
+                                <li><strong><code>Release</code></strong> — конфигурация, предназначенная для финального развёртывания. Включена оптимизация кода. Наличие и объём отладочной информации определяются параметрами проекта; Release-сборки также могут содержать PDB-файлы. Автоматически определён символ <code>TRACE</code>; символ <code>RELEASE</code> по умолчанию не создаётся и при необходимости добавляется вручную через <code>DefineConstants</code>.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Выбор конфигурации при сборке из командной строки задаётся параметром <code>-c</code> или <code>--configuration</code>:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">build</span><span class="token-bash-punctuation"> </span><span class="token-bash-flag">-c</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">Release</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Публикация приложения для развёртывания в целевой среде выполняется командой:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">publish</span><span class="token-bash-punctuation"> </span><span class="token-bash-flag">-c</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">Release</span><span class="token-bash-punctuation"> </span><span class="token-bash-flag">-o</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">./publish</span></code></pre>
+                            </div>
+                            <ul>
+                                <li>Параметр <code>-o</code> (или <code>--output</code>) указывает каталог, в который будут помещены файлы, готовые к развёртыванию.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Восстановление зависимостей:</h3>
+                    <ul>
+                        <li>
+                            Зависимости проекта, указанные в файле <code>.csproj</code> и описанные в конфигурационных файлах NuGet, восстанавливаются автоматически при выполнении команд <code>build</code>, <code>run</code> и <code>publish</code>. Явный вызов восстановления может быть выполнен командой:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">restore</span></code></pre>
+                            </div>
+                            <ul>
+                                <li>Данная команда загружает все необходимые пакеты из настроенных источников (по умолчанию — nuget.org) в локальный кэш пакетов и обеспечивает их доступность для последующей компиляции.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 1.3. Базовые понятия -->
+            <details id="section-1.3">
+                <summary>1.3. Базовые понятия</summary>
+                <div>
+                    <h3>Компиляция в промежуточный язык (<code>IL</code>):</h3>
+                    <ul>
+                        <li>Исходный код на языке C# компилируется не напрямую в машинный код, а в платформонезависимый промежуточный язык — <code>IL</code> (также обозначается как <code>CIL</code> или <code>MSIL</code>).</li>
+                        <li><code>IL</code>-код сохраняется в файлах сборок (расширение <code>.exe</code> или <code>.dll</code>) совместно с метаданными, описывающими типы, члены типов и внешние зависимости.</li>
+                        <li><code>IL</code> является платформонезависимым. Возможность запуска конкретной сборки на разных ОС зависит от используемых API и зависимостей (например, вызовы нативных методов через P/Invoke или привязка к платформенно-специфичным библиотекам могут ограничить переносимость).</li>
+                    </ul>
+
+                    <p><strong>Цепочка преобразования кода:</strong> Исходный код на C# -> (Roslyn) -> <code>IL</code> -> (JIT в составе CoreCLR) -> Машинный код</p>
+
+                    <h3><code>JIT</code>-компиляция (Just-In-Time):</h3>
+                    <ul>
+                        <li><strong>Принцип:</strong> при запуске приложения среда выполнения (CLR) вызывает <code>JIT</code>-компилятор. Обычно метод компилируется при первом обращении к нему, если для данного метода не используется предварительно сгенерированный машинный код (например, через ReadyToRun) или не применяется многоуровневая компиляция (Tiered Compilation).</li>
+                        <li>
+                            <strong>Особенности:</strong>
+                            <ul>
+                                <li>Компилируются только те методы, которые фактически вызываются в ходе работы приложения.</li>
+                                <li>Результат <code>JIT</code>-компиляции кэшируется в оперативной памяти на всё время существования процесса.</li>
+                                <li>Компилятор способен применять оптимизации, учитывающие архитектуру текущего процессора.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Преимущества:</strong> переносимость сборок, адаптивная оптимизация.</li>
+                        <li><strong>Недостатки:</strong> незначительная задержка при первом вызове метода.</li>
+                    </ul>
+
+                    <h3><code>AOT</code>-компиляция (Ahead-Of-Time):</h3>
+                    <ul>
+                        <li><strong>Принцип:</strong> основная часть <code>IL</code>-кода заранее компилируется в машинный код на этапе публикации приложения, до его запуска.</li>
+                        <li>
+                            <strong>Способы <code>AOT</code> в .NET:</strong>
+                            <ul>
+                                <li><strong><code>Native AOT</code></strong> (доступен начиная с .NET 7) — компиляция основной части <code>IL</code>-кода в самодостаточный исполняемый файл, не требующий отдельно установленного .NET Runtime, поскольку необходимые компоненты среды выполнения включаются в публикацию.</li>
+                                <li><strong><code>ReadyToRun</code> (<code>R2R</code>)</strong> — частичная предварительная компиляция (partial AOT) <code>IL</code>-кода для ускорения запуска приложения; <code>JIT</code>-компилятор при этом остаётся активным и может перекомпилировать методы.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Преимущества:</strong> сокращение времени запуска благодаря предварительной компиляции кода. Для <code>Native AOT</code> дополнительно характерны сниженное потребление оперативной памяти и возможность выполнения без отдельно установленного .NET Runtime (необходимые компоненты среды выполнения включаются в публикацию).</li>
+                        <li><strong>Недостатки:</strong> увеличение размера выходного файла, отсутствие некоторых оптимизаций времени выполнения, ограничения на использование рефлексии и динамической генерации кода.</li>
+                    </ul>
+
+                    <h3>Сборка мусора (Garbage Collection, <code>GC</code>):</h3>
+                    <ul>
+                        <li><strong>Назначение</strong> — автоматическое освобождение памяти, занятой объектами, которые больше не достижимы из корневых ссылок приложения.</li>
+                        <li><strong>Управляемая куча (Managed Heap)</strong> — основная область памяти для размещения объектов ссылочных типов и других данных, требующих динамического выделения памяти (упакованные значимые типы, массивы, строки и др.).</li>
+                        <li>
+                            <strong>Поколения (Generations):</strong>
+                            <ul>
+                                <li>Поколение 0 — новые объекты; сборка выполняется наиболее часто и быстро.</li>
+                                <li>Поколение 1 — объекты, пережившие одну сборку поколения 0.</li>
+                                <li>Поколение 2 — объекты, длительное время остающиеся достижимыми (например, долгоживущие экземпляры, существующие на протяжении всего времени работы приложения).</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Режимы работы <code>GC</code>:</strong>
+                            <ul>
+                                <li><strong><code>Workstation GC</code></strong> — предназначен для клиентских приложений, ориентирован на минимизацию пауз.</li>
+                                <li><strong><code>Server GC</code></strong> — предназначен для серверных приложений с высокой нагрузкой, использует многопоточную сборку для повышения пропускной способности.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Ключевые методы:</strong>
+                            <ul>
+                                <li><code>GC.Collect()</code> — принудительный запуск сборки мусора (применение в пользовательском коде не рекомендуется).</li>
+                                <li><code>GC.SuppressFinalize()</code> — предотвращает вызов финализатора для указанного объекта, удаляя его из очереди финализации (если финализатор определён). Это позволяет сборщику мусора освободить память без дополнительной задержки на финализацию. Если финализатора нет, вызов метода не имеет эффекта.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Режимы сборки <code>Debug</code> и <code>Release</code>:</h3>
+                    <ul>
+                        <li>
+                            <strong><code>Debug</code> (отладочная конфигурация):</strong>
+                            <ul>
+                                <li>Оптимизация кода отключена (<code>&lt;Optimize&gt;false&lt;/Optimize&gt;</code>).</li>
+                                <li>Часть оптимизаций JIT ограничивается для повышения качества отладки.</li>
+                                <li>Генерируются полные файлы символов отладки (<code>PDB</code>), содержащие имена переменных и соответствие инструкций строкам исходного кода.</li>
+                                <li>Определены символы условной компиляции <code>DEBUG</code> и <code>TRACE</code>.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong><code>Release</code> (релизная конфигурация):</strong>
+                            <ul>
+                                <li>Оптимизация кода включена (<code>&lt;Optimize&gt;true&lt;/Optimize&gt;</code>).</li>
+                                <li><code>JIT</code>-компилятор и этапы публикации (например, trimming, AOT) могут дополнительно сокращать и оптимизировать код.</li>
+                                <li>Наличие и объём отладочной информации определяется параметрами проекта; Release-сборки также могут содержать PDB-файлы.</li>
+                                <li>В конфигурации Release обычно определён символ <code>TRACE</code>.</li>
+                                <li>Символ <code>RELEASE</code> не создаётся автоматически и должен быть добавлен вручную через <code>DefineConstants</code> при необходимости.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Переключение режимов:</strong>
+                            <ul>
+                                <li>Через интерфейс среды разработки (Visual Studio, Rider).</li>
+                                <li>Через параметр командной строки: <code>dotnet build -c Release</code>.</li>
+                                <li>Указанием в файле .csproj: <code>&lt;Configuration&gt;Release&lt;/Configuration&gt;</code>.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Выбор конфигурации в зависимости от этапа:</h3>
+                    <ul>
+                        <li>
+                            <strong>Разработка и отладка:</strong> используется конфигурация <code>Debug</code>.
+                            <ul>
+                                <li>Позволяет устанавливать точки останова, выполнять пошаговую трассировку, просматривать значения локальных переменных и полей объектов.</li>
+                                <li>Поддерживается изменение кода во время остановки отладчика (Edit &amp; Continue).</li>
+                                <li>Стек вызовов исключений содержит номера строк исходного кода.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Тестирование производительности и профилирование:</strong> допускается использование конфигурации <code>Release</code> с включённой генерацией переносимых символов отладки (<code>&lt;DebugType&gt;portable&lt;/DebugType&gt;</code>). Это позволяет профилировать оптимизированный код.</li>
+                        <li>
+                            <strong>Финальная сборка и развёртывание:</strong> используется конфигурация <code>Release</code>.
+                            <ul>
+                                <li>Обычно обеспечивает более эффективный машинный код и может уменьшать объём публикуемых артефактов в зависимости от настроек публикации.</li>
+                                <li>Повышает скорость выполнения критических участков благодаря оптимизациям <code>JIT</code> и компилятора C#.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Условная компиляция:</h3>
+                    <ul>
+                        <li>
+                            Директивы препроцессора <code>#if DEBUG</code> / <code>#if RELEASE</code> позволяют включать или исключать блоки кода в зависимости от текущей конфигурации сборки:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-preprocessor">#if</span><span class="token-cs-punctuation"> </span><span class="token-cs-preprocessor-symbol">DEBUG</span>
+<span class="token-cs-comment">// Код, включаемый только в отладочной конфигурации</span>
+<span class="token-cs-preprocessor">#endif</span>
+
+<span class="token-cs-preprocessor">#if</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">!</span><span class="token-cs-preprocessor-symbol">DEBUG</span>
+<span class="token-cs-comment">// Код, включаемый только в релизной конфигурации</span>
+<span class="token-cs-preprocessor">#endif</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Если необходим именно символ <code>RELEASE</code>, его можно добавить вручную в файл проекта (<code>.csproj</code>):
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>XML</span></div>
+                                <pre><code class="language-xml"><span class="token-xml-tag"><span class="token-xml-punctuation">&lt;</span>PropertyGroup</span> <span class="token-xml-attribute">Condition</span><span class="token-xml-operator">=</span><span class="token-xml-value">"'$(Configuration)' == 'Release'"</span><span class="token-xml-punctuation">&gt;</span>
+<span class="token-xml-tag"><span class="token-xml-punctuation">  &lt;</span>DefineConstants</span><span class="token-xml-punctuation">&gt;</span>RELEASE<span class="token-xml-tag"><span class="token-xml-punctuation">&lt;/</span>DefineConstants</span><span class="token-xml-punctuation">&gt;</span>
+<span class="token-xml-tag"><span class="token-xml-punctuation">&lt;/</span>PropertyGroup</span><span class="token-xml-punctuation">&gt;</span></code></pre>
+                            </div>
+                            После определения можно будет использовать <code>#if RELEASE</code>.
+                        </li>
+                        <li>
+                            Атрибут <code>[Conditional("DEBUG")]</code> исключает вызовы метода из компилируемого кода, если символ <code>DEBUG</code> не определён (сам метод остаётся в сборке):
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-punctuation">[</span><span class="token-cs-attribute">Conditional</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"DEBUG"</span><span class="token-cs-punctuation">)]</span>
+<span class="token-cs-keyword">static</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">DebugMethod</span><span class="token-cs-punctuation">()</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">   </span><span class="token-cs-comment">// Вызовы метода будут исключены из скомпилированного кода при отсутствии символа DEBUG</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Отладка <code>Release</code>-сборки:</h3>
+                    <ul>
+                        <li>При возникновении ошибки в релизной версии приложения возможно подключение <code>PDB</code>-файлов, сгенерированных на этапе сборки.</li>
+                        <li>В среде Visual Studio для просмотра полного стека вызовов может потребоваться отключение режима «Just My Code» и включение отладки нативного кода.</li>
+                        <li>Конфигурация <code>&lt;DebugType&gt;portable&lt;/DebugType&gt;</code> в сочетании с <code>&lt;Optimize&gt;true&lt;/Optimize&gt;</code> обеспечивает компромисс: символы отладки доступны, но код остаётся оптимизированным.</li>
+                    </ul>
+
+                    <h3>Влияние на производительность и память:</h3>
+                    <ul>
+                        <li>
+                            <strong>Конфигурация <code>Debug</code>:</strong>
+                            <ul>
+                                <li>Более высокое потребление оперативной памяти (хранение отладочных данных, сниженное переиспользование регистров).</li>
+                                <li><code>JIT</code>-компилятор не применяет агрессивное встраивание методов, что упрощает анализ стека вызовов при отладке.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Конфигурация <code>Release</code>:</strong>
+                            <ul>
+                                <li><code>JIT</code>-компилятор может выполнять встраивание методов (в том числе аксессоров свойств), удалять проверки границ массивов в безопасных случаях.</li>
+                                <li>Различные этапы оптимизации (JIT-компиляция, IL trimming, AOT-компиляция) могут удалять недостижимый или неиспользуемый код и выполнять свёртку констант. Компилятор C# выдаёт предупреждения о недостижимом коде.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Практические рекомендации:</h3>
+                    <ul>
+                        <li>Не рекомендуется развёртывать сборки, собранные в конфигурации <code>Debug</code>, в промышленной среде. Это приводит к снижению производительности и потенциальному раскрытию внутренней логики приложения через отладочные сообщения.</li>
+                        <li>Для проверки инвариантов в процессе разработки рекомендуется использовать <code>Debug.Assert()</code>. При отсутствии символа <code>DEBUG</code> вызовы <code>Debug.Assert</code> не включаются в результирующий код (сам метод остаётся в сборке, но его вызовы удаляются).</li>
+                        <li>Для условного логирования вместо директив <code>#if DEBUG</code> предпочтительнее применять интерфейс <code>ILogger</code> с настройкой фильтрации по уровню важности сообщений.</li>
+                        <li>При публикации однокомпонентного (single-file) приложения или приложения в режиме <code>Native AOT</code> символы отладки могут быть вынесены в отдельный PDB-файл либо исключены полностью.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 1.4. Инструменты командной строки (dotnet CLI) -->
+            <details id="section-1.4">
+                <summary>1.4. Инструменты командной строки (dotnet CLI)</summary>
+                <div>
+                    <h3>Инструменты командной строки (<code>dotnet</code> CLI):</h3>
+                    <ul>
+                        <li><strong>dotnet CLI</strong> — кроссплатформенная утилита командной строки для разработки, сборки, запуска и публикации приложений .NET.</li>
+                        <li>Входит в состав .NET SDK.</li>
+                        <li>Позволяет выполнять все основные операции без использования интегрированной среды разработки (достаточно редактора кода и терминала).</li>
+                    </ul>
+
+                    <h3>Структура команд CLI:</h3>
+                    <ul>
+                        <li><strong>Драйвер (<code>dotnet</code>)</strong> — предоставляет команды для работы с проектами .NET или запуска приложения .NET.</li>
+                        <li><strong>Команда</strong> — выполняет конкретное действие.</li>
+                        <li><strong>Опции</strong> — параметры, модифицирующие поведение команды.</li>
+                        <li><strong>Аргументы</strong> — значения, передаваемые команде или опциям.</li>
+                        <li>
+                            <strong>Общий синтаксис:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">&lt;COMMAND&gt;</span><span class="token-bash-punctuation"> [</span><span class="token-bash-parameter">options</span><span class="token-bash-punctuation">] [</span><span class="token-bash-parameter">arguments</span><span class="token-bash-punctuation">]</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Основные команды:</h3>
+                    <ul>
+                        <li>
+                            Создание проекта, файла конфигурации или решения на основе указанного шаблона:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">new</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">&lt;TEMPLATE&gt;</span><span class="token-bash-punctuation"> [</span><span class="token-bash-parameter">options</span><span class="token-bash-punctuation">]</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Компиляция проектов .NET и их зависимостей в выходные файлы (сборки):
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">build</span><span class="token-bash-punctuation"> [</span><span class="token-bash-parameter">&lt;PROJECT&gt;</span><span class="token-bash-punctuation">|</span><span class="token-bash-parameter">&lt;SOLUTION&gt;</span><span class="token-bash-punctuation">] [</span><span class="token-bash-flag">-c</span><span class="token-bash-punctuation">|</span><span class="token-bash-flag">--configuration</span><span class="token-bash-punctuation">] [</span><span class="token-bash-flag">-o</span><span class="token-bash-punctuation">|</span><span class="token-bash-flag">--output</span><span class="token-bash-punctuation">]</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Автоматическая сборка и запуск приложения (без необходимости отдельно вызывать <code>dotnet build</code>). Аргументы после <code>--</code> передаются запускаемому приложению:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">run</span><span class="token-bash-punctuation"> [</span><span class="token-bash-flag">-c</span><span class="token-bash-punctuation">|</span><span class="token-bash-flag">--configuration</span><span class="token-bash-punctuation">] [</span><span class="token-bash-flag">-f</span><span class="token-bash-punctuation">|</span><span class="token-bash-flag">--framework</span><span class="token-bash-punctuation">] [</span><span class="token-bash-flag">--</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">&lt;args&gt;</span><span class="token-bash-punctuation">]</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Выполнение модульных тестов (начиная с .NET 10 SDK поддерживается выбор между VSTest и Microsoft Testing Platform; в более ранних версиях используется VSTest):
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">test</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">&lt;PROJECT&gt;</span><span class="token-bash-punctuation"> [</span><span class="token-bash-parameter">command-options</span><span class="token-bash-punctuation">] [</span><span class="token-bash-parameter">arguments</span><span class="token-bash-punctuation">]</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Публикация приложения и его зависимостей в каталог для последующего развёртывания:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">publish</span><span class="token-bash-punctuation"> [</span><span class="token-bash-parameter">&lt;PROJECT&gt;</span><span class="token-bash-punctuation">|</span><span class="token-bash-parameter">&lt;SOLUTION&gt;</span><span class="token-bash-punctuation">] [</span><span class="token-bash-flag">-c</span><span class="token-bash-punctuation">|</span><span class="token-bash-flag">--configuration</span><span class="token-bash-punctuation">] [</span><span class="token-bash-flag">-r</span><span class="token-bash-punctuation">|</span><span class="token-bash-flag">--runtime</span><span class="token-bash-punctuation">] [</span><span class="token-bash-flag">-o</span><span class="token-bash-punctuation">|</span><span class="token-bash-flag">--output</span><span class="token-bash-punctuation">]</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Добавление ссылки на пакет NuGet в проект (начиная с .NET 10 рекомендуется использовать <code>dotnet package add</code>; форма <code>dotnet add package</code> сохраняется для совместимости):
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">package</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">add</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">&lt;PACKAGE_NAME&gt;</span><span class="token-bash-punctuation"> [</span><span class="token-bash-parameter">OPTIONS</span><span class="token-bash-punctuation">]</span>
+<span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">add</span><span class="token-bash-punctuation"> [</span><span class="token-bash-parameter">PROJECT</span><span class="token-bash-punctuation">] </span><span class="token-bash-command">package</span><span class="token-bash-punctuation"> [</span><span class="token-bash-parameter">PACKAGE_NAME</span><span class="token-bash-punctuation">] [</span><span class="token-bash-parameter">OPTIONS</span><span class="token-bash-punctuation">]</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Общие флаги (применимы к большинству команд):</h3>
+                    <ul>
+                        <li><code>-c|--configuration</code> — выбор конфигурации сборки: <code>Debug</code> или <code>Release</code> (по умолчанию <code>Debug</code>).</li>
+                        <li><code>-o|--output</code> — каталог для размещения выходных файлов.</li>
+                        <li><code>-f|--framework</code> — целевая версия платформы .NET (например, <code>net8.0</code>).</li>
+                        <li><code>--no-restore</code> — отказ от автоматического восстановления зависимостей.</li>
+                        <li><code>-v|--verbosity</code> — уровень детализации вывода: <code>quiet</code>, <code>minimal</code>, <code>normal</code>, <code>detailed</code>, <code>diagnostic</code>.</li>
+                    </ul>
+
+                    <h3>Местоположение установленных пакетов и инструментов:</h3>
+                    <ul>
+                        <li>
+                            <strong>Кэш NuGet:</strong>
+                            <ul>
+                                <li><code>~/.nuget/packages</code> (Linux/macOS)</li>
+                                <li><code>%USERPROFILE%\.nuget\packages</code> (Windows)</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Глобальные инструменты .NET:</strong>
+                            <ul>
+                                <li><code>~/.dotnet/tools</code> (Linux/macOS)</li>
+                                <li><code>%USERPROFILE%\.dotnet\tools</code> (Windows)</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Просмотр сведений о текущей установке:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-flag">--info</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Справка по командам:</h3>
+                    <ul>
+                        <li>
+                            Команда <code>dotnet help &lt;COMMAND&gt;</code> поддерживается для совместимости, однако чаще используется форма <code>dotnet &lt;COMMAND&gt; --help</code> для вывода справки в терминале:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">&lt;COMMAND&gt;</span><span class="token-bash-punctuation"> </span><span class="token-bash-flag">-h</span><span class="token-bash-punctuation">|</span><span class="token-bash-flag">--help</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 1.5. Анализаторы кода и форматирование (.editorconfig) -->
+            <details id="section-1.5">
+                <summary>1.5. Анализаторы кода и форматирование (.editorconfig)</summary>
+                <div>
+                    <h3>Назначение .editorconfig:</h3>
+                    <ul>
+                        <li>Файл конфигурации, задающий единые правила оформления кода и поведения анализаторов для всех участников проекта.</li>
+                        <li>Размещается в корне репозитория или каталоге проекта.</li>
+                        <li>Настройки из <code>.editorconfig</code> имеют приоритет над личными параметрами среды разработки.</li>
+                        <li>Поддерживается средами Visual Studio, Visual Studio Code, JetBrains Rider и большинством редакторов кода.</li>
+                    </ul>
+
+                    <h3>Базовый пример <code>.editorconfig</code>:</h3>
+                    <ul>
+                        <li>
+                            Файл <code>.editorconfig</code> с типовыми настройками для проектов на C#:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>.editorconfig</span></div>
+                                <pre><code class="language-ini"><span class="token-ini-keyword">root</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">true</span>
+
+<span class="token-ini-punctuation">[</span><span class="token-ini-keyword">*</span><span class="token-ini-punctuation">]</span>
+<span class="token-ini-keyword">indent_style</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">space</span>
+<span class="token-ini-keyword">indent_size</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">4</span>
+<span class="token-ini-keyword">charset</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">utf-8</span>
+<span class="token-ini-keyword">end_of_line</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">lf</span>
+<span class="token-ini-keyword">trim_trailing_whitespace</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">true</span>
+<span class="token-ini-keyword">insert_final_newline</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">true</span>
+
+<span class="token-ini-punctuation">[</span><span class="token-ini-keyword">*.cs</span><span class="token-ini-punctuation">]</span>
+<span class="token-ini-keyword">dotnet_diagnostic</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">CA1805</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">severity</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">warning</span>
+<span class="token-ini-keyword">dotnet_diagnostic</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">IDE0055</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">severity</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">suggestion</span>
+<span class="token-ini-keyword">csharp_indent_braces</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">false</span>
+<span class="token-ini-keyword">csharp_new_line_before_open_brace</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">all</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Категории правил анализаторов:</h3>
+                    <ul>
+                        <li>
+                            <strong><code>CAxxxx</code> — правила качества кода (Code Analysis):</strong>
+                            <ul>
+                                <li>Назначение: выявление потенциальных проблем с производительностью, безопасностью, надёжностью, корректностью использования API и архитектурой.</li>
+                                <li>Входят в состав .NET SDK, включены по умолчанию для проектов, нацеленных на .NET 5 и выше.</li>
+                                <li>Каждое правило имеет свой уровень серьёзности по умолчанию, который можно переопределить в <code>.editorconfig</code>.</li>
+                                <li>
+                                    Примеры правил:
+                                    <ul>
+                                        <li><code>CA1805</code> — избыточная инициализация статических полей значениями по умолчанию.</li>
+                                        <li><code>CA2200</code> — повторное создание исключения без сохранения стека вызовов (<code>throw ex</code> вместо <code>throw</code>).</li>
+                                        <li><code>CA1062</code> — обнаружение потенциального разыменования параметров, допускающих значение <code>null</code>, в публичных API. Правило учитывает контекст nullable-аннотаций и может изменять поведение в зависимости от уровня анализа.</li>
+                                        <li><code>CA2007</code> — рекомендация явно указывать <code>ConfigureAwait(...)</code> в библиотечном и платформенно-независимом асинхронном коде.</li>
+                                        <li><code>CA1822</code> — метод может быть объявлен как статический.</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong><code>IDExxxx</code> — правила стиля и удобства (IDE):</strong>
+                            <ul>
+                                <li>Назначение: обеспечение единообразия форматирования, применение современных конструкций языка, повышение читаемости.</li>
+                                <li>Работают как анализаторы и как рефакторинги с автоматическим исправлением.</li>
+                                <li>Уровни серьёзности по умолчанию: <code>suggestion</code> или <code>silent</code>.</li>
+                                <li>
+                                    Примеры правил:
+                                    <ul>
+                                        <li><code>IDE0055</code> — форматирование кода (отступы, пробелы, расстановка скобок).</li>
+                                        <li><code>IDE0001</code> — упрощение квалифицированного имени типа.</li>
+                                        <li><code>IDE0002</code> — упрощение доступа к членам типа.</li>
+                                        <li><code>IDE0017</code> — предпочтение использования инициализатора объекта.</li>
+                                        <li><code>IDE0028</code> — предпочтение использования инициализатора коллекции.</li>
+                                        <li><code>IDE0031</code> — предпочтение использования null-условного оператора (<code>?.</code>).</li>
+                                        <li><code>IDE0063</code> — упрощённый синтаксис оператора <code>using</code> (без фигурных скобок).</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong><code>CSxxxx</code> — ошибки и предупреждения компилятора C#:</strong>
+                            <ul>
+                                <li>Назначение: диагностика синтаксических и семантических ошибок, нарушений типизации, использования небезопасных конструкций.</li>
+                                <li>Генерируются непосредственно компилятором Roslyn.</li>
+                                <li>
+                                    Уровни серьёзности:
+                                    <ul>
+                                        <li><strong><code>error</code></strong> — ошибки, прерывающие компиляцию (например, <code>CS0103</code>, <code>CS1001</code>).</li>
+                                        <li><strong><code>warning</code></strong> — предупреждения, не прерывающие сборку (например, <code>CS0219</code>, <code>CS0649</code>).</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    Примеры правил:
+                                    <ul>
+                                        <li><code>CS0103</code> — имя отсутствует в текущем контексте.</li>
+                                        <li><code>CS0219</code> — переменной присвоено значение, которое не используется.</li>
+                                        <li><code>CS0649</code> — поле не получает значения и будет содержать значение по умолчанию.</li>
+                                        <li><code>CS8600</code> — преобразование null-литерала или потенциально null-значения в ненулевой тип (при включённом nullable-контексте).</li>
+                                        <li><code>CS8625</code> — аргумент со значением <code>null</code> передан в параметр, не допускающий <code>null</code>.</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Уровни серьёзности правил:</h3>
+                    <ul>
+                        <li><strong><code>none</code></strong> — правило полностью отключено.</li>
+                        <li><strong><code>silent</code></strong> — правило участвует в анализе и автоматических исправлениях, но обычно не отображается как предупреждение в редакторе (может влиять на code fixes).</li>
+                        <li><strong><code>suggestion</code></strong> — рекомендация по улучшению, не влияющая на успешность сборки.</li>
+                        <li><strong><code>warning</code></strong> — предупреждение, не прерывающее сборку.</li>
+                        <li><strong><code>error</code></strong> — ошибка, приводящая к прерыванию сборки.</li>
+                        <li><strong><code>default</code></strong> — используется уровень серьёзности, заданный по умолчанию для данного правила.</li>
+                    </ul>
+
+                    <h3>Настройка уровней серьёзности в .editorconfig:</h3>
+                    <ul>
+                        <li>
+                            Синтаксис записи:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>.editorconfig</span></div>
+                                <pre><code class="language-ini"><span class="token-ini-keyword">dotnet_diagnostic</span><span class="token-ini-operator">.</span><span class="token-ini-value">&lt;RuleId&gt;</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">severity</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">&lt;severity&gt;</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Правила именования (Naming Rules):</h3>
+                    <ul>
+                        <li>
+                            Определяются через комбинацию трёх сущностей:
+                            <ul>
+                                <li><strong>Символьная группа (symbols)</strong> — элементы, к которым применяется правило (классы, методы, поля, свойства и т.д.).</li>
+                                <li><strong>Стиль именования (style)</strong> — требуемый формат (<code>PascalCase</code>, <code>camelCase</code>, с префиксами или суффиксами).</li>
+                                <li><strong>Уровень серьёзности</strong> — реакция на нарушение.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Пример настройки правила для публичных членов:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>.editorconfig</span></div>
+                                <pre><code class="language-ini"><span class="token-ini-comment"># Публичные члены должны использовать PascalCase</span>
+<span class="token-ini-keyword">dotnet_naming_rule</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">public_members_should_be_pascal_case</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">symbols</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">public_members</span>
+<span class="token-ini-keyword">dotnet_naming_rule</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">public_members_should_be_pascal_case</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">style</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">pascal_case</span>
+<span class="token-ini-keyword">dotnet_naming_rule</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">public_members_should_be_pascal_case</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">severity</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">warning</span>
+
+<span class="token-ini-keyword">dotnet_naming_symbols</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">public_members</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">applicable_kinds</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">method</span><span class="token-ini-punctuation">, </span><span class="token-ini-value">property</span><span class="token-ini-punctuation">, </span><span class="token-ini-value">field</span>
+<span class="token-ini-keyword">dotnet_naming_symbols</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">public_members</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">applicable_accessibilities</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">public</span>
+
+<span class="token-ini-keyword">dotnet_naming_style</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">pascal_case</span><span class="token-ini-operator">.</span><span class="token-ini-keyword">capitalization</span><span class="token-ini-punctuation"> </span><span class="token-ini-operator">=</span><span class="token-ini-punctuation"> </span><span class="token-ini-value">pascal_case</span>
+</code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Настройка стиля кода в <code>.editorconfig</code>:</h3>
+                    <ul>
+                        <li>
+                            <strong>Параметры форматирования (<code>csharp_*</code>):</strong>
+                            <ul>
+                                <li><code>csharp_new_line_before_open_brace</code> — расположение открывающей фигурной скобки.</li>
+                                <li><code>csharp_indent_braces</code> — управление отступами для фигурных скобок.</li>
+                                <li><code>csharp_preserve_single_line_statements</code> — сохранение коротких инструкций в одну строку.</li>
+                                <li><code>csharp_prefer_braces</code> — требование обязательного использования фигурных скобок для конструкций <code>if</code>, <code>else</code>, <code>for</code>.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Параметры стиля (<code>dotnet_style_*</code>):</strong>
+                            <ul>
+                                <li><code>dotnet_style_readonly_field</code> — предпочтение модификатора <code>readonly</code> для полей, которые не изменяются.</li>
+                                <li><code>dotnet_style_predefined_type_for_locals_parameters_members</code> — предпочтение встроенных псевдонимов типов (<code>int</code> вместо <code>System.Int32</code>) для локальных переменных, параметров и членов.</li>
+                                <li><code>dotnet_style_object_initializer</code> — предпочтение инициализаторов объектов при создании экземпляров.</li>
+                                <li><code>dotnet_style_explicit_tuple_names</code> — требование явного указания имён элементов кортежа.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Языковые параметры (<code>csharp_style_*</code>):</strong>
+                            <ul>
+                                <li><code>csharp_style_pattern_matching</code> — предпочтение конструкций сопоставления с образцом.</li>
+                                <li><code>csharp_style_expression_bodied_members</code> — предпочтение членов, заданных в форме выражения.</li>
+                                <li><code>csharp_style_inlined_variable_declaration</code> — предпочтение встроенного объявления переменных в конструкциях <code>out var</code>.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Управление анализаторами в файле проекта (<code>.csproj</code>):</h3>
+                    <ul>
+                        <li><code>AnalysisLevel</code> — версия набора правил (например, <code>latest</code>, <code>8.0</code>, <code>7.0</code>).</li>
+                        <li><code>AnalysisMode</code> — режим анализа: <code>All</code>, <code>Default</code>, <code>Recommended</code>, <code>Minimum</code>, <code>None</code>.</li>
+                        <li><code>TreatWarningsAsErrors</code> — преобразование всех предупреждений в ошибки.</li>
+                        <li><code>WarningsAsErrors</code> — преобразование указанных предупреждений в ошибки.</li>
+                        <li><code>NoWarn</code> — подавление указанных предупреждений.</li>
+                        <li><code>EnableNETAnalyzers</code> — принудительное включение анализаторов .NET для проектов, где они не активны по умолчанию (например, .NET Framework, .NET Core 3.x, .NET Standard 2.0). Для проектов, нацеленных на .NET 5 и выше, анализаторы включены автоматически.</li>
+                    </ul>
+
+                    <h3>Форматирование кода через CLI:</h3>
+                    <ul>
+                        <li>
+                            Форматирование всех файлов решения в соответствии с правилами из <code>.editorconfig</code>:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">format</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">MySolution.sln</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Проверка необходимости форматирования без внесения изменений:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">format</span><span class="token-bash-punctuation"> </span><span class="token-bash-flag">--verify-no-changes</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Форматирование указанного файла:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">format</span><span class="token-bash-punctuation"> </span><span class="token-bash-flag">--include</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">MyFile.cs</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Форматирование только ошибок (игнорирование предупреждений и рекомендаций):
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">format</span><span class="token-bash-punctuation"> </span><span class="token-bash-flag">--severity</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">error</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Создание отчёта о результатах форматирования в формате JSON:
+                            <div class="code">
+                                <div class="code-header"><span>Терминал</span><span>bash</span></div>
+                                <pre><code class="language-bash"><span class="token-bash-driver">dotnet</span><span class="token-bash-punctuation"> </span><span class="token-bash-command">format</span><span class="token-bash-punctuation"> </span><span class="token-bash-flag">--report</span><span class="token-bash-punctuation"> </span><span class="token-bash-parameter">./report</span></code></pre>
+                            </div>
+                            <ul>
+                                <li>Параметр <code>--report</code> указывает каталог, в котором будет создан файл <code>report.json</code> с результатами форматирования.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Дополнительные опции:
+                            <ul>
+                                <li><code>--diagnostics</code> — фильтрация по идентификаторам правил.</li>
+                                <li><code>--exclude</code> — исключение файлов или каталогов.</li>
+                                <li><code>--include-generated</code> — включение автоматически сгенерированных файлов.</li>
+                                <li><code>--no-restore</code> — пропуск этапа восстановления зависимостей.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Сторонние анализаторы:</h3>
+                    <ul>
+                        <li>Устанавливаются в проект через пакеты NuGet или расширения среды разработки.</li>
+                        <li>
+                            Примеры популярных анализаторов:
+                            <ul>
+                                <li><strong>StyleCop.Analyzers</strong> — проверка соответствия стилю кода (правила с префиксом <code>SA</code>).</li>
+                                <li><strong>Roslynator</strong> — большая коллекция анализаторов и рефакторингов.</li>
+                                <li><strong>SonarAnalyzer.CSharp</strong> — анализ качества, безопасности и надёжности кода.</li>
+                                <li><strong>xunit.analyzers</strong> — специализированные анализаторы для тестов на базе xUnit.</li>
+                                <li><strong>SecurityCodeScan</strong> — выявление потенциальных уязвимостей.</li>
+                                <li><strong>AsyncFixer</strong> — обнаружение проблем в асинхронном коде.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Подавление предупреждений:</h3>
+                    <ul>
+                        <li>
+                            Полное отключение правила:
+                            <ul>
+                                <li>Установка <code>severity = none</code> в файле <code>.editorconfig</code>.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Подавление для конкретной строки кода с помощью директивы <code>#pragma</code>:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-preprocessor">#pragma warning disable</span><span class="token-cs-punctuation"> </span><span class="token-cs-preprocessor-symbol">&lt;CheckId&gt;</span>
+<span class="token-cs-comment">// Код, вызывающий предупреждение</span>
+<span class="token-cs-preprocessor">#pragma warning restore</span><span class="token-cs-punctuation"> </span><span class="token-cs-preprocessor-symbol">&lt;CheckId&gt;</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Подавление с помощью атрибута <code>SuppressMessageAttribute</code>:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-punctuation">[</span><span class="token-cs-attribute">SuppressMessage</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"Category"</span><span class="token-cs-punctuation">, </span><span class="token-cs-string">"CheckId"</span><span class="token-cs-punctuation">, </span><span class="token-cs-property">Justification</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">"Обоснование"</span><span class="token-cs-punctuation">)]</span>
+<span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">MyMethod</span><span class="token-cs-punctuation">() { }</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Глобальный файл подавлений <code>GlobalSuppressions.cs</code>:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-punctuation">[</span><span class="token-cs-keyword">assembly</span><span class="token-cs-punctuation">: </span><span class="token-cs-attribute">SuppressMessage</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"Design"</span><span class="token-cs-punctuation">, </span><span class="token-cs-string">"CheckId"</span><span class="token-cs-punctuation">, </span><span class="token-cs-property">Scope</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">"member"</span><span class="token-cs-punctuation">, </span><span class="token-cs-property">Target</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">"~M:MyClass.MyMethod"</span><span class="token-cs-punctuation">)]</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Подавление через интерфейс среды разработки с использованием меню быстрых действий (Quick Actions).</li>
+                    </ul>
+
+                    <h3>Интеграция с процессами CI/CD:</h3>
+                    <ul>
+                        <li>
+                            Добавление шага проверки форматирования в конвейер сборки:
+                            <div class="code">
+                                <div class="code-header"><span>YAML (GitHub Actions)</span><span>yaml</span></div>
+                                <pre><code class="language-yaml"><span class="token-yaml-key">-</span><span class="token-yaml-punctuation"> </span><span class="token-yaml-key">name</span><span class="token-yaml-punctuation">: </span><span class="token-yaml-value">Check formatting</span>
+<span class="token-yaml-punctuation">  </span><span class="token-yaml-key">run</span><span class="token-yaml-punctuation">: </span><span class="token-yaml-value">dotnet format --verify-no-changes</span>
+<span class="token-yaml-key">-</span><span class="token-yaml-punctuation"> </span><span class="token-yaml-key">name</span><span class="token-yaml-punctuation">: </span><span class="token-yaml-value">Build</span>
+<span class="token-yaml-punctuation">  </span><span class="token-yaml-key">run</span><span class="token-yaml-punctuation">: </span><span class="token-yaml-value">dotnet build -c Release</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Параметр <code>--verify-no-changes</code> возвращает ненулевой код завершения, если обнаружены файлы, требующие форматирования. Это приводит к прерыванию конвейера и сигнализирует о необходимости приведения кода к установленным стандартам.</li>
+                    </ul>
+
+                    <h3>Генерация файла <code>.editorconfig</code> из Visual Studio:</h3>
+                    <ul>
+                        <li><strong>Путь в меню:</strong> Tools -> Options -> Text Editor -> C# -> Code Style -> General.</li>
+                        <li>Настройка параметров стиля через графический интерфейс.</li>
+                        <li>Кнопка «Generate .editorconfig file from settings» создаёт файл в корне решения с текущими параметрами.</li>
+                        <li>Альтернативный способ: добавление нового элемента в проект через Add -> New Item -> EditorConfig File (.NET).</li>
+                    </ul>
+
+                    <h3>Создание собственного анализатора:</h3>
+                    <ul>
+                        <li>Используется библиотека <code>Microsoft.CodeAnalysis</code> (API компилятора Roslyn).</li>
+                        <li>Класс анализатора наследуется от <code>DiagnosticAnalyzer</code>.</li>
+                        <li>Определяются метаданные правила через <code>DiagnosticDescriptor</code> (идентификатор, название, сообщение, категория).</li>
+                        <li>Реализуется метод <code>Initialize</code>, регистрирующий действия анализа на синтаксические узлы или символы.</li>
+                        <li>Готовый анализатор упаковывается в пакет NuGet и подключается к проекту в качестве анализатора.</li>
+                    </ul>
+                </div>
+            </details>
+        </details>
+
+        
+
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <p class="footer-copy">© 2026 Obj-Proger. Все права защищены.</p>
+            <p class="footer-made">
+                Сделано с <svg class="footer-heart" viewBox="0 0 24 24" xmlns="http://w3.org" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> для разработчиков
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
