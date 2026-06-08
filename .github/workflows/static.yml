@@ -1,4 +1,4 @@
-name: Fix Paths and Deploy
+name: Fix Base Path and Deploy
 
 on:
   push:
@@ -13,58 +13,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fix paths in HTML files for GitHub Pages
+      - name: Fix base href in all HTML files
         run: |
           find . -name "*.html" -type f | while read file; do
-            sed -i 's|href="/\([^O][^v][^e][^r][^r][^i][^d][^e]\)|href="/Override/\1|g' "$file"
-            sed -i 's|href="/ru|href="/Override/ru|g' "$file"
-            sed -i 's|href="/en|href="/Override/en|g' "$file"
-            sed -i 's|src="/\([^O][^v][^e][^r][^r][^i][^d][^e]\)|src="/Override/\1|g' "$file"
-            sed -i 's|src="/assets|src="/Override/assets|g' "$file"
+            # Add <base> tag after <title> if not present
+            if ! grep -q '<base href=' "$file"; then
+              sed -i '/<title>/{a\    <base href="/Override/">
+              }' "$file"
+            fi
           done
+          echo "✓ Added <base> tags to all HTML files"
 
-      - name: Update search.js with base path logic
+      - name: Verify changes
         run: |
-          cat > /tmp/search_fix.js << 'EOF'
-          // Add at the beginning of IIFE, after 'use strict';
-          
-          // Get base path for GitHub Pages
-          function getBasePath() {
-              const pathname = window.location.pathname;
-              if (pathname.includes('/Override/')) {
-                  return '/Override';
-              }
-              return '';
-          }
-          
-          const BASE_PATH = getBasePath();
-          EOF
-          
-          # Insert BASE_PATH logic after search function definition
-          sed -i '/function search(query) {/i\    // Get base path for GitHub Pages\n    function getBasePath() {\n        const pathname = window.location.pathname;\n        if (pathname.includes("'"'"'/Override/'"'"'")) {\n            return "'"'"'/Override'"'"'";\n        }\n        return "";\n    }\n    const BASE_PATH = getBasePath();' assets/js/search.js
-          
-          # Fix resolveUrl function to use BASE_PATH
-          sed -i 's|function resolveUrl(url) {|function resolveUrl(url) {\n        if (url.startsWith("http")) return url;\n        if (url.startsWith("/") && !url.startsWith(BASE_PATH) && BASE_PATH) {\n            return BASE_PATH + url;\n        }|' assets/js/search.js
+          echo "=== Files with base tag ==="
+          grep -l '<base href=' *.html ru/*.html en/*.html 2>/dev/null | head -10
 
-      - name: Update main.js with base path logic for links
-        run: |
-          # Add base path detection and link fixing
-          sed -i '/const MOBILE_QUERY/a\    const THEME_KEY = '"'"'docs-theme'"'"';\n    const SCROLL_KEY = '"'"'docs-scroll-position'"'"';\n\n    function getBasePath() {\n        const pathname = window.location.pathname;\n        if (pathname.includes("'"'"'/Override/'"'"'")) {\n            return "'"'"'/Override'"'"'";\n        }\n        return "";\n    }\n    const BASE_PATH = getBasePath();' assets/js/main.js
-          
-          # Add link fixing function before init
-          sed -i '/function init() {/i\    function fixNavigationLinks() {\n        if (!BASE_PATH) return;\n        const links = document.querySelectorAll("a[href]");\n        links.forEach(link => {\n            const href = link.getAttribute("href");\n            if (href && href.startsWith("/") && !href.startsWith(BASE_PATH)) {\n                link.setAttribute("href", BASE_PATH + href);\n            }\n        });\n    }\n' assets/js/main.js
-          
-          # Call fixNavigationLinks in init
-          sed -i '/initCollapseAll();/a\        fixNavigationLinks();' assets/js/main.js
-
-      - name: Commit and push changes
+      - name: Commit changes if any
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          if [[ -n $(git status -s) ]]; then
+          if git diff --quiet; then
+            echo "No changes needed"
+          else
             git add -A
-            git commit -m "fix: Auto-fix paths for GitHub Pages deployment"
+            git commit -m "fix: Add base href for GitHub Pages" || true
             git push
           fi
 
