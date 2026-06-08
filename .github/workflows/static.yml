@@ -1,4 +1,4 @@
-name: Fix Paths for GitHub Pages
+name: Fix Paths and Deploy
 
 on:
   push:
@@ -6,121 +6,70 @@ on:
   workflow_dispatch:
 
 jobs:
-  fix-paths:
+  fix-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Create path fixing script
+      - name: Fix paths in HTML files for GitHub Pages
         run: |
-          cat > fix-paths.js << 'EOF'
-          const fs = require('fs');
-          const path = require('path');
+          find . -name "*.html" -type f | while read file; do
+            sed -i 's|href="/\([^O][^v][^e][^r][^r][^i][^d][^e]\)|href="/Override/\1|g' "$file"
+            sed -i 's|href="/ru|href="/Override/ru|g' "$file"
+            sed -i 's|href="/en|href="/Override/en|g' "$file"
+            sed -i 's|src="/\([^O][^v][^e][^r][^r][^i][^d][^e]\)|src="/Override/\1|g' "$file"
+            sed -i 's|src="/assets|src="/Override/assets|g' "$file"
+          done
+
+      - name: Update search.js with base path logic
+        run: |
+          cat > /tmp/search_fix.js << 'EOF'
+          // Add at the beginning of IIFE, after 'use strict';
           
-          const BASE_PATH = '/Override';
-          const ROOT = process.cwd();
-          
-          // File extensions to process
-          const EXTENSIONS = ['.html', '.js'];
-          
-          // Collect all files
-          function getAllFiles(dir) {
-            let files = [];
-            const items = fs.readdirSync(dir, { withFileTypes: true });
-            
-            for (const item of items) {
-              if (item.name.startsWith('.')) continue;
-              if (['node_modules', '.git', 'dist', 'build'].includes(item.name)) continue;
-              
-              const fullPath = path.join(dir, item.name);
-              if (item.isDirectory()) {
-                files = files.concat(getAllFiles(fullPath));
-              } else if (EXTENSIONS.includes(path.extname(item.name))) {
-                files.push(fullPath);
+          // Get base path for GitHub Pages
+          function getBasePath() {
+              const pathname = window.location.pathname;
+              if (pathname.includes('/Override/')) {
+                  return '/Override';
               }
-            }
-            return files;
+              return '';
           }
           
-          // Fix absolute paths in file
-          function fixFile(filePath) {
-            let content = fs.readFileSync(filePath, 'utf-8');
-            let modified = false;
-            
-            // Pattern: href="/...", src="/...", url("...") but NOT in comments or data-*
-            // Match absolute paths starting with /assets, /ru, /en, /ru/, /en/ etc
-            const absolutePathPattern = /(?:href|src|url)\s*=\s*["'](?!http|\/\/)\/(?!Override)([\w\-/\.]*)?["']/g;
-            
-            if (absolutePathPattern.test(content)) {
-              content = content.replace(
-                /(?:href|src|url)\s*=\s*["'](?!http|\/\/)\/(?!Override)([\w\-/\.]*)?["']/g,
-                (match) => {
-                  const quote = match.includes('"') ? '"' : "'";
-                  const path = match.split('=')[1].slice(1, -1); // Extract path
-                  return match.split('=')[0] + '=' + quote + BASE_PATH + path + quote;
-                }
-              );
-              modified = true;
-            }
-            
-            // Fix in JavaScript string patterns (href assignment, navigation, etc)
-            // Look for patterns like: href="/" or href='/'
-            const jsHrefPattern = /(['"])\/(?!Override)/g;
-            if (jsHrefPattern.test(content)) {
-              content = content.replace(
-                /(['"])\/(?!Override)([^'"]*)(['"])/g,
-                (match, quote1, path, quote2) => {
-                  if (path.startsWith('http') || path.startsWith('//')) return match;
-                  return quote1 + BASE_PATH + '/' + path + quote2;
-                }
-              );
-              modified = true;
-            }
-            
-            if (modified) {
-              fs.writeFileSync(filePath, content, 'utf-8');
-              console.log(`✓ Fixed: ${path.relative(ROOT, filePath)}`);
-            }
-          }
-          
-          // Process all files
-          const files = getAllFiles(ROOT);
-          console.log(`Processing ${files.length} files...\n`);
-          
-          files.forEach(fixFile);
-          console.log('\n✓ All files processed!');
+          const BASE_PATH = getBasePath();
           EOF
-        
-      - name: Run path fixing script
-        run: node fix-paths.js
+          
+          # Insert BASE_PATH logic after search function definition
+          sed -i '/function search(query) {/i\    // Get base path for GitHub Pages\n    function getBasePath() {\n        const pathname = window.location.pathname;\n        if (pathname.includes("'"'"'/Override/'"'"'")) {\n            return "'"'"'/Override'"'"'";\n        }\n        return "";\n    }\n    const BASE_PATH = getBasePath();' assets/js/search.js
+          
+          # Fix resolveUrl function to use BASE_PATH
+          sed -i 's|function resolveUrl(url) {|function resolveUrl(url) {\n        if (url.startsWith("http")) return url;\n        if (url.startsWith("/") && !url.startsWith(BASE_PATH) && BASE_PATH) {\n            return BASE_PATH + url;\n        }|' assets/js/search.js
 
-      - name: Verify changes
+      - name: Update main.js with base path logic for links
         run: |
-          echo "=== Modified files ===" 
-          git diff --name-only
-          echo ""
-          echo "=== Sample changes ===" 
-          git diff --no-color | head -50
+          # Add base path detection and link fixing
+          sed -i '/const MOBILE_QUERY/a\    const THEME_KEY = '"'"'docs-theme'"'"';\n    const SCROLL_KEY = '"'"'docs-scroll-position'"'"';\n\n    function getBasePath() {\n        const pathname = window.location.pathname;\n        if (pathname.includes("'"'"'/Override/'"'"'")) {\n            return "'"'"'/Override'"'"'";\n        }\n        return "";\n    }\n    const BASE_PATH = getBasePath();' assets/js/main.js
+          
+          # Add link fixing function before init
+          sed -i '/function init() {/i\    function fixNavigationLinks() {\n        if (!BASE_PATH) return;\n        const links = document.querySelectorAll("a[href]");\n        links.forEach(link => {\n            const href = link.getAttribute("href");\n            if (href && href.startsWith("/") && !href.startsWith(BASE_PATH)) {\n                link.setAttribute("href", BASE_PATH + href);\n            }\n        });\n    }\n' assets/js/main.js
+          
+          # Call fixNavigationLinks in init
+          sed -i '/initCollapseAll();/a\        fixNavigationLinks();' assets/js/main.js
 
-      - name: Commit and push if changes exist
+      - name: Commit and push changes
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           
           if [[ -n $(git status -s) ]]; then
             git add -A
-            git commit -m "fix: Auto-fix absolute paths for GitHub Pages deployment"
+            git commit -m "fix: Auto-fix paths for GitHub Pages deployment"
             git push
-            echo "✓ Changes committed and pushed"
-          else
-            echo "No changes to commit"
           fi
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
