@@ -24,25 +24,24 @@ jobs:
 
       - name: Convert absolute paths to relative for subdirectory deployment
         run: |
-          # Конвертация всех абсолютных путей /path в относительные ./path
-          find . -type f \( -name "*.html" -o -name "*.js" -o -name "*.css" \) ! -path "./.git/*" ! -path "./node_modules/*" | while read file; do
-            # Замена href="/path" на href="./path" (но не href="//" для protocol-relative URLs)
-            sed -i 's|href="/\([^/]\)|href="./\1|g' "$file"
-            # Замена src="/path" на src="./path" (но не src="//" для protocol-relative URLs)
-            sed -i 's|src="/\([^/]\)|src="./\1|g' "$file"
-            # Для JS: замена пути в fetch, window.location и других динамических обращениях
-            sed -i "s|'/\([^/]\)|'./\1|g" "$file"
-            sed -i 's|"/\([^/]\)|"./\1|g' "$file"
-            # Удаление двойных путей типа "././"
-            sed -i 's|href="\./\./|href="./|g' "$file"
-            sed -i 's|src="\./\./|src="./|g' "$file"
-            sed -i "s|'\./\./|'./|g" "$file"
-            sed -i 's|"\./\./|"./|g' "$file"
-            # Замена пустых путей "./" на "./index"
-            sed -i 's|href="\./"|href="./index"|g' "$file"
-            sed -i 's|src="\./"|src="./index"|g' "$file"
-            sed -i "s|'\./\"|'./index\"|g" "$file"
-            sed -i 's|"\./"|"./index"|g' "$file"
+           # Замена абсолютных путей вида href="/path/file.html" на href="./path/file.html"
+            sed -i 's|href="/\([^/].*\)"|href="./\1"|g' "$file"
+            sed -i "s|href='/\([^/].*\)'|href='./\1'|g" "$file"
+            
+            # Замена для src атрибутов
+            sed -i 's|src="/\([^/].*\)"|src="./\1"|g' "$file"
+            sed -i "s|src='/\([^/].*\)'|src='./\1'|g" "$file"
+            
+            # Замена в JavaScript кодде (в строках)
+            sed -i "s|url: '/\([^/].*\)'|url: './\1'|g" "$file"
+            sed -i 's|url: "/\([^/].*\)"|url: "./\1"|g' "$file"
+            
+            # Другие случаи в JS (fetch, window.location и т.д.)
+            sed -i "s|'/\([^/].*\)'|'./\1'|g" "$file"
+            sed -i 's|"/\([^/].*\)"|\"./\1\"|g' "$file"
+            
+            # Очистка от случайных двойных точек (только если реально есть ././)
+            sed -i 's|/\./|/|g' "$file"
           done
 
       - name: Upload artifact
