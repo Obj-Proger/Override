@@ -33,6 +33,16 @@ jobs:
             # Для JS: замена пути в fetch, window.location и других динамических обращениях
             sed -i "s|'/\([^/]\)|'./\1|g" "$file"
             sed -i 's|"/\([^/]\)|"./\1|g' "$file"
+            # Удаление двойных путей типа "././"
+            sed -i 's|href="\./\./|href="./|g' "$file"
+            sed -i 's|src="\./\./|src="./|g' "$file"
+            sed -i "s|'\./\./|'./|g" "$file"
+            sed -i 's|"\./\./|"./|g' "$file"
+            # Замена пустых путей "./" на "./index"
+            sed -i 's|href="\./"|href="./index"|g' "$file"
+            sed -i 's|src="\./"|src="./index"|g' "$file"
+            sed -i "s|'\./\"|'./index\"|g" "$file"
+            sed -i 's|"\./"|"./index"|g' "$file"
           done
 
       - name: Upload artifact
