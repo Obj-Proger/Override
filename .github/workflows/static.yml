@@ -1,86 +1,126 @@
-name: Deploy to GitHub Pages
+name: Fix Paths for GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [ main, master ]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
 jobs:
-  build:
+  fix-paths:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v5
-
-      - name: Inject base href tag
-        env:
-          BASE: ${{ steps.pages.outputs.base_path }}
-        run: |
-          python3 << 'PYEOF'
-          import os, re
-
-          BASE = os.environ.get('BASE', '').rstrip('/')
-          
-          # Если BASE пусто (custom domain или root) — не трогает
-          if not BASE:
-              print("No base path needed")
-              exit(0)
-
-          print(f"Injecting <base href=\"{BASE}/\">")
-
-          for root, dirs, files in os.walk('.'):
-              dirs[:] = [d for d in dirs if d not in ('.git', '.github', 'node_modules')]
-              
-              for fname in files:
-                  if not fname.endswith('.html'):
-                      continue
-                  
-                  fpath = os.path.join(root, fname)
-                  with open(fpath, 'r', encoding='utf-8') as f:
-                      html = f.read()
-                  
-                  # Если <base> уже есть — пропуск
-                  if '<base' in html:
-                      continue
-                  
-                  # Вставка <base> после <head>
-                  new_html = html.replace(
-                      '<head>',
-                      f'<head>\n    <base href="{BASE}/">'
-                  )
-                  
-                  if new_html != html:
-                      with open(fpath, 'w', encoding='utf-8') as f:
-                          f.write(new_html)
-                      print(f"  injected in {fpath}")
-
-          PYEOF
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          fetch-depth: 0
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Create path fixing script
+        run: |
+          cat > fix-paths.js << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+          
+          const BASE_PATH = '/Override';
+          const ROOT = process.cwd();
+          
+          // File extensions to process
+          const EXTENSIONS = ['.html', '.js'];
+          
+          // Collect all files
+          function getAllFiles(dir) {
+            let files = [];
+            const items = fs.readdirSync(dir, { withFileTypes: true });
+            
+            for (const item of items) {
+              if (item.name.startsWith('.')) continue;
+              if (['node_modules', '.git', 'dist', 'build'].includes(item.name)) continue;
+              
+              const fullPath = path.join(dir, item.name);
+              if (item.isDirectory()) {
+                files = files.concat(getAllFiles(fullPath));
+              } else if (EXTENSIONS.includes(path.extname(item.name))) {
+                files.push(fullPath);
+              }
+            }
+            return files;
+          }
+          
+          // Fix absolute paths in file
+          function fixFile(filePath) {
+            let content = fs.readFileSync(filePath, 'utf-8');
+            let modified = false;
+            
+            // Pattern: href="/...", src="/...", url("...") but NOT in comments or data-*
+            // Match absolute paths starting with /assets, /ru, /en, /ru/, /en/ etc
+            const absolutePathPattern = /(?:href|src|url)\s*=\s*["'](?!http|\/\/)\/(?!Override)([\w\-/\.]*)?["']/g;
+            
+            if (absolutePathPattern.test(content)) {
+              content = content.replace(
+                /(?:href|src|url)\s*=\s*["'](?!http|\/\/)\/(?!Override)([\w\-/\.]*)?["']/g,
+                (match) => {
+                  const quote = match.includes('"') ? '"' : "'";
+                  const path = match.split('=')[1].slice(1, -1); // Extract path
+                  return match.split('=')[0] + '=' + quote + BASE_PATH + path + quote;
+                }
+              );
+              modified = true;
+            }
+            
+            // Fix in JavaScript string patterns (href assignment, navigation, etc)
+            // Look for patterns like: href="/" or href='/'
+            const jsHrefPattern = /(['"])\/(?!Override)/g;
+            if (jsHrefPattern.test(content)) {
+              content = content.replace(
+                /(['"])\/(?!Override)([^'"]*)(['"])/g,
+                (match, quote1, path, quote2) => {
+                  if (path.startsWith('http') || path.startsWith('//')) return match;
+                  return quote1 + BASE_PATH + '/' + path + quote2;
+                }
+              );
+              modified = true;
+            }
+            
+            if (modified) {
+              fs.writeFileSync(filePath, content, 'utf-8');
+              console.log(`✓ Fixed: ${path.relative(ROOT, filePath)}`);
+            }
+          }
+          
+          // Process all files
+          const files = getAllFiles(ROOT);
+          console.log(`Processing ${files.length} files...\n`);
+          
+          files.forEach(fixFile);
+          console.log('\n✓ All files processed!');
+          EOF
+        
+      - name: Run path fixing script
+        run: node fix-paths.js
+
+      - name: Verify changes
+        run: |
+          echo "=== Modified files ===" 
+          git diff --name-only
+          echo ""
+          echo "=== Sample changes ===" 
+          git diff --no-color | head -50
+
+      - name: Commit and push if changes exist
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          if [[ -n $(git status -s) ]]; then
+            git add -A
+            git commit -m "fix: Auto-fix absolute paths for GitHub Pages deployment"
+            git push
+            echo "✓ Changes committed and pushed"
+          else
+            echo "No changes to commit"
+          fi
