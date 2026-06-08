@@ -1,23 +1,41 @@
-name: Deploy Subfolder to Root
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches:
+      - main
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy subfolder to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Fix absolute links for subdirectory
+        run: |
+          # Изменение всех абсолютных ссылок /path на /Override/path
+          find . -type f \( -name "*.html" -o -name "*.js" -o -name "*.css" \) ! -path "./.git/*" ! -path "./node_modules/*" | while read file; do
+            sed -i 's|href="/|href="/Override/|g' "$file"
+            sed -i 's|src="/|src="/Override/|g' "$file"
+            sed -i 's|window.location.replace("\([^"]*\)")|window.location.replace("/Override/\1")|g' "$file"
+          done
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
-          publish_branch: gh-pages 
-          force_orphan: true 
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
