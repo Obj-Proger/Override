@@ -2,8 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -11,44 +10,77 @@ permissions:
   pages: write
   id-token: write
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
+jobs:
+  build:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Convert absolute paths to relative for subdirectory deployment
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Inject base href tag
+        env:
+          BASE: ${{ steps.pages.outputs.base_path }}
         run: |
-           # Замена абсолютных путей вида href="/path/file.html" на href="./path/file.html"
-            sed -i 's|href="/\([^/].*\)"|href="./\1"|g' "$file"
-            sed -i "s|href='/\([^/].*\)'|href='./\1'|g" "$file"
-            
-            # Замена для src атрибутов
-            sed -i 's|src="/\([^/].*\)"|src="./\1"|g' "$file"
-            sed -i "s|src='/\([^/].*\)'|src='./\1'|g" "$file"
-            
-            # Замена в JavaScript кодде (в строках)
-            sed -i "s|url: '/\([^/].*\)'|url: './\1'|g" "$file"
-            sed -i 's|url: "/\([^/].*\)"|url: "./\1"|g' "$file"
-            
-            # Другие случаи в JS (fetch, window.location и т.д.)
-            sed -i "s|'/\([^/].*\)'|'./\1'|g" "$file"
-            sed -i 's|"/\([^/].*\)"|\"./\1\"|g' "$file"
-            
-            # Очистка от случайных двойных точек (только если реально есть ././)
-            sed -i 's|/\./|/|g' "$file"
-          done
+          python3 << 'PYEOF'
+          import os, re
+
+          BASE = os.environ.get('BASE', '').rstrip('/')
+          
+          # Если BASE пусто (custom domain или root) — не трогает
+          if not BASE:
+              print("No base path needed")
+              exit(0)
+
+          print(f"Injecting <base href=\"{BASE}/\">")
+
+          for root, dirs, files in os.walk('.'):
+              dirs[:] = [d for d in dirs if d not in ('.git', '.github', 'node_modules')]
+              
+              for fname in files:
+                  if not fname.endswith('.html'):
+                      continue
+                  
+                  fpath = os.path.join(root, fname)
+                  with open(fpath, 'r', encoding='utf-8') as f:
+                      html = f.read()
+                  
+                  # Если <base> уже есть — пропуск
+                  if '<base' in html:
+                      continue
+                  
+                  # Вставка <base> после <head>
+                  new_html = html.replace(
+                      '<head>',
+                      f'<head>\n    <base href="{BASE}/">'
+                  )
+                  
+                  if new_html != html:
+                      with open(fpath, 'w', encoding='utf-8') as f:
+                          f.write(new_html)
+                      print(f"  injected in {fpath}")
+
+          PYEOF
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: .
 
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
