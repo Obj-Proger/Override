@@ -22,13 +22,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fix absolute links for subdirectory
+      - name: Convert absolute paths to relative for subdirectory deployment
         run: |
-          # Изменение всех абсолютных ссылок /path на /Override/path
+          # Конвертация всех абсолютных путей /path в относительные ./path
           find . -type f \( -name "*.html" -o -name "*.js" -o -name "*.css" \) ! -path "./.git/*" ! -path "./node_modules/*" | while read file; do
-            sed -i 's|href="/|href="/Override/|g' "$file"
-            sed -i 's|src="/|src="/Override/|g' "$file"
-            sed -i 's|window.location.replace("\([^"]*\)")|window.location.replace("/Override/\1")|g' "$file"
+            # Замена href="/path" на href="./path" (но не href="//" для protocol-relative URLs)
+            sed -i 's|href="/\([^/]\)|href="./\1|g' "$file"
+            # Замена src="/path" на src="./path" (но не src="//" для protocol-relative URLs)
+            sed -i 's|src="/\([^/]\)|src="./\1|g' "$file"
+            # Для JS: замена пути в fetch, window.location и других динамических обращениях
+            sed -i "s|'/\([^/]\)|'./\1|g" "$file"
+            sed -i 's|"/\([^/]\)|"./\1|g' "$file"
           done
 
       - name: Upload artifact
