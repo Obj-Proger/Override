@@ -7,6 +7,19 @@
     // State
     let searchInput, searchDropdown, currentPageId;
 
+    // Get base path from <base> tag or determine it dynamically
+    function getBasePath() {
+        const baseTag = document.querySelector('base');
+        if (baseTag) return baseTag.getAttribute('href') || '/';
+        
+        // Fallback: detect if we're in a subdirectory
+        const path = window.location.pathname;
+        if (path.includes('/Override/')) return '/Override/';
+        return '/';
+    }
+
+    const BASE_PATH = getBasePath();
+
     // Page detection
 
     // Returns the current page identifier (filename without extension)
@@ -22,13 +35,25 @@
         return str.toLowerCase().trim();
     }
 
-    // Converts a relative URL from the index to an absolute path
+    // Converts a relative URL from the index to an absolute path with proper base
     function resolveUrl(url) {
-        if (url.startsWith('/') || url.startsWith('http')) return url;
-        // Build absolute URL using an <a> element — browser handles the resolution
+        if (url.startsWith('/') || url.startsWith('http')) {
+            // Already absolute — prepend BASE_PATH if needed
+            if (url.startsWith('/') && BASE_PATH !== '/') {
+                return BASE_PATH.replace(/\/$/, '') + url;
+            }
+            return url;
+        }
+        // Relative URL — resolve with base
         const a = document.createElement('a');
         a.href = url;
-        return a.pathname;
+        let pathname = a.pathname;
+        
+        // Add BASE_PATH prefix if not already present
+        if (BASE_PATH !== '/' && !pathname.startsWith(BASE_PATH)) {
+            pathname = BASE_PATH.replace(/\/$/, '') + pathname;
+        }
+        return pathname;
     }
 
     // Searches SEARCH_INDEX and returns results split by page
