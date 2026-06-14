@@ -5,7 +5,7 @@
     'use strict';
 
     // State
-    let searchInput, searchDropdown, currentPageId;
+    let searchInput, searchDropdown, searchWrapper, currentPageId;
 
     // Get base path from <base> tag or determine it dynamically
     function getBasePath() {
@@ -111,7 +111,7 @@
             item.innerHTML = `<span class="search-item-title">${highlight(r.sectionTitle, query)}</span>`;
         }
 
-        item.addEventListener('click', closeDropdown);
+        item.addEventListener('click', modifierClass === 'search-item--current' ? closeSearch : closeDropdown);
         return item;
     }
 
@@ -162,6 +162,15 @@
     function closeDropdown() {
         searchDropdown.classList.remove('open');
         searchDropdown.innerHTML = '';
+    }
+
+    // Fully collapse search UI (used when navigating within the same page)
+    function closeSearch() {
+        closeDropdown();
+        searchInput.value = '';
+        searchInput.blur();
+        searchWrapper.classList.remove('search-expanded');
+        document.body.classList.remove('search-open');
     }
 
     // Keyboard navigation
@@ -236,6 +245,7 @@
 
         const wrapper = document.createElement('div');
         wrapper.className = 'search-wrapper';
+        searchWrapper = wrapper;
 
         // Wrapper for input + permanent icon
         const inputWrap = document.createElement('div');

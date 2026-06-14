@@ -840,13 +840,13 @@ body.dark .theme-toggle-icon--moon svg {
         font-size: 15px;
     }
 
-    body.mobile-open nav {
-        transform: translateX(0);
-    }
+        body.mobile-open nav {
+            transform: translateX(0);
+        }
 
-    body.mobile-open main {
-        margin-left: 0;
-    }
+        body.mobile-open main {
+            margin-left: 0;
+        }
 
     main {
         padding: 12px;
