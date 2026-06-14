@@ -4196,6 +4196,793 @@
             </details>
         </details>
 
+        <!-- 3. Методы и параметры -->
+        <details id="section-3">
+            <summary>3. Методы и параметры</summary>
+
+            <!-- 3.1. Определение методов (модификаторы, возвращаемое значение) -->
+            <details id="section-3.1">
+                <summary>3.1. Определение методов (модификаторы, возвращаемое значение)</summary>
+                <div>
+                    <h3>Метод:</h3>
+                    <ul>
+                        <li>Именованный блок кода, выполняющий определённую задачу и принадлежащий типу (классу, структуре, интерфейсу, записи).</li>
+                        <li>Может принимать параметры и возвращать значение.</li>
+                        <li>
+                            <strong>Синтаксис определения:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Синтаксис</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-punctuation">[</span><span class="token-cs-keyword">модификаторы</span><span class="token-cs-punctuation">]</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">типВозвращаемогоЗначения</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">ИмяМетода</span><span class="token-cs-punctuation">([</span><span class="token-cs-keyword">параметры</span><span class="token-cs-punctuation">])</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// Тело метода</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Модификаторы:</h3>
+                    <ul>
+                        <li>Задают доступность, поведение и область видимости метода.</li>
+                        <li>
+                            <strong>Основные модификаторы:</strong>
+                            <ul>
+                                <li>
+                                    <strong>Модификаторы доступа:</strong>
+                                    <ul>
+                                        <li><code>public</code> — доступ из любого кода.</li>
+                                        <li><code>private</code> — доступ только внутри объявляющего типа.</li>
+                                        <li><code>protected</code> — доступ внутри типа и производных типов.</li>
+                                        <li><code>internal</code> — доступ в пределах текущей сборки.</li>
+                                        <li><code>protected internal</code> — доступ в пределах сборки или из производных типов.</li>
+                                        <li><code>private protected</code> — доступ внутри типа и производных типов, но только в одной сборке.</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <strong>Модификаторы, управляющие наследованием и переопределением:</strong>
+                                    <ul>
+                                        <li><code>abstract</code> — метод без реализации (только сигнатура). Разрешён только в абстрактных классах. В интерфейсах нестатические члены без тела неявно являются абстрактными (ключевое слово <code>abstract</code> не требуется); статические члены интерфейса без тела допускают указание <code>static abstract</code> или <code>static virtual</code>.</li>
+                                        <li><code>virtual</code> — метод с реализацией, которую можно переопределить в производном классе.</li>
+                                        <li><code>override</code> — переопределяет виртуальный или абстрактный метод базового класса.</li>
+                                        <li><code>sealed</code> — в сочетании с <code>override</code> запрещает дальнейшее переопределение метода в производных классах.</li>
+                                    </ul>
+                                </li>
+                                <li><strong><code>static</code></strong> — метод принадлежит типу, а не экземпляру.</li>
+                                <li><strong><code>async</code></strong> — указывает, что метод содержит асинхронные операции.</li>
+                                <li><strong><code>extern</code></strong> — сигнализирует, что реализация метода находится за пределами управляемого кода (например, через P/Invoke).</li>
+                                <li><strong><code>partial</code></strong> — частичный метод; объявление метода может быть разделено на определяющую и реализующую декларации, располагаемые в разных частях partial-типа. В современных версиях C# поддерживаются частичные методы с явными модификаторами доступа, непустым возвращаемым типом и обязательной реализацией.</li>
+                            </ul>
+                        </li>
+                        <li>Допускается комбинирование модификаторов в соответствии с правилами языка (например, <code>public static</code>, <code>protected virtual</code>, <code>internal abstract</code>).</li>
+                    </ul>
+
+                    <h3>Тип возвращаемого значения:</h3>
+                    <ul>
+                        <li>Определяет тип, который метод возвращает вызывающему коду после выполнения.</li>
+                        <li>Оператор <code>return</code> передаёт значение вызывающему коду и завершает выполнение метода.</li>
+                        <li>Если метод не возвращает значение, в качестве типа возврата указывается <code>void</code>. В таком методе допускается оператор <code>return;</code> (без значения) для досрочного выхода.</li>
+                        <li>
+                            <strong>Допустимые типы возврата:</strong>
+                            <ul>
+                                <li>Любой значимый или ссылочный тип.</li>
+                                <li>Для асинхронных методов: <code>Task</code>, <code>Task&lt;T&gt;</code>, <code>void</code> (преимущественно для обработчиков событий; такой метод нельзя ожидать, и он не передаёт исключения вызывающему коду; для обычных методов без результата рекомендуется возвращать <code>Task</code>), а также любой тип, имеющий доступный метод <code>GetAwaiter</code> (task-like тип). <code>ValueTask&lt;T&gt;</code> и <code>ValueTask</code> являются примерами task-like типов. Для асинхронных потоков используется <code>IAsyncEnumerable&lt;T&gt;</code>.</li>
+                                <li><strong>Возврат по ссылке (<code>ref return</code>)</strong> — метод возвращает не копию значения, а ссылку на существующую переменную. Для этого перед типом возврата ставится модификатор <code>ref</code>, а в теле метода возвращается ссылка на переменную (например, элемент массива). Вызывающий код может использовать результат для чтения или изменения исходной переменной. Такой метод требует, чтобы возвращаемая переменная не была локальной и существовала после выхода из метода.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Примеры сигнатур:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetValue</span><span class="token-cs-punctuation">() { </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">42</span><span class="token-cs-punctuation">; }</span>
+<span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Print</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">message</span><span class="token-cs-punctuation">) { </span><span class="token-cs-comment">/* ... */</span><span class="token-cs-punctuation"> }</span>
+<span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">async</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Task</span><span class="token-cs-punctuation">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">CalculateAsync</span><span class="token-cs-punctuation">() { </span><span class="token-cs-comment">/* ... */</span><span class="token-cs-punctuation"> }</span>
+<span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">ref</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetRef</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">[] </span><span class="token-cs-variable">arr</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">index</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">ref</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">arr</span><span class="token-cs-punctuation">[</span><span class="token-cs-variable">index</span><span class="token-cs-punctuation">];</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Expression-bodied методы (методы в форме выражения):</h3>
+                    <ul>
+                        <li>Сокращённый синтаксис для методов, тело которых состоит из одного выражения.</li>
+                        <li>Используется оператор <code>=&gt;</code> (лямбда-оператор) вместо фигурных скобок и блока кода.</li>
+                        <li>Применим как к методам, возвращающим значение, так и к методам с возвращаемым типом <code>void</code> (если выражение — вызов другого метода, операция вывода и т.п.).</li>
+                        <li>Сигнатура метода при этом включает имя и список параметров; возвращаемый тип не участвует в сигнатуре для целей перегрузки.</li>
+                        <li>
+                            <strong>Примеры:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Add</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Print</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">msg</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">msg</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Методы расширения (extension methods):</h3>
+                    <ul>
+                        <li>Методы расширения — статические методы, объявленные в статическом классе верхнего уровня (не вложенном), не обобщённом (non‑generic). Первый параметр обязательно имеет модификатор <strong><code>this</code></strong> и задаёт расширяемый тип. Для этого параметра не допускается использование <code>out</code>. Модификатор <code>ref</code> разрешён только для значимых типов (value type) или обобщённых параметров с ограничением <code>struct</code>. Модификаторы <code>in</code> и <code>ref readonly</code> разрешены только для конкретных (не обобщённых) значимых типов.</li>
+                        <li>Первый параметр обязательно предваряется ключевым словом <code>this</code> и указывает тип, который метод расширяет.</li>
+                        <li>Вызываются так же, как методы экземпляра, при условии, что пространство имён, содержащее статический класс, подключено (обычно через <code>using</code>).</li>
+                        <li>
+                            <strong>Синтаксис определения:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">static</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">StringExtensions</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">static</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">bool</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">IsNullOrEmpty</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">this</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">source</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">string</span><span class="token-cs-operator">.</span><span class="token-cs-method">IsNullOrEmpty</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">source</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">    }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Использование:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">text</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">"Hello"</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-keyword">bool</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">empty</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">text</span><span class="token-cs-operator">.</span><span class="token-cs-method">IsNullOrEmpty</span><span class="token-cs-punctuation">();</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// Вызов как метода экземпляра</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Методы расширения широко применяются в LINQ, но синтаксически относятся к определению методов. Они также могут содержать параметры с модификаторами <code>ref</code>, <code>out</code>, <code>in</code>, необязательные параметры со значениями по умолчанию, а также параметр-массив <code>params</code>.</li>
+                    </ul>
+
+                    <h3>Локальная функция:</h3>
+                    <ul>
+                        <li>Метод, объявленный внутри другого члена типа (метода, конструктора, аксессора свойства или события, финализатора), лямбда-выражения, анонимного метода или другой локальной функции.</li>
+                        <li>Область видимости ограничена содержащим её элементом (недоступна вне его).</li>
+                        <li>Обычная локальная функция способна захватывать переменные и параметры из внешнего контекста. Статическая локальная функция (<code>static</code>) не может захватывать локальные переменные или состояние экземпляра. Локальные функции поддерживают модификаторы <code>async</code>, <code>unsafe</code>, <code>extern</code>.</li>
+                        <li>Объявляется непосредственно в теле содержащего элемента и может быть вызвана в любой точке после объявления.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 3.2. Параметры (обязательные, необязательные, именованные) -->
+            <details id="section-3.2">
+                <summary>3.2. Параметры (обязательные, необязательные, именованные)</summary>
+                <div>
+                    <h3>Параметры:</h3>
+                    <ul>
+                        <li>Переменные, объявляемые в сигнатуре метода и получающие значения при его вызове.</li>
+                        <li>Подразделяются на обязательные и необязательные.</li>
+                        <li>При вызове метода аргументы могут передаваться позиционно или с явным указанием имени параметра (именованные аргументы).</li>
+                    </ul>
+
+                    <h3>Обязательные параметры:</h3>
+                    <ul>
+                        <li>Должны быть переданы при каждом вызове метода.</li>
+                        <li>Объявляются без значения по умолчанию.</li>
+                        <li>В списке параметров располагаются до необязательных.</li>
+                        <li>
+                            <strong>Пример:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Print</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">message</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">message</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Необязательные параметры:</h3>
+                    <ul>
+                        <li>Имеют значение по умолчанию, которое используется, если аргумент не передан.</li>
+                        <li>Объявляются с указанием значения после знака равенства в сигнатуре метода.</li>
+                        <li>Должны следовать после всех обязательных параметров.</li>
+                        <li>
+                            Значение по умолчанию должно быть константным выражением времени компиляции и может включать:
+                            <ul>
+                                <li>Литералы (числа, строки, <code>true</code>/<code>false</code>, <code>null</code>).</li>
+                                <li>Константы (<code>const</code>), в том числе константные поля (например, <code>int.MaxValue</code>).</li>
+                                <li>Выражение <code>default</code> или <code>default(Тип)</code>.</li>
+                                <li>Выражение <code>new Тип()</code> для значимых типов (например, <code>new Guid()</code>).</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Примеры объявления:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Configure</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">name</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">timeout</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">30</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">bool</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">enabled</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">true</span><span class="token-cs-punctuation">) { }</span>
+<span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">SetPosition</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">y</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">default</span><span class="token-cs-punctuation">) { }</span>
+<span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Initialize</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">size</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation">()) { }  </span><span class="token-cs-comment">// size = 0 для int</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Значения по умолчанию разрешаются на этапе компиляции и подставляются в точке вызова. При изменении значения по умолчанию в библиотеке требуется перекомпиляция зависимых проектов для применения нового значения.</li>
+                    </ul>
+
+                    <h3>Атрибуты сведений о вызывающем коде:</h3>
+                    <ul>
+                        <li>Специальные необязательные параметры, которым компилятор автоматически присваивает значения, связанные с контекстом вызова.</li>
+                        <li>
+                            К ним относятся:
+                            <ul>
+                                <li><code>[CallerMemberName]</code> — имя вызывающего метода или свойства.</li>
+                                <li><code>[CallerFilePath]</code> — полный путь к исходному файлу вызывающего кода.</li>
+                                <li><code>[CallerLineNumber]</code> — номер строки, из которой был выполнен вызов.</li>
+                            </ul>
+                        </li>
+                        <li>Применяются к необязательным параметрам, если существует стандартное неявное преобразование из подставляемого значения к типу параметра: для <code>[CallerMemberName]</code> и <code>[CallerFilePath]</code> — обычно <code>string</code>, для <code>[CallerLineNumber]</code> — обычно <code>int</code>.</li>
+                        <li>Если аргумент передан явно при вызове, используется переданное значение вместо автоматического.</li>
+                        <li>
+                            <strong>Пример:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">using</span><span class="token-cs-punctuation"> </span><span class="token-cs-namespace">System</span><span class="token-cs-operator">.</span><span class="token-cs-namespace">Runtime</span><span class="token-cs-operator">.</span><span class="token-cs-namespace">CompilerServices</span><span class="token-cs-punctuation">;</span>
+
+<span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Log</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">message</span><span class="token-cs-punctuation">,</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-punctuation">[</span><span class="token-cs-attribute">CallerMemberName</span><span class="token-cs-punctuation">]</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">member</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">""</span><span class="token-cs-punctuation">,</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-punctuation">[</span><span class="token-cs-attribute">CallerFilePath</span><span class="token-cs-punctuation">]</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">file</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">""</span><span class="token-cs-punctuation">,</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-punctuation">[</span><span class="token-cs-attribute">CallerLineNumber</span><span class="token-cs-punctuation">]</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">line</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">$"<span class="token-cs-punctuation">{</span><span class="token-cs-variable">file</span><span class="token-cs-punctuation">}</span>:<span class="token-cs-punctuation">{</span><span class="token-cs-variable">line</span><span class="token-cs-punctuation">}</span> (<span class="token-cs-punctuation">{</span><span class="token-cs-variable">member</span><span class="token-cs-punctuation">}</span>) — <span class="token-cs-punctuation">{</span><span class="token-cs-variable">message</span><span class="token-cs-punctuation">}</span>"</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Вызов с необязательными параметрами:</h3>
+                    <ul>
+                        <li>
+                            При позиционной передаче пропущенные необязательные параметры принимают значения по умолчанию, начиная с последнего.
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-method">Configure</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"MyService"</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">             </span><span class="token-cs-comment">// timeout = 30, enabled = true</span>
+<span class="token-cs-method">Configure</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"MyService"</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">60</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">         </span><span class="token-cs-comment">// timeout = 60, enabled = true</span>
+<span class="token-cs-method">Configure</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"MyService"</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">60</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">false</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// timeout = 60, enabled = false</span></code></pre>
+                            </div>
+                        </li>
+                        <li>При позиционной передаче невозможно пропустить аргумент, не указав предыдущие.</li>
+                    </ul>
+
+                    <h3>Именованные аргументы:</h3>
+                    <ul>
+                        <li>Позволяют явно указать, какому параметру соответствует значение, используя имя параметра с двоеточием.</li>
+                        <li>
+                            <strong>Синтаксис вызова:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Синтаксис</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-method">ИмяМетода</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">имяПараметра</span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-value">значение</span><span class="token-cs-punctuation">, ...)</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Позволяют передавать аргументы в произвольном порядке.</li>
+                        <li>Улучшают читаемость, особенно при вызове методов с большим количеством параметров.</li>
+                        <li>
+                            <strong>Пример использования:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-method">Configure</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">name</span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">"MyService"</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">enabled</span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">false</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-method">Configure</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">enabled</span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">false</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">name</span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">"MyService"</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">timeout</span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">60</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Комбинирование позиционных и именованных аргументов:</strong>
+                            <ul>
+                                <li>Позиционные аргументы должны идти до именованных.</li>
+                            </ul>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-method">Configure</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"MyService"</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">enabled</span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">false</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Именованные аргументы допустимы только при указании имени, совпадающем с именем параметра в сигнатуре метода.</li>
+                    </ul>
+
+                    <h3>Ограничения необязательных параметров:</h3>
+                    <ul>
+                        <li>Параметры с модификаторами <code>ref</code>, <code>out</code>, <code>in</code> не могут иметь значений по умолчанию.</li>
+                        <li>Параметр с модификатором <code>params</code> должен быть последним в списке параметров и не может иметь собственного значения по умолчанию. Необязательные параметры не могут располагаться после него.</li>
+                        <li>Необязательные параметры обязаны располагаться после всех обязательных параметров.</li>
+                        <li>При перегрузке методов с необязательными параметрами компилятор выбирает наиболее подходящую перегрузку, отдавая предпочтение методу, который не требует подстановки значений по умолчанию.</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Необязательные параметры рекомендуется применять для методов с разумными значениями по умолчанию, сокращая количество перегрузок.</li>
+                        <li>При вызове методов с несколькими необязательными параметрами предпочтительнее использовать именованные аргументы для повышения читаемости.</li>
+                        <li>Значения по умолчанию должны быть стабильными и не зависеть от внешнего состояния во избежание неожиданного поведения после перекомпиляции.</li>
+                        <li>Для публичных API библиотек изменение значений по умолчанию расценивается как нарушение обратной совместимости.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 3.3. Передача параметров по значению и по ссылке (ref, out, in) -->
+            <details id="section-3.3">
+                <summary>3.3. Передача параметров по значению и по ссылке (ref, out, in)</summary>
+                <div>
+                    <h3>Способы передачи параметров:</h3>
+                    <ul>
+                        <li>По значению (по умолчанию).</li>
+                        <li>По ссылке с возможностью изменения (<code>ref</code>).</li>
+                        <li>По ссылке только для записи (<code>out</code>).</li>
+                        <li>По ссылке только для чтения (<code>in</code>).</li>
+                    </ul>
+
+                    <h3>Передача по значению:</h3>
+                    <ul>
+                        <li>Применяется по умолчанию ко всем параметрам, не помеченным модификаторами <code>ref</code>, <code>out</code> или <code>in</code>.</li>
+                        <li>Для значимых типов: в метод передаётся копия значения. Изменения параметра внутри метода не влияют на исходный аргумент.</li>
+                        <li>Для ссылочных типов: в метод передаётся копия ссылки. Изменения самого объекта (его полей и свойств) отражаются на исходном объекте, однако переназначение ссылки на новый объект не влияет на исходную переменную.</li>
+                        <li>
+                            <strong>Примеры:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">ModifyValue</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">*</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">2</span><span class="token-cs-punctuation">;</span><span class="token-cs-punctuation">         </span><span class="token-cs-comment">// Не влияет на аргумент</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">ModifyReference</span><span class="token-cs-punctuation">(</span><span class="token-cs-class">StringBuilder</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">sb</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-variable">sb</span><span class="token-cs-operator">.</span><span class="token-cs-method">Append</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">" изменён"</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">     </span><span class="token-cs-comment">// Влияет на объект</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-variable">sb</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">StringBuilder</span><span class="token-cs-punctuation">();</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// Не влияет на исходную переменную</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Передача по ссылке с модификатором ref:</h3>
+                    <ul>
+                        <li>Параметр и аргумент должны быть помечены ключевым словом <code>ref</code> как при объявлении, так и при вызове.</li>
+                        <li>Переменная, передаваемая как <code>ref</code>-аргумент, должна быть инициализирована до вызова.</li>
+                        <li>Позволяет методу читать и изменять значение исходной переменной.</li>
+                        <li>Применим как к значимым, так и к ссылочным типам. Для ссылочных типов позволяет изменить саму ссылку (перенаправить на другой объект).</li>
+                        <li>
+                            <strong>Пример:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Swap</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">ref</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">ref</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">temp</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">temp</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">5</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">y</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">10</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-method">Swap</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">ref</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">ref</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">y</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// x = 10, y = 5</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Передача по ссылке с модификатором out:</h3>
+                    <ul>
+                        <li>Аналогичен <code>ref</code>, но используется для возврата значений из метода.</li>
+                        <li>Параметр и аргумент должны быть помечены ключевым словом <code>out</code> как при объявлении, так и при вызове.</li>
+                        <li>Переменная, передаваемая как <code>out</code>-аргумент, не обязана быть инициализированной до вызова.</li>
+                        <li>Метод обязан присвоить значение всем <code>out</code>-параметрам до возврата управления.</li>
+                        <li>Часто применяется в методах, возвращающих несколько значений (наряду с кортежами), например, в паттерне <code>TryParse</code>.</li>
+                        <li>
+                            <strong>Пример:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetCoordinates</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">out</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">out</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">y</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">10</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-variable">y</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">20</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-method">GetCoordinates</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">out</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">out</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Передача по ссылке с модификатором in:</h3>
+                    <ul>
+                        <li>Параметр объявляется с модификатором <code>in</code>; при вызове модификатор <code>in</code> может опускаться.</li>
+                        <li>Гарантирует, что метод не изменит значение передаваемого аргумента (передача только для чтения).</li>
+                        <li>Может помочь избежать копирования больших структур (однако компилятор может создавать защитную копию при передаче констант, свойств или выражений).</li>
+                        <li>Аргумент должен быть инициализирован до вызова.</li>
+                        <li>
+                            <strong>Пример:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">double</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">CalculateDistance</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">in</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">Point</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">p1</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">in</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">Point</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">p2</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// p1 и p2 не могут быть изменены</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Math</span><span class="token-cs-operator">.</span><span class="token-cs-method">Sqrt</span><span class="token-cs-punctuation">((</span><span class="token-cs-variable">p1</span><span class="token-cs-operator">.</span><span class="token-cs-property">X</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">-</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">p2</span><span class="token-cs-operator">.</span><span class="token-cs-property">X</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">*</span><span class="token-cs-punctuation"> (</span><span class="token-cs-variable">p1</span><span class="token-cs-operator">.</span><span class="token-cs-property">X</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">-</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">p2</span><span class="token-cs-operator">.</span><span class="token-cs-property">X</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> (</span><span class="token-cs-variable">p1</span><span class="token-cs-operator">.</span><span class="token-cs-property">Y</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">-</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">p2</span><span class="token-cs-operator">.</span><span class="token-cs-property">Y</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">*</span><span class="token-cs-punctuation"> (</span><span class="token-cs-variable">p1</span><span class="token-cs-operator">.</span><span class="token-cs-property">Y</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">-</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">p2</span><span class="token-cs-operator">.</span><span class="token-cs-property">Y</span><span class="token-cs-punctuation">));</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Сравнение модификаторов:</h3>
+                    <ul>
+                        <li><strong><code>ref</code></strong>: параметр инициализирован до вызова; метод может читать и изменять значение.</li>
+                        <li><strong><code>out</code></strong>: параметр может быть не инициализирован до вызова; метод обязан присвоить значение.</li>
+                        <li><strong><code>in</code></strong>: параметр инициализирован до вызова; метод не может изменять значение (только чтение).</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется использовать модификатор <code>in</code> для передачи больших структур только для чтения, чтобы избежать избыточного копирования.</li>
+                        <li>Для возврата нескольких значений предпочтительнее применять кортежи, однако <code>out</code>-параметры остаются удобным выбором для паттернов, совместимых с <code>TryParse</code>.</li>
+                        <li>Следует явно указывать <code>ref</code> при вызове метода, чтобы подчеркнуть возможность изменения аргумента.</li>
+                        <li>Не рекомендуется использовать <code>ref</code> без необходимости, так как это усложняет понимание кода и может приводить к непреднамеренным изменениям переменных.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 3.4. Параметры params (массивы и коллекции) -->
+            <details id="section-3.4">
+                <summary>3.4. Параметры params (массивы и коллекции)</summary>
+                <div>
+                    <h3>Модификатор <code>params</code>:</h3>
+                    <ul>
+                        <li>Позволяет передавать в метод переменное количество аргументов одного типа.</li>
+                        <li>Может быть указан только для последнего параметра метода. До C# 13 таким параметром может быть только одномерный массив; начиная с C# 13 поддерживаются также распознаваемые коллекционные типы (<code>Span&lt;T&gt;</code>, <code>ReadOnlySpan&lt;T&gt;</code>, <code>List&lt;T&gt;</code> и другие типы с методом <code>Add</code>).</li>
+                        <li>При вызове метода аргументы можно передавать списком через запятую; компилятор автоматически создаст подходящую коллекцию (массив или соответствующий коллекционный тип, начиная с C# 13).</li>
+                    </ul>
+
+                    <h3>Синтаксис объявления:</h3>
+                    <div class="code">
+                        <div class="code-header"><span>Синтаксис</span><span>C#</span></div>
+                        <pre><code class="language-csharp"><span class="token-cs-keyword">типВозврата</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">ИмяМетода</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">params</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">КоллекционныйТип</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">имяПараметра</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// Тело метода</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                    </div>
+
+                    <h3>Поведение:</h3>
+                    <ul>
+                        <li>При вызове метода можно передать произвольное количество аргументов указанного типа (в том числе ни одного) — компилятор автоматически создаст подходящую коллекцию (массив для классических объявлений, соответствующую коллекцию для новых типов).</li>
+                        <li>Допускается также явная передача массива (или совместимой коллекции) вместо перечисления отдельных аргументов.</li>
+                        <li>Если аргументы не переданы, параметр будет представлять собой пустую коллекцию (например, пустой массив или пустой список) и не равен <code>null</code>.</li>
+                    </ul>
+
+                    <h3>Пример метода:</h3>
+                    <div class="code">
+                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Sum</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">params</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">[] </span><span class="token-cs-variable">numbers</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">total</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">foreach</span><span class="token-cs-punctuation"> (</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">n</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword-control">in</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">numbers</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-variable">total</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">n</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">total</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                    </div>
+
+                    <h3>Примеры вызова:</h3>
+                    <div class="code">
+                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                        <pre><code class="language-csharp"><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Sum</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">1</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">2</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">3</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">     </span><span class="token-cs-comment">// a = 6</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Sum</span><span class="token-cs-punctuation">();</span><span class="token-cs-punctuation">            </span><span class="token-cs-comment">// b = 0 (массив пуст)</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation">[] </span><span class="token-cs-variable">arr</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> { </span><span class="token-cs-number">4</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">5</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">6</span><span class="token-cs-punctuation"> }</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">c</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Sum</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">arr</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">         </span><span class="token-cs-comment">// c = 15</span></code></pre>
+                    </div>
+
+                    <h3>Ограничения:</h3>
+                    <ul>
+                        <li>В методе может быть только один параметр с модификатором <code>params</code>, и он обязан стоять последним в списке параметров.</li>
+                        <li>Параметр <code>params</code> не может иметь значение по умолчанию и не может быть передан с модификаторами <code>ref</code>, <code>out</code> или <code>in</code>.</li>
+                        <li>До C# 13 <code>params</code> используется только с одномерным массивом; начиная с C# 13 он поддерживает и другие распознаваемые коллекционные типы (например, <code>Span&lt;T&gt;</code>, <code>List&lt;T&gt;</code>). Зубчатые массивы (например, <code>string[][]</code>) допускаются; многомерные массивы (например, <code>string[,]</code>) не допускаются.</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется применять <code>params</code> для методов, количество аргументов которых заранее неизвестно или варьируется.</li>
+                        <li>Для классического <code>params</code>-массива каждый вызов обычно создаёт новый массив в куче; для коллекционных типов (C# 13) поведение зависит от типа параметра. В высоконагруженных сценариях рекомендуется избегать неконтролируемого создания временных объектов.</li>
+                        <li>Для критических по производительности участков рекомендуется рассмотреть перегрузки с фиксированным числом параметров вместо <code>params</code>.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 3.5. Возврат значений (return, кортежи) -->
+            <details id="section-3.5">
+                <summary>3.5. Возврат значений (return, кортежи)</summary>
+                <div>
+                    <h3>Оператор <code>return</code>:</h3>
+                    <ul>
+                        <li>Завершает выполнение метода и передаёт управление вызывающему коду.</li>
+                        <li>В методах с возвращаемым типом, отличным от <code>void</code>, после <code>return</code> указывается выражение, значение которого возвращается.</li>
+                        <li>В методах с возвращаемым типом <code>void</code> оператор <code>return</code> используется без значения для досрочного выхода из метода.</li>
+                        <li>
+                            <strong>Пример:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetValue</span><span class="token-cs-punctuation">()</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">42</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">PrintIfPositive</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">if</span><span class="token-cs-punctuation"> (</span><span class="token-cs-variable">value</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">&lt;=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">value</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Возврат значения:</h3>
+                    <ul>
+                        <li>Тип возвращаемого выражения должен соответствовать типу, указанному в сигнатуре метода (допустимо неявное преобразование).</li>
+                        <li>
+                            <strong>Пример:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">double</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetPi</span><span class="token-cs-punctuation">() </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">3.14159</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Возврат нескольких значений с помощью кортежей:</h3>
+                    <ul>
+                        <li>Метод может вернуть кортеж для передачи нескольких значений без использования <code>out</code>-параметров.</li>
+                        <li>
+                            <strong>Синтаксис:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> (</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">Min</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">Max</span><span class="token-cs-punctuation">) </span><span class="token-cs-method">GetRange</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">[] </span><span class="token-cs-variable">numbers</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> (</span><span class="token-cs-variable">numbers</span><span class="token-cs-operator">.</span><span class="token-cs-method">Min</span><span class="token-cs-punctuation">(), </span><span class="token-cs-variable">numbers</span><span class="token-cs-operator">.</span><span class="token-cs-method">Max</span><span class="token-cs-punctuation">());</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Вызывающий код может принять кортеж или деконструировать его:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">var</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">range</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetRange</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">arr</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">min</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">range</span><span class="token-cs-operator">.</span><span class="token-cs-property">Min</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">max</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">range</span><span class="token-cs-operator">.</span><span class="token-cs-property">Max</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-comment">// Или</span>
+<span class="token-cs-keyword">var</span><span class="token-cs-punctuation"> (</span><span class="token-cs-variable">min</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">max</span><span class="token-cs-punctuation">) = </span><span class="token-cs-method">GetRange</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">arr</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Возврат по ссылке (<code>ref return</code>):</h3>
+                    <ul>
+                        <li>Метод может возвращать не копию значения, а ссылку на существующую переменную. Для этого перед типом возврата ставится модификатор <code>ref</code>.</li>
+                        <li>Возвращаемое выражение должно быть ссылкой на переменную, которая продолжает существовать после выхода из метода (например, поле класса, элемент массива, переданный по ссылке параметр). Локальные переменные метода возвращать по ссылке нельзя.</li>
+                        <li>Позволяет вызывающему коду читать и изменять исходную переменную через возвращённую ссылку.</li>
+                        <li>
+                            <strong>Пример:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">ref</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetElement</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">[] </span><span class="token-cs-variable">arr</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">index</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">ref</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">arr</span><span class="token-cs-punctuation">[</span><span class="token-cs-variable">index</span><span class="token-cs-punctuation">];</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-comment">// Использование:</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation">[] </span><span class="token-cs-variable">numbers</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> { </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">2</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">3</span><span class="token-cs-punctuation"> }</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-keyword">ref</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">element</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">ref</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetElement</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">numbers</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-variable">element</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">99</span><span class="token-cs-punctuation">;</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// numbers[1] теперь равно 99</span></code></pre>
+                            </div>
+                        </li>
+                        <li>При вызове метода, возвращающего ссылку, результат можно сохранить в <code>ref</code>-локальную переменную (<code>ref int</code> ...) для последующего изменения исходной переменной, либо использовать возвращённую ссылку напрямую для чтения значения (она действует как алиас на исходную переменную, копирования не происходит).</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Для возврата нескольких значений предпочтительнее использовать кортежи, а не <code>out</code>-параметры, так как это повышает читаемость кода.</li>
+                        <li>Возврат по ссылке рекомендуется применять в высокопроизводительных сценариях для работы с большими структурами или массивами без создания копий.</li>
+                        <li>Следует тщательно контролировать время жизни возвращаемой по ссылке переменной, чтобы избежать ссылок на переменные, которые уже не существуют.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 3.6. Локальные функции -->
+            <details id="section-3.6">
+                <summary>3.6. Локальные функции</summary>
+                <div>
+                    <h3>Локальная функция:</h3>
+                    <ul>
+                        <li>Метод, объявленный внутри другого члена типа: метода, конструктора, аксессора свойства или события, финализатора, лямбда-выражения, анонимного метода или другой локальной функции.</li>
+                        <li>Область видимости ограничена содержащим её членом (недоступна вне его).</li>
+                        <li>Не может иметь модификаторов доступа (<code>public</code>, <code>private</code> и т.п.), но способна захватывать переменные и параметры из внешнего метода.</li>
+                        <li>Объявляется непосредственно в теле содержащего элемента и доступна во всём его блоке; может вызываться как после, так и до своего текстового объявления.</li>
+                    </ul>
+
+                    <h3>Синтаксис:</h3>
+                    <div class="code">
+                        <div class="code-header"><span>Синтаксис</span><span>C#</span></div>
+                        <pre><code class="language-csharp"><span class="token-cs-keyword">типВозврата</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Имя</span><span class="token-cs-punctuation">([</span><span class="token-cs-keyword">параметры</span><span class="token-cs-punctuation">])</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// Тело локальной функции</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                    </div>
+
+                    <h3>Пример:</h3>
+                    <div class="code">
+                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Factorial</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">n</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Calc</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">n</span><span class="token-cs-punctuation">);</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Calc</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-keyword-control">if</span><span class="token-cs-punctuation"> (</span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">&lt;=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">) </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">*</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Calc</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">-</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">    }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                    </div>
+
+                    <h3>Статические локальные функции (C# 8 и выше):</h3>
+                    <ul>
+                        <li>Допускается модификатор <strong><code>static</code></strong> перед объявлением.</li>
+                        <li><strong>Статическая локальная функция</strong> не может захватывать переменные и параметры внешнего метода, что делает её поведение изолированным.</li>
+                        <li>
+                            <strong>Пример:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">SumPositive</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">[] </span><span class="token-cs-variable">numbers</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">total</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">foreach</span><span class="token-cs-punctuation"> (</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">n</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword-control">in</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">numbers</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-variable">total</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">AddIfPositive</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">n</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">total</span><span class="token-cs-punctuation">;</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">static</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">AddIfPositive</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">?</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Дополнительные возможности:</h3>
+                    <ul>
+                        <li>Локальные функции поддерживают модификатор <strong><code>async</code></strong>, что позволяет организовывать асинхронные вспомогательные методы.</li>
+                        <li>Могут быть итераторами (возвращать <code>IEnumerable&lt;T&gt;</code> с использованием <code>yield return</code>).</li>
+                        <li><strong>Захват переменных:</strong> при обращении к переменным внешнего метода компилятор создаёт замыкание (специальный класс), продлевая время жизни захваченных переменных. Прямой вызов локальной функции, не захватывающей внешнее состояние и не преобразованной в делегат, обычно не создаёт дополнительных выделений в куче — компилятор генерирует статический или закрытый метод. Если функция захватывает переменные, замыкание уже создано, но сам вызов не добавляет новых аллокаций.</li>
+                        <li>Локальные функции не могут быть перегружены.</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется использовать локальные функции для инкапсуляции вспомогательной логики, которая не нужна за пределами текущего метода.</li>
+                        <li>Если локальная функция не требует доступа к переменным внешнего метода, рекомендуется объявлять её как <strong><code>static</code></strong> для предотвращения случайного захвата и повышения производительности.</li>
+                        <li>Для асинхронных операций внутри метода рекомендуется применять локальные функции с <code>async</code>, а не лямбда-выражения, из-за меньших накладных расходов.</li>
+                        <li>Не рекомендуется выносить сложную логику в локальные функции — в таких случаях целесообразно создать отдельный закрытый метод класса.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 3.7. Рекурсия -->
+            <details id="section-3.7">
+                <summary>3.7. Рекурсия</summary>
+                <div>
+                    <h3>Рекурсия:</h3>
+                    <ul>
+                        <li>Приём, при котором метод вызывает сам себя непосредственно или через цепочку других методов.</li>
+                        <li>Каждый рекурсивный вызов создаёт новую копию локальных переменных и параметров в стеке вызовов.</li>
+                        <li>Обязательным элементом рекурсивного метода является базовый случай (условие завершения), предотвращающий бесконечный вызов.</li>
+                    </ul>
+
+                    <h3>Базовый случай:</h3>
+                    <ul>
+                        <li>Простейшая ветвь алгоритма, не требующая дальнейших рекурсивных вызовов.</li>
+                        <li>Гарантирует, что глубина рекурсии ограничена и выполнение метода в итоге завершится.</li>
+                        <li>При отсутствии или некорректности базового случая рекурсия становится бесконечной и приводит к переполнению стека (<code>StackOverflowException</code>).</li>
+                    </ul>
+
+                    <h3>Пример рекурсивного метода (вычисление факториала):</h3>
+                    <div class="code">
+                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Factorial</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">n</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// Базовый случай</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">if</span><span class="token-cs-punctuation"> (</span><span class="token-cs-variable">n</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">&lt;=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">) </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// Рекурсивный вызов</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">n</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">*</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Factorial</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">n</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">-</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                    </div>
+
+                    <h3>Ограничения:</h3>
+                    <ul>
+                        <li>Каждый рекурсивный вызов потребляет память стека. При слишком большой глубине рекурсии возникает <code>StackOverflowException</code>.</li>
+                        <li>Максимальная глубина зависит от доступного объёма стека и объёма локальных данных каждого вызова.</li>
+                        <li>Предел глубины рекурсии зависит от платформы, окружения (хостинг-процесса) и объёма локальных данных каждого вызова. Превышение доступного стека вызывает <code>StackOverflowException</code>.</li>
+                    </ul>
+
+                    <h3>Итеративная альтернатива:</h3>
+                    <ul>
+                        <li>Для задач, где рекурсия приводит к большой глубине, рекомендуется использовать итеративные решения на основе циклов.</li>
+                        <li>
+                            <strong>Пример итеративного вычисления факториала:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">FactorialIterative</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">n</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">result</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">for</span><span class="token-cs-punctuation"> (</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">i</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">2</span><span class="token-cs-punctuation">; </span><span class="token-cs-variable">i</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">&lt;=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">n</span><span class="token-cs-punctuation">; </span><span class="token-cs-variable">i</span><span class="token-cs-operator">++</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-variable">result</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">*=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">i</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">result</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется применять рекурсию для задач с естественно рекурсивной структурой (обход деревьев, задачи типа «разделяй и властвуй»), если глубина рекурсии заведомо невелика.</li>
+                        <li>Рекомендуется всегда явно определять базовый случай и проверять его до рекурсивного вызова.</li>
+                        <li>Не рекомендуется использовать рекурсию для обработки данных, размер которых может превысить допустимую глубину стека, без предварительной оценки.</li>
+                        <li>Для линейно рекурсивных задач (факториал, числа Фибоначчи) в высоконагруженном коде предпочтительнее итеративные решения.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 3.8. Перегрузка методов -->
+            <details id="section-3.8">
+                <summary>3.8. Перегрузка методов</summary>
+                <div>
+                    <h3>Перегрузка методов:</h3>
+                    <ul>
+                        <li>Возможность объявления нескольких методов с одинаковым именем в пределах одного типа (класса, структуры, интерфейса), но с различными сигнатурами.</li>
+                        <li><strong>Сигнатура метода</strong> для целей перегрузки состоит из имени, количества ти́повых параметров (type parameters) и списка параметров с их типами и модификаторами <code>ref</code>/<code>out</code>/<code>in</code>. Возвращаемый тип, имена параметров и ограничения ти́пов (constraints) в сигнатуру не входят.</li>
+                        <li><strong>Возвращаемый тип</strong> не входит в сигнатуру и не может использоваться для различения перегруженных методов.</li>
+                        <li><strong>Модификаторы доступа</strong> (<code>public</code>, <code>private</code> и т.д.), <code>static</code>, <code>async</code> и прочие не являются частью сигнатуры и не влияют на разрешение перегрузки.</li>
+                    </ul>
+
+                    <h3>Правила перегрузки:</h3>
+                    <ul>
+                        <li>
+                            Перегруженные методы должны различаться по одному из следующих признаков:
+                            <ul>
+                                <li>Количество параметров;</li>
+                                <li>Типы параметров;</li>
+                                <li>Порядок следования типов параметров;</li>
+                                <li>Наличие или отсутствие модификаторов <code>ref</code>, <code>out</code>, <code>in</code> у параметров.</li>
+                            </ul>
+                        </li>
+                        <li>Недостаточно различия только в возвращаемом типе.</li>
+                        <li>Недостаточно различия в имени параметра.</li>
+                        <li>Допускается комбинирование с необязательными параметрами и <code>params</code>, однако следует учитывать, что компилятор отдаёт предпочтение методу без подстановки значений по умолчанию.</li>
+                    </ul>
+
+                    <h3>Пример перегруженных методов:</h3>
+                    <div class="code">
+                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Calculator</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Add</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">;</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">double</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Add</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">double</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">double</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">;</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Add</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">c</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">c</span><span class="token-cs-punctuation">;</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// Различие по модификатору ref</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Add</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">ref</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                    </div>
+
+                    <h3>Разрешение перегрузок:</h3>
+                    <ul>
+                        <li>
+                            Компилятор выбирает наиболее подходящий метод (best candidate) на основе переданных аргументов, руководствуясь следующими принципами:
+                            <ul>
+                                <li><strong>Точное совпадение типов и количества аргументов</strong> предпочтительнее, чем вариант с неявными преобразованиями.</li>
+                                <li><strong>Если есть несколько подходящих методов</strong>, предпочтение отдаётся тому, который требует меньше необязательных параметров с подстановкой значений по умолчанию.</li>
+                                <li><strong>Более специфичные типы</strong> (с точки зрения неявных преобразований) предпочитаются более общим.</li>
+                                <li><strong>Использование params-параметра</strong> рассматривается после вариантов без <code>params</code>; метод с <code>params</code> может вступить в конфликт с другими перегрузками и привести к неоднозначности.</li>
+                            </ul>
+                        </li>
+                        <li>Если ни один метод не подходит или несколько методов одинаково подходят, возникает ошибка компиляции (неоднозначность).</li>
+                    </ul>
+
+                    <h3>Ограничения:</h3>
+                    <ul>
+                        <li>Локальные функции не поддерживают перегрузку.</li>
+                        <li>Методы с разными модификаторами доступа, но с одинаковой сигнатурой, не являются перегруженными (конфликт объявления).</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется использовать перегрузку для расширения функциональности типа при сохранении семантической общности операций (например, <code>Add</code> с разными типами).</li>
+                        <li>Не рекомендуется создавать перегрузки, которые отличаются только типами с неочевидными неявными преобразованиями, так как это может привести к неоднозначности вызова.</li>
+                        <li>При использовании перегрузок с необязательными параметрами рекомендуется внимательно проверять разрешение вызова во избежание выбора непредусмотренного метода.</li>
+                        <li>Для публичных API рекомендуется документировать поведение каждой перегрузки.</li>
+                    </ul>
+                </div>
+            </details>
+        </details>
     </main>
 
     <footer>
