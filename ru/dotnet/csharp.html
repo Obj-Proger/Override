@@ -6224,7 +6224,8 @@
 <span class="token-cs-punctuation">}</span></code></pre>
                             </div>
                             <ul>
-                                <li>Пример возможного порядка вывода при первом обращении к <code>Derived</code> (последовательность статической инициализации не гарантируется):
+                                <li>
+                                    Пример возможного порядка вывода при первом обращении к <code>Derived</code> (последовательность статической инициализации не гарантируется):
                                     <ul>
                                         <li>Derived static field (инициализатор поля)</li>
                                         <li>Derived static constructor (если есть)</li>
@@ -7136,6 +7137,1411 @@
             </details>
         </details>
 
+        <!-- 5. Типы значений и ссылочные типы (углублённо) -->
+        <details id="section-5">
+            <summary>5. Типы значений и ссылочные типы (углублённо)</summary>
+
+            <!-- 5.1. Различия в памяти (стек, куча) -->
+            <details id="section-5.1">
+                <summary>5.1. Различия в памяти (стек, куча)</summary>
+                <div>
+                    <p>Память, используемая приложением .NET, логически разделяется на две основные области: стек и управляемую кучу. Способ размещения данных определяется тем, является ли тип значимым или ссылочным, а также контекстом объявления переменной.</p>
+
+                    <h3>Стек (stack):</h3>
+                    <ul>
+                        <li>Область памяти, организованная по принципу «последним пришёл — первым ушёл» (LIFO).</li>
+                        <li>Используется для хранения локальных переменных методов, параметров, возвращаемых адресов и временных данных.</li>
+                        <li>Память в стеке выделяется и освобождается детерминированно: при входе в метод — выделение, при выходе — автоматическое освобождение.</li>
+                        <li>Размер стека ограничен (по умолчанию 1 МБ на платформе Windows; фактический размер может варьироваться в зависимости от операционной системы, хостинг-процесса и параметров сборки). Глубоко вложенные вызовы или размещение очень крупных структур могут привести к переполнению стека (<code>StackOverflowException</code>).</li>
+                        <li>Доступ к данным в стеке очень быстр благодаря линейной модели выделения и освобождения, а также высокой локальности данных (данные часто находятся в кэше процессора).</li>
+                        <li>
+                            <strong>В стеке размещаются:</strong>
+                            <ul>
+                                <li><strong>Локальные переменные значимых типов</strong> (целые числа, структуры, <code>bool</code>, <code>char</code>).</li>
+                                <li><strong>Сами ссылки на объекты ссылочных типов</strong> (но не сами объекты).</li>
+                                <li><strong>Параметры методов</strong>, передаваемые по значению или по ссылке (сами ссылки <code>ref</code>, <code>out</code>, <code>in</code>).</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Управляемая куча (managed heap):</h3>
+                    <ul>
+                        <li>Область памяти, управляемая сборщиком мусора.</li>
+                        <li>Предназначена для размещения экземпляров ссылочных типов (объектов классов, массивов, делегатов, строк и т.д.).</li>
+                        <li>Оператор <code>new</code> для ссылочных типов выделяет память в управляемой куче. Для значимых типов <code>new</code> вызывает конструктор, но память может размещаться в стеке, регистрах или внутри другого объекта (inline allocation) — в зависимости от контекста объявления переменной.</li>
+                        <li>Освобождение памяти недетерминированно: объект остаётся в куче до тех пор, пока на него существуют ссылки; после того как объект становится недостижимым, сборщик мусора автоматически освобождает занимаемую им память в один из последующих циклов сборки.</li>
+                        <li>Доступ к данным в куче медленнее по сравнению со стеком из-за необходимости разыменования ссылки и потенциально худшей локальности данных.</li>
+                    </ul>
+
+                    <h3>Размещение значимых типов:</h3>
+                    <ul>
+                        <li>
+                            Значимый тип хранится «по месту объявления»:
+                            <ul>
+                                <li><strong>Если переменная значимого типа объявлена как локальная в методе</strong> — она обычно размещается в стеке (или в регистрах процессора по усмотрению JIT-компилятора).</li>
+                                <li><strong>Если значимый тип является полем класса</strong> — он размещается непосредственно внутри объекта этого класса, то есть в куче (inline allocation).</li>
+                                <li><strong>Если значимый тип является полем структуры</strong> — он размещается там же, где и сама структура.</li>
+                                <li><strong>Если значимый тип является элементом массива</strong> — массив является ссылочным типом и размещается в куче, а элементы значимого типа размещаются внутри этого массива (в куче).</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Размещение ссылочных типов:</h3>
+                    <ul>
+                        <li>Сам объект ссылочного типа всегда размещается в управляемой куче.</li>
+                        <li>
+                            Ссылка на этот объект (переменная ссылочного типа) размещается в соответствии с контекстом её объявления:
+                            <ul>
+                                <li><strong>Локальная переменная ссылочного типа</strong> — ссылка хранится в стеке.</li>
+                                <li><strong>Поле класса ссылочного типа</strong> — ссылка хранится внутри объекта этого класса (в куче).</li>
+                                <li><strong>Статическое поле ссылочного типа</strong> является корнем сборщика мусора (GC root) и хранит ссылку в статически управляемой области памяти. Сам объект, на который оно указывает, находится в управляемой куче.</li>
+                                <li><strong>Элемент массива ссылочного типа</strong> — ссылка хранится внутри массива (в куче).</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Пример, иллюстрирующий различия:</h3>
+                    <div class="code">
+                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">struct</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">DataRecord</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">Id</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">decimal</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">Value</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Container</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">DataRecord</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">Record</span><span class="token-cs-punctuation">;</span><span class="token-cs-punctuation">   </span><span class="token-cs-comment">// Значимый тип inline в куче</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">Description</span><span class="token-cs-punctuation">;</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// Ссылка на строку (объект в куче)</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Example</span><span class="token-cs-punctuation">()</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">localId</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">;</span><span class="token-cs-punctuation">                                  </span><span class="token-cs-comment">// В стеке</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-struct">DataRecord</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">localRec</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">DataRecord</span><span class="token-cs-punctuation"> { </span><span class="token-cs-field">Id</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation"> }</span><span class="token-cs-punctuation">;</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// В стеке (значимый тип)</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-class">Container</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">c</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Container</span><span class="token-cs-punctuation">();</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// c — ссылка в стеке, объект Container в куче</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-variable">c</span><span class="token-cs-operator">.</span><span class="token-cs-field">Record</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">localRec</span><span class="token-cs-punctuation">;</span><span class="token-cs-punctuation">            </span><span class="token-cs-comment">// Копирование из стека в поле внутри объекта в куче</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-variable">c</span><span class="token-cs-operator">.</span><span class="token-cs-field">Description</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">"Запись"</span><span class="token-cs-punctuation">;</span><span class="token-cs-punctuation">       </span><span class="token-cs-comment">// Ссылка на интернированную строку (объект в куче, единственный экземпляр литерала)</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">[] </span><span class="token-cs-variable">ids</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">[] { </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">2</span><span class="token-cs-punctuation"> }</span><span class="token-cs-punctuation">;</span><span class="token-cs-punctuation">              </span><span class="token-cs-comment">// Ссылка ids в стеке, массив в куче, элементы int inline в куче</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation">[] </span><span class="token-cs-variable">names</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation">[] { </span><span class="token-cs-string">"A"</span><span class="token-cs-punctuation">, </span><span class="token-cs-string">"B"</span><span class="token-cs-punctuation"> }</span><span class="token-cs-punctuation">;</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// Ссылка names в стеке, массив ссылок в куче, строки в куче</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                    </div>
+
+                    <h3>Интернирование строк:</h3>
+                    <ul>
+                        <li>Среда выполнения (CLR) обычно интернирует строковые литералы: уникальные константы помещаются в intern pool, и все их вхождения ссылаются на один и тот же объект. Однако автоматическое интернирование не гарантируется во всех сценариях компиляции и выполнения; при необходимости жёстких гарантий следует использовать <code>String.Intern</code>. Это экономит память и позволяет быстро сравнивать строки по ссылке (<code>ReferenceEquals</code>). В некоторых сценариях компиляции/выполнения автоматическое интернирование отдельных литералов может не произойти, поэтому полагаться на него без явного вызова <code>String.Intern</code> не рекомендуется.</li>
+                        <li>В примере выше литерал <code>"Запись"</code> не создаёт новый объект в куче при каждом выполнении присваивания; вместо этого используется ссылка на ранее интернированный экземпляр строки.</li>
+                        <li>Явное интернирование во время выполнения можно выполнить с помощью метода <code>String.Intern</code>, который возвращает ссылку на интернированный экземпляр строки с указанным значением.</li>
+                    </ul>
+
+                    <h3>Упаковка (boxing):</h3>
+                    <ul>
+                        <li>Преобразование значимого типа в ссылочный (например, в <code>object</code> или интерфейс) приводит к выделению памяти в куче для хранения копии значения и созданию ссылки на эту копию.</li>
+                        <li>Упаковка создаёт накладные расходы и может ухудшать производительность при частом использовании.</li>
+                    </ul>
+
+                    <h3>Большие объекты (Large Object Heap, LOH):</h3>
+                    <ul>
+                        <li>Объекты, размер которых превышает 85 000 байт, размещаются в отдельной области кучи — Large Object Heap.</li>
+                        <li>LOH обычно не уплотняется автоматически, что может приводить к фрагментации. Начиная с .NET Framework 4.5.1 и в современных версиях .NET уплотнение LOH можно запросить программно (<code>GCSettings.LargeObjectHeapCompactionMode</code>).</li>
+                        <li>Массивы значимых типов большого размера также размещаются в LOH.</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Для высокопроизводительного кода следует учитывать размещение данных: структуры небольших размеров, размещаемые в стеке, позволяют избежать выделений в куче и снижают нагрузку на сборщик мусора.</li>
+                        <li>При проектировании структур следует учитывать стоимость копирования: структуры размером примерно в три машинных слова или меньше обычно копируются несущественно, а более крупные структуры могут заметно влиять на производительность при передаче по значению. В таких случаях предпочтительнее использовать классы или передавать структуры по ссылке с модификатором <code>in</code>.</li>
+                        <li>Рекомендуется минимизировать упаковку, особенно в циклах и часто вызываемых методах.</li>
+                        <li>Понимание размещения данных в памяти важно для отладки проблем производительности и потребления памяти, а также для профилирования приложений.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 5.2. Структуры (struct): конструкторы, поведение, рекомендации -->
+            <details id="section-5.2">
+                <summary>5.2. Структуры (struct): конструкторы, поведение, рекомендации</summary>
+                <div>
+                    <h3>Структура:</h3>
+                    <ul>
+                        <li>Значимый тип, объявляемый с использованием ключевого слова <code>struct</code>.</li>
+                        <li>Наследуется от <code>System.ValueType</code>, который, в свою очередь, наследуется от <code>System.Object</code>.</li>
+                        <li>Размещается в стеке (если является локальной переменной) или inline в куче (если является полем класса, элементом массива и т.д.).</li>
+                        <li>Не поддерживает наследование в полном объёме: структура не может быть базовым типом для другого типа, не может наследовать от класса или другой структуры (кроме неявного наследования от <code>System.ValueType</code>), но может реализовывать интерфейсы.</li>
+                        <li>Неявно запечатана (<code>sealed</code>), что запрещает дальнейшее наследование.</li>
+                        <li>Поведение при присваивании и передаче по умолчанию: создаётся полная копия значения. Изменение копии не влияет на исходный экземпляр.</li>
+                    </ul>
+
+                    <h3>Конструкторы структур:</h3>
+                    <ul>
+                        <li><strong>Конструктор по умолчанию (без параметров) существует всегда</strong> и инициализирует все поля значениями по умолчанию (нулями для чисел, <code>false</code> для <code>bool</code>, <code>null</code> для ссылочных типов и т.д.).</li>
+                        <li>До C# 10.0 явное объявление конструктора без параметров было запрещено.</li>
+                        <li>Начиная с C# 10.0 разрешено объявлять пользовательский конструктор без параметров, в котором допускается инициализация полей значениями, отличными от значений по умолчанию. Такой конструктор обязан быть открытым (<code>public</code>).</li>
+                        <li>Параметризованные конструкторы разрешены всегда. Все параметризованные конструкторы, а также пользовательский конструктор без параметров (в C# 10+) обязаны явно присвоить значения всем полям структуры до возврата управления.</li>
+                        <li>
+                            <strong>Примеры конструкторов:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">struct</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">Point</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">X</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">Y</span><span class="token-cs-punctuation">;</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// Пользовательский конструктор без параметров (C# 10+)</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">Point</span><span class="token-cs-punctuation">()</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-field">X</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-field">Y</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    }</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// Параметризованный конструктор</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">Point</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">y</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-field">X</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-field">Y</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">y</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Поведение:</h3>
+                    <ul>
+                        <li>При вызове конструктора по умолчанию (например, <code>new Point()</code>) до C# 10.0 создаётся экземпляр со значениями по умолчанию, даже если явно определён параметризованный конструктор. Пользовательский безпараметрический конструктор (C# 10+) изменяет это поведение: <code>new Point()</code> вызывает именно его.</li>
+                        <li>Если структура не инициализирована явно (например, объявлена локальная переменная без вызова конструктора), её поля содержат значения по умолчанию, но такая переменная считается "не инициализированной" компилятором до присвоения каждого поля (требуется явная инициализация всех полей перед использованием).</li>
+                        <li><strong>Упаковка (boxing)</strong>: при приведении экземпляра структуры к <code>object</code> или интерфейсу значение копируется в кучу. В критичных к производительности участках следует избегать упаковки.</li>
+                        <li>Реализация интерфейсов структурой может привести к упаковке при вызове членов через ссылку на интерфейс, если не использовать ограничения обобщений (<code>where T : IMyInterface</code>).</li>
+                        <li><strong>Сравнение</strong>: операторы <code>==</code> и <code>!=</code> по умолчанию не определены для структур (за исключением сгенерированных компилятором для записей-структур). Рекомендуется реализовывать интерфейс <code>IEquatable&lt;T&gt;</code> и переопределять <code>Equals</code>, <code>GetHashCode</code> для корректного сравнения по значению.</li>
+                        <li>
+                            С версии C# 9.0 для структур доступно неразрушающее изменение (создание копии) с помощью выражения <strong><code>with</code></strong>:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-struct">Point</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">p1</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">Point</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">1</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">2</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-struct">Point</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">p2</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">p1</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword-control">with</span><span class="token-cs-punctuation"> { </span><span class="token-cs-field">X</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">5</span><span class="token-cs-punctuation"> };</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Размер структуры рекомендуется удерживать в пределах 16 байт (рекомендация Microsoft для обеспечения эффективного копирования). Если тип данных больше, предпочтительнее использовать класс.</li>
+                        <li>Структуры должны быть неизменяемыми (immutable), насколько это возможно: поля объявляются с модификатором <code>readonly</code>, а методы, изменяющие состояние, должны возвращать новый экземпляр. Неизменяемость предотвращает ошибки, связанные с копированием, и улучшает безопасность в многопоточных сценариях.</li>
+                        <li>Изменяемые структуры допустимы в узких сценариях (например, для оптимизации производительности в высоконагруженных вычислениях), но требуют осторожного обращения.</li>
+                        <li>Рекомендуется переопределять методы <code>Equals</code>, <code>GetHashCode</code> и <code>ToString</code> для корректной и эффективной работы.</li>
+                        <li>Использовать <strong><code>readonly struct</code></strong> (начиная с C# 7.2), чтобы компилятор гарантировал, что ни один член не изменяет состояние структуры, и чтобы избежать защитного копирования при доступе к полям.</li>
+                        <li>Избегать определения изменяемых полей в структурах, передаваемых по значению в методы, так как изменения будут потеряны после возврата из метода.</li>
+                        <li>При реализации интерфейса структурой необходимо учитывать возможность упаковки; в высокопроизводительном коде рекомендуется использовать обобщения с ограничением <code>where T : IMyInterface</code> для избежания упаковки и сохранения преимуществ значимого типа.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 5.3. Записи (record class, record struct) -->
+            <details id="section-5.3">
+                <summary>5.3. Записи (record class, record struct)</summary>
+                <div>
+                    <h3>Запись:</h3>
+                    <ul>
+                        <li>Специальный вид типа, предназначенный для простого и неизменяемого хранения данных, с семантикой равенства по значениям.</li>
+                        <li>Объявляется с помощью ключевого слова <code>record</code> (или <code>record class</code>) для ссылочного типа, либо <code>record struct</code> для значимого типа.</li>
+                        <li>Компилятор автоматически генерирует ряд членов (методы <code>Equals</code>, <code>GetHashCode</code>, <code>ToString</code>, операторы <code>==</code> и <code>!=</code>, метод <code>Deconstruct</code> для позиционных записей), основанных на сравнении значений свойств (property-by-property equality), а не на ссылочной идентичности. Для <code>record class</code> дополнительно генерируется конструктор копирования; для <code>record struct</code> конструктор копирования не синтезируется.</li>
+                        <li>Поддерживает неразрушающее изменение (non-destructive mutation) с помощью выражения <strong><code>with</code></strong>.</li>
+                    </ul>
+
+                    <h3>Разновидности записей:</h3>
+                    <ul>
+                        <li>
+                            <strong><code>record class</code></strong> (или просто <code>record</code>):
+                            <ul>
+                                <li>Ссылочный тип.</li>
+                                <li>Поддерживает наследование только от <code>object</code> или другой записи-класса; наследование от обычного класса (кроме <code>object</code>) запрещено. Обычный класс не может наследовать от записи-класса.</li>
+                                <li>Может быть абстрактным.</li>
+                                <li>Экземпляры по умолчанию не обязаны быть неизменяемыми (изменяемые поля/свойства допустимы), но позиционные записи и типичные сценарии подразумевают неизменяемость.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong><code>record struct</code></strong> (начиная с C# 10):
+                            <ul>
+                                <li>Значимый тип.</li>
+                                <li>Не поддерживает наследование (но может реализовывать интерфейсы).</li>
+                                <li>В отличие от обычных структур, по умолчанию имеет семантику равенства по значениям (генерируются <code>Equals</code>, <code>GetHashCode</code>, <code>ToString</code>, операторы <code>==</code> и <code>!=</code>).</li>
+                                <li>Может быть определена как неизменяемая с помощью модификатора <strong><code>readonly record struct</code></strong>.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Позиционные записи (positional records):</h3>
+                    <ul>
+                        <li>
+                            <strong>Компактный синтаксис, в котором параметры конструктора одновременно являются свойствами.</strong>
+                        </li>
+                    </ul>
+                    <div class="code">
+                        <div class="code-header"><span>Синтаксис record class</span><span>C#</span></div>
+                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">record</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Person</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">FirstName</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">LastName</span><span class="token-cs-punctuation">);</span></code></pre>
+                    </div>
+                    <ul>
+                        <li>
+                            Компилятор автоматически создаёт:
+                            <ul>
+                                <li>Конструктор с указанными параметрами.</li>
+                                <li>Открытые свойства только для инициализации (init-only) с теми же именами.</li>
+                                <li>Метод <code>Deconstruct</code> для деконструкции по позициям.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Для <code>record struct</code> синтаксис аналогичен:
+                            <div class="code">
+                                <div class="code-header"><span>Синтаксис record struct</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">readonly</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">record</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">struct</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">Point</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">X</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">Y</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Значения по умолчанию и дополнительные члены могут быть добавлены в теле:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">record</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Person</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">FirstName</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">LastName</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-property">FullName</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">$"<span class="token-cs-punctuation">{</span><span class="token-cs-variable">FirstName</span><span class="token-cs-punctuation">}</span> <span class="token-cs-punctuation">{</span><span class="token-cs-variable">LastName</span><span class="token-cs-punctuation">}</span>"</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Равенство по значениям (value-based equality):</h3>
+                    <ul>
+                        <li>Для записей-классов методы <code>Equals(object)</code> и <code>Equals(RecordType)</code> сравнивают все поля и свойства, объявленные в записи, включая унаследованные, если они принадлежат записи.</li>
+                        <li>Операторы <code>==</code> и <code>!=</code> также работают по значениям.</li>
+                        <li>Порядок сравнения: для каждого поля вызывается соответствующий компаратор (например, <code>EqualityComparer&lt;T&gt;.Default.Equals</code>).</li>
+                        <li>Для записей-структур равенство по значениям реализуется аналогично, но поскольку это значимые типы, упаковки не происходит.</li>
+                    </ul>
+
+                    <h3>Неразрушающее изменение (выражение <code>with</code>):</h3>
+                    <ul>
+                        <li>
+                            Позволяет создать копию записи с изменением указанных свойств или полей:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">var</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">person1</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Person</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"Иван"</span><span class="token-cs-punctuation">, </span><span class="token-cs-string">"Петров"</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-keyword">var</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">person2</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">person1</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword-control">with</span><span class="token-cs-punctuation"> { </span><span class="token-cs-property">FirstName</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">"Сергей"</span><span class="token-cs-punctuation"> };</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Для <code>record class</code> выражение <code>with</code> использует сгенерированный конструктор копирования; для <code>record struct</code> — создаёт копию путём копирования значения (без вызова специального конструктора).</li>
+                        <li>Доступно для записей-классов и записей-структур (начиная с C# 10).</li>
+                    </ul>
+
+                    <h3>Наследование (для <code>record class</code>):</h3>
+                    <ul>
+                        <li>
+                            Запись-класс может наследовать от другой записи-класса:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">record</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Person</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">FirstName</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">LastName</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">record</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Employee</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">FirstName</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">LastName</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">Department</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Person</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">FirstName</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">LastName</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                        <li>При наследовании переопределённые члены равенства должны учитывать дополнительные поля производной записи.</li>
+                        <li>Запись-класс не может наследовать от обычного класса (если только тот не является <code>object</code>), и наоборот.</li>
+                        <li>Записи-классы могут быть абстрактными (<code>abstract record</code>) и запечатанными (<code>sealed record</code>).</li>
+                    </ul>
+
+                    <h3>Сравнение с классами и структурами:</h3>
+                    <ul>
+                        <li>
+                            <strong>Запись-класс (<code>record class</code>):</strong>
+                            <ul>
+                                <li>Ссылочный тип, но с семантикой значения.</li>
+                                <li>Автоматическая генерация полезных членов (<code>ToString</code>, <code>Equals</code>, <code>GetHashCode</code>, <code>Deconstruct</code>).</li>
+                                <li>Поддерживает наследование иерархий записей.</li>
+                                <li>Рекомендуется для неизменяемых моделей данных.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Запись-структура (<code>record struct</code>):</strong>
+                            <ul>
+                                <li>Значимый тип со встроенной семантикой равенства по значениям.</li>
+                                <li>Не поддерживает наследование.</li>
+                                <li>Более эффективен по памяти для маленьких данных, но требует осторожности при копировании (структура копируется полностью).</li>
+                                <li>В сочетании с <code>readonly</code> обеспечивает неизменяемость и безопасность.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Использовать записи для типов, основная цель которых — хранение данных, а не сложное поведение.</li>
+                        <li>Для неизменяемых моделей предпочитать позиционные записи, так как они предоставляют краткий синтаксис и гарантируют init-only свойства.</li>
+                        <li>При использовании записей-классов учитывать, что равенство распространяется на все поля базовой записи, но если в производной записи переопределить <code>Equals</code>, нужно соблюдать контракт (симметричность, транзитивность), в противном случае может нарушиться поведение.</li>
+                        <li>Для ключей словарей, где важна скорость и отсутствие мутаций, предпочтительнее использовать <code>readonly record struct</code> (если тип маленький) для предотвращения аллокаций.</li>
+                        <li>Избегать изменения свойств записи после создания, если это не предусмотрено сценарием, чтобы сохранить предсказуемость равенства и хеширования (если запись используется в <code>HashSet</code> или как ключ словаря).</li>
+                        <li>Не рекомендуется создавать записи с большим количеством полей, так как равенство и <code>GetHashCode</code> включают все члены, что может привести к снижению производительности.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 5.4. Перечисления (enum): базовый тип, флаги ([Flags]), методы Enum -->
+            <details id="section-5.4">
+                <summary>5.4. Перечисления (enum): базовый тип, флаги ([Flags]), методы Enum</summary>
+                <div>
+                    <h3>Перечисление (enum):</h3>
+                    <ul>
+                        <li>Значимый тип, определяющий набор именованных констант.</li>
+                        <li>Каждое перечисление наследуется от абстрактного класса <code>System.Enum</code>.</li>
+                        <li>Базовым типом для хранения значений перечисления по умолчанию является <code>int</code>, но может быть явно задан любой целочисленный тип (<code>byte</code>, <code>sbyte</code>, <code>short</code>, <code>ushort</code>, <code>int</code>, <code>uint</code>, <code>long</code>, <code>ulong</code>), за исключением <code>char</code>, <code>nint</code> и <code>nuint</code>.</li>
+                        <li>
+                            <strong>Объявление перечисления:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">enum</span><span class="token-cs-punctuation"> </span><span class="token-cs-enum">ИмяПеречисления</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">базовыйТип</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Имя1</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-value">значение1</span><span class="token-cs-punctuation">,</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Имя2</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-value">значение2</span><span class="token-cs-punctuation">,</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-operator">...</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Если базовый тип не указан, используется <code>int</code>.</li>
+                        <li>Каждому элементу явно или автоматически присваивается значение. Если значение не задано, первому элементу присваивается 0, а каждому последующему — предыдущее значение плюс 1.</li>
+                    </ul>
+                    <div class="code">
+                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                        <pre><code class="language-csharp"><span class="token-cs-keyword">enum</span><span class="token-cs-punctuation"> </span><span class="token-cs-enum">Color</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">byte</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Red</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">,</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Green</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">2</span><span class="token-cs-punctuation">,</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Blue</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">4</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-keyword">enum</span><span class="token-cs-punctuation"> </span><span class="token-cs-enum">Day</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Sunday</span><span class="token-cs-punctuation">,</span><span class="token-cs-punctuation">     </span><span class="token-cs-comment">// 0</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Monday</span><span class="token-cs-punctuation">,</span><span class="token-cs-punctuation">     </span><span class="token-cs-comment">// 1</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Tuesday</span><span class="token-cs-punctuation">,</span><span class="token-cs-punctuation">    </span><span class="token-cs-comment">// 2</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Wednesday</span><span class="token-cs-punctuation">,</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// 3</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Thursday</span><span class="token-cs-punctuation">,</span><span class="token-cs-punctuation">   </span><span class="token-cs-comment">// 4</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Friday</span><span class="token-cs-punctuation">,</span><span class="token-cs-punctuation">     </span><span class="token-cs-comment">// 5</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Saturday</span><span class="token-cs-punctuation">    </span><span class="token-cs-comment">// 6</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                    </div>
+
+                    <h3>Атрибут [Flags]:</h3>
+                    <ul>
+                        <li>Указывает, что перечисление представляет собой набор битовых флагов, которые можно комбинировать с помощью поразрядных операторов (<code>|</code>, <code>&amp;</code>, <code>^</code>).</li>
+                        <li>
+                            Атрибут <code>[Flags]</code> влияет на строковое представление (метод <code>ToString</code> для комбинаций флагов выводит имена через запятую) и на разбор строк (<code>Parse</code>/<code>TryParse</code> учитывают разделители-запятые). Метод <code>HasFlag</code> доступен для любого enum, но предназначен прежде всего для перечислений с <code>[Flags]</code>, потому что сам метод не зависит от наличия атрибута:
+                            <ul>
+                                <li><code>ToString()</code> для комбинации флагов пытается представить значение как разделённый запятыми список имён флагов (например, <code>"Red, Green"</code>).</li>
+                                <li><code>Parse()</code> и <code>TryParse()</code> могут разбирать строки с разделителями-запятыми.</li>
+                                <li><code>HasFlag()</code> проверяет наличие конкретного флага в комбинации.</li>
+                            </ul>
+                        </li>
+                        <li>Рекомендуется явно задавать значения флагов, являющиеся степенями двойки (1, 2, 4, 8, …), чтобы они не перекрывались. Для удобства можно использовать сдвиг <code>1 &lt;&lt; n</code>.</li>
+                    </ul>
+                    <div class="code">
+                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                        <pre><code class="language-csharp"><span class="token-cs-punctuation">[</span><span class="token-cs-attribute">Flags</span><span class="token-cs-punctuation">]</span>
+<span class="token-cs-keyword">enum</span><span class="token-cs-punctuation"> </span><span class="token-cs-enum">FileAccess</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">None</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">,</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Read</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">,</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Write</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">2</span><span class="token-cs-punctuation">,</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">Execute</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">4</span><span class="token-cs-punctuation">,</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-enum-constant">ReadWrite</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-enum-constant">Read</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">|</span><span class="token-cs-punctuation"> </span><span class="token-cs-enum-constant">Write</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-comment">// Использование</span>
+<span class="token-cs-enum">FileAccess</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">access</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-enum">FileAccess</span><span class="token-cs-operator">.</span><span class="token-cs-enum-constant">Read</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">|</span><span class="token-cs-punctuation"> </span><span class="token-cs-enum">FileAccess</span><span class="token-cs-operator">.</span><span class="token-cs-enum-constant">Write</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">access</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">                       </span><span class="token-cs-comment">// Read, Write</span>
+<span class="token-cs-keyword">bool</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">canRead</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">access</span><span class="token-cs-operator">.</span><span class="token-cs-method">HasFlag</span><span class="token-cs-punctuation">(</span><span class="token-cs-enum">FileAccess</span><span class="token-cs-operator">.</span><span class="token-cs-enum-constant">Read</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// true</span></code></pre>
+                    </div>
+
+                    <h3>Методы класса System.Enum и экземпляров перечислений:</h3>
+                    <ul>
+                        <li>
+                            Статические методы:
+                            <ul>
+                                <li><code>Enum.GetNames(Type enumType)</code> — возвращает массив строк с именами всех констант указанного перечисления.</li>
+                                <li><code>Enum.GetValues(Type enumType)</code> — возвращает массив значений всех констант указанного перечисления.</li>
+                                <li><code>Enum.Parse(Type enumType, string value)</code> — преобразует строковое представление имени или числового значения в экземпляр перечисления. При неудаче выбрасывает <code>ArgumentException</code>; если числовое значение выходит за пределы базового типа — <code>OverflowException</code>; если <code>enumType</code> равен <code>null</code> — <code>ArgumentNullException</code>.</li>
+                                <li><code>Enum.TryParse&lt;TEnum&gt;(string value, out TEnum result)</code> — безопасный аналог <code>Parse</code>, не выбрасывает исключений, возвращает <code>true</code> при успехе.</li>
+                                <li><code>Enum.IsDefined(Type enumType, object value)</code> — проверяет, существует ли константа с заданным значением в перечислении.</li>
+                                <li><code>Enum.GetName(Type enumType, object value)</code> — возвращает имя константы для заданного значения или <code>null</code>, если значение не определено.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Методы экземпляра (унаследованные от <code>System.Enum</code> и <code>System.Object</code>):
+                            <ul>
+                                <li><code>ToString()</code> — возвращает строковое представление. Для обычного перечисления — имя константы; для <code>[Flags]</code> может возвращать перечисление флагов через запятую.</li>
+                                <li><code>HasFlag(Enum flag)</code> — определяет, установлен ли один или несколько битовых флагов в текущем экземпляре; работает для любых перечислений и не требует наличия атрибута <code>[Flags]</code>.</li>
+                                <li><code>CompareTo(object target)</code> — сравнивает значения текущего экземпляра и целевого; возвращает отрицательное число, ноль или положительное число.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Преобразования:</h3>
+                    <ul>
+                        <li>
+                            Любое значение перечисления может быть явно преобразовано в его базовый целочисленный тип и обратно с помощью явного приведения.
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">dayValue</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> (</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">)</span><span class="token-cs-enum">Day</span><span class="token-cs-operator">.</span><span class="token-cs-enum-constant">Monday</span><span class="token-cs-punctuation">;</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// 1</span>
+<span class="token-cs-enum">Day</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">day</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> (</span><span class="token-cs-enum">Day</span><span class="token-cs-punctuation">)</span><span class="token-cs-number">2</span><span class="token-cs-punctuation">;</span><span class="token-cs-punctuation">                </span><span class="token-cs-comment">// Tuesday</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Неявные преобразования отсутствуют: нельзя присвоить целое число переменной перечисления без приведения типа.</li>
+                        <li>Числовые литералы, не являющиеся допустимыми значениями перечисления, могут быть присвоены через явное приведение, при этом поведение методов <code>ToString()</code> для таких значений зависит от наличия атрибута <code>[Flags]</code>.</li>
+                    </ul>
+
+                    <h3>Перечисления в обобщениях:</h3>
+                    <ul>
+                        <li>
+                            C# 7.3 и выше: ограничение <code>where T : Enum</code> позволяет ограничить обобщённый параметр перечислениями. Избежать упаковки при вызове статических методов <code>Enum</code> помогают их обобщённые перегрузки (например, <code>Enum.TryParse&lt;T&gt;()</code>, <code>Enum.GetValues&lt;T&gt;()</code>), доступные начиная с .NET 5.
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">static</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">ParseEnum</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation">) </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Enum</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> (</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation">)</span><span class="token-cs-class">Enum</span><span class="token-cs-operator">.</span><span class="token-cs-method">Parse</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">typeof</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation">), </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Для взаимоисключающих значений использовать обычные перечисления (без <code>[Flags]</code>), каждый элемент — уникальное значение.</li>
+                        <li>Для комбинируемых опций применять перечисления с атрибутом <code>[Flags]</code> и значениями, являющимися степенями двойки. Предусмотреть значение <code>None = 0</code>.</li>
+                        <li>Всегда проверять успешность преобразования строки в перечисление с помощью <code>TryParse</code> при работе с внешними данными.</li>
+                        <li>Не рекомендуется добавлять значения в середину перечисления после его публикации, так как это может нарушить обратную совместимость (существующие сохранённые значения могут сменить смысл). Допустимо добавлять новые элементы в конец (до объявления значений), если не нарушается порядок ранее заданных явных значений.</li>
+                        <li>При использовании перечислений в качестве ключей в словарях следует помнить, что сравнение происходит по значению и не создаёт упаковки.</li>
+                        <li>Для повышения производительности в высоконагруженном коде предпочитать обобщённые методы <code>Enum.Parse&lt;T&gt;</code>, <code>Enum.GetValues&lt;T&gt;</code> и т.д. перед их неуниверсальными версиями.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 5.5. Nullable-типы (ValueType?, ссылочные типы с nullable-контекстом) -->
+            <details id="section-5.5">
+                <summary>5.5. Nullable-типы (ValueType?, ссылочные типы с nullable-контекстом)</summary>
+                <div>
+                    <h3>Nullable-типы для значимых типов:</h3>
+                    <ul>
+                        <li>Представляют собой структуру <code>System.Nullable&lt;T&gt;</code>, где <code>T</code> — значимый тип.</li>
+                        <li>Обозначаются синтаксисом <code>T?</code>.</li>
+                        <li>Позволяют переменной значимого типа принимать значение <code>null</code> в дополнение к обычным значениям базового типа.</li>
+                        <li>
+                            <strong>Свойства <code>Nullable&lt;T&gt;</code>:</strong>
+                            <ul>
+                                <li><code>HasValue</code> — возвращает <code>true</code>, если экземпляр содержит значение; <code>false</code>, если имеет значение <code>null</code>.</li>
+                                <li><code>Value</code> — возвращает хранимое значение. Если <code>HasValue == false</code>, выбрасывается <code>InvalidOperationException</code>.</li>
+                            </ul>
+                        </li>
+                        <li>Неявное преобразование из <code>T</code> в <code>T?</code> допустимо всегда.</li>
+                        <li>Явное преобразование из <code>T?</code> в <code>T</code> допустимо, но при <code>HasValue == false</code> выбрасывает <code>InvalidOperationException</code>.</li>
+                        <li>
+                            <strong>Упаковка и распаковка:</strong>
+                            <ul>
+                                <li>При упаковке <code>Nullable&lt;T&gt;</code> со значением упаковывается базовое значение <code>T</code> (а не сам <code>Nullable&lt;T&gt;</code>). При <code>null</code> результатом упаковки становится <code>null</code>-ссылка.</li>
+                                <li>При распаковке из <code>object</code> в <code>Nullable&lt;T&gt;</code>: если упакованное значение имеет тип <code>T</code>, создаётся <code>Nullable&lt;T&gt;</code> с этим значением; если <code>null</code>, создаётся <code>Nullable&lt;T&gt;</code> без значения.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Поднятые (lifted) операторы:</strong>
+                            <ul>
+                                <li>Для бинарных и унарных операторов (арифметических, сравнения, логических) с операндами типа <code>T?</code> компилятор генерирует поднятые версии, возвращающие <code>T?</code>. Если хотя бы один операнд <code>null</code>, результат <code>null</code> (кроме операторов <code>&amp;</code> и <code>|</code> с <code>bool?</code>, которые реализуют трёхзначную логику).</li>
+                                <li>Операторы сравнения (<code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>) с операндами <code>T?</code> возвращают <code>bool</code>; если один или оба операнда равны <code>null</code>, результатом является <code>false</code>.</li>
+                                <li>Операторы равенства (<code>==</code>, <code>!=</code>) возвращают <code>bool</code>, так как они работают и с <code>null</code> (сравнение с <code>null</code> всегда корректно).</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Методы экземпляра:</strong>
+                            <ul>
+                                <li><code>GetValueOrDefault()</code> — возвращает значение, если оно существует, иначе <code>default(T)</code>.</li>
+                                <li><code>GetValueOrDefault(T defaultValue)</code> — возвращает значение, если оно существует, иначе заданное значение по умолчанию.</li>
+                            </ul>
+                        </li>
+                        <li>Оператор <code>??</code> и присваивание <code>??=</code> работают с <code>T?</code>, позволяя задать замену при <code>null</code>.</li>
+                    </ul>
+
+                    <h3>Nullable-ссылочные типы (Nullability context) — C# 8.0 и выше:</h3>
+                    <ul>
+                        <li>Представляют собой механизм статического анализа, позволяющий компилятору отслеживать, может ли переменная ссылочного типа содержать <code>null</code>, и предупреждать о потенциальных разыменованиях <code>null</code>.</li>
+                        <li>Включаются на уровне проекта свойством <code>&lt;Nullable&gt;enable&lt;/Nullable&gt;</code> в <code>.csproj</code>, или локально через директивы <code>#nullable enable</code> / <code>#nullable disable</code> / <code>#nullable restore</code>.</li>
+                        <li>В контексте nullable-аннотаций ссылочные типы <code>T</code> по умолчанию считаются не допускающими <code>null</code> (non-nullable). Для обозначения допустимости <code>null</code> используется аннотация <code>T?</code>.</li>
+                        <li>
+                            <strong>Компилятор отслеживает состояние null для переменных:</strong>
+                            <ul>
+                                <li>Если переменная объявлена как <code>T?</code>, её начальное состояние — <code>maybe-null</code>.</li>
+                                <li>После проверки на <code>null</code> в условном операторе (например, <code>if (x != null)</code>) в положительной ветке состояние переменной становится <code>not-null</code>.</li>
+                                <li>Присваивание значения non-nullable переменной из источника <code>maybe-null</code> вызывает предупреждение.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Оператор подавления предупреждений <strong><code>!</code></strong> (null-forgiving operator): <code>variable!</code> указывает компилятору, что значение заведомо не равно <code>null</code>, отключая предупреждения для данного выражения. Опасен при некорректном использовании.
+                        </li>
+                        <li>
+                            <strong>Атрибуты, уточняющие поведение анализа для методов:</strong>
+                            <ul>
+                                <li><code>[MaybeNull]</code> — указывает, что возвращаемое значение может быть <code>null</code>, даже если тип non-nullable.</li>
+                                <li><code>[NotNullWhen(bool)]</code> — применяется к параметрам и сообщает, что если метод возвращает указанное булево значение, то параметр не равен <code>null</code>.</li>
+                                <li><code>[NotNullIfNotNull(string)]</code> — если указанный параметр не <code>null</code>, то и выходной параметр (или возвращаемое значение) не <code>null</code>.</li>
+                                <li><code>[MemberNotNull(params string[])]</code> и <code>[MemberNotNullWhen(bool, params string[])]</code> — гарантируют, что после вызова метода указанные члены инициализированы и не <code>null</code>.</li>
+                                <li><code>[DoesNotReturnIf(bool)]</code> — сигнализирует, что если значение параметра истинно, метод не возвращает управление (например, бросает исключение), поэтому после вызова можно считать условие ложным.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Обобщения и nullable:</strong>
+                            <ul>
+                                <li>Для неограниченного параметра типа <code>T</code> синтаксис <code>T?</code> имеет разное значение: если <code>T</code> — значимый тип, то <code>T?</code> — <code>Nullable&lt;T&gt;</code>; если <code>T</code> — ссылочный тип, то <code>T?</code> — nullable-ссылочный тип.</li>
+                                <li>Чтобы использовать nullable-аннотации в обобщённом коде, необходимо применять ограничения (<code>where T : class?</code>, <code>where T : struct</code>) или условные конструкции с <code>default(T)</code> и проверками на <code>null</code>.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Массивы и nullable:</strong>
+                            <ul>
+                                <li><code>string?[]</code> — массив, элементы которого могут быть <code>null</code>; ссылка на сам массив non-nullable.</li>
+                                <li><code>string[]?</code> — массив, который может быть <code>null</code>, но его элементы не должны быть <code>null</code>.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Взаимодействие с унаследованным кодом:</strong>
+                            <ul>
+                                <li>При отключённом nullable-контексте все ссылочные переменные считаются "oblivious" (не отслеживаются), предупреждения не выдаются.</li>
+                                <li>При смешанном использовании (часть кода с аннотациями, часть без) компилятор делает консервативные предположения: входящие значения из контекста без аннотаций могут рассматриваться как <code>maybe-null</code>, а для аргументов non-nullable, передаваемых в код без аннотаций, предупреждения не генерируются (для совместимости).</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Для значимых типов рекомендуется использовать <code>T?</code> для полей, которые могут не иметь значения (например, дата завершения, необязательный параметр). Предпочитать <code>TryGetValue</code> или <code>GetValueOrDefault</code> вместо явной проверки <code>HasValue</code> и последующего доступа к <code>Value</code> для избежания исключений.</li>
+                        <li>Включение nullable-контекста для новых проектов настоятельно рекомендуется, так как это повышает надёжность кода и снижает количество <code>NullReferenceException</code> в рантайме.</li>
+                        <li>При работе с обобщениями необходимо тщательно контролировать значение <code>default(T)</code> и учитывать, что для ссылочных типов оно может быть <code>null</code>. Использовать ограничения и анализ null для предотвращения ошибок.</li>
+                        <li>Оператор <code>!</code> следует применять лишь тогда, когда разработчик абсолютно уверен в отсутствии <code>null</code> в данном месте, и невозможность выразить это через атрибуты или проверки. Чрезмерное использование <code>!</code> снижает ценность nullable-анализа.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 5.6. Проверка на null (??, ??=, ?., ?[]) -->
+            <details id="section-5.6">
+                <summary>5.6. Проверка на null (??, ??=, ?., ?[])</summary>
+                <div>
+                    <h3>Null-условный оператор (<code>?.</code> и <code>?[]</code>):</h3>
+                    <ul>
+                        <li>Предоставляет безопасный способ доступа к членам объекта или элементам коллекции, которые могут иметь значение <code>null</code>.</li>
+                        <li>Синтаксис: <code>выражение?.Член</code> или <code>выражение?[индекс]</code>.</li>
+                        <li>Если выражение слева от оператора равно <code>null</code>, то результат всего выражения также равен <code>null</code> (или <code>default</code> для значимого типа, обёрнутый в <code>Nullable&lt;T&gt;</code>), и дальнейшее вычисление (обращение к члену или элементу) не выполняется. Это предотвращает возникновение <code>NullReferenceException</code>.</li>
+                        <li>Допускается цепочечное использование: <code>a?.B?.C()</code> последовательно проверяет каждый промежуточный объект; если любой из них <code>null</code>, цепочка прерывается, и конечный результат — <code>null</code>.</li>
+                        <li>
+                            <strong>Тип возвращаемого значения:</strong>
+                            <ul>
+                                <li>Для ссылочных типов: если тип члена — <code>T</code> (ссылочный тип), то результат <code>?.</code> имеет тип <code>T</code> в контексте без nullable-аннотаций (и может быть <code>null</code>), либо <code>T?</code> в nullable-контексте.</li>
+                                <li>Для значимых типов: если тип члена — значимый тип <code>V</code>, то результат автоматически становится <code>V?</code> (<code>Nullable&lt;V&gt;</code>), что позволяет отличить отсутствие объекта (<code>null</code>) от допустимого значения.</li>
+                            </ul>
+                        </li>
+                        <li>Null-условный доступ к индексатору: <code>коллекция?[индекс]</code> — если коллекция равна <code>null</code>, результат <code>null</code>; иначе возвращается элемент по указанному индексу (при некорректном индексе всё равно возможно исключение, но не из-за <code>null</code>).</li>
+                        <li>Безопасный вызов делегатов: <code>делегат?.Invoke(аргументы)</code> гарантирует, что если делегат равен <code>null</code>, вызов не производится, и программа продолжает работу.</li>
+                        <li>
+                            Начиная с C# 14, оператор <code>?.</code> поддерживает присваивание для ссылочных типов: <code>person?.FirstName = "Scott";</code> и <code>collection?[index] = value;</code>. Правая часть вычисляется только тогда, когда левая часть не равна <code>null</code>. До C# 14 присваивание через <code>?.</code> не допускалось и требовало явной проверки на <code>null</code>.
+                        </li>
+                        <li>
+                            <strong>Примеры:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">name</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">person</span><span class="token-cs-operator">?.</span><span class="token-cs-property">Name</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-operator">?</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">length</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">text</span><span class="token-cs-operator">?.</span><span class="token-cs-property">Length</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">first</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">list</span><span class="token-cs-operator">?[</span><span class="token-cs-number">0</span><span class="token-cs-punctuation">]</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-class">Action</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">callback</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">OnProgress</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-variable">callback</span><span class="token-cs-operator">?.</span><span class="token-cs-method">Invoke</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">50</span><span class="token-cs-punctuation">)</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Null-объединяющий оператор (<code>??</code>):</h3>
+                    <ul>
+                        <li>Возвращает левый операнд, если он не равен <code>null</code>; в противном случае вычисляет и возвращает правый операнд.</li>
+                        <li>Синтаксис: <code>левый ?? правый</code>.</li>
+                        <li>Операнды должны быть совместимых типов: если левый операнд имеет тип <code>T?</code> (nullable-значимый), то правый операнд должен иметь тип <code>T</code> (или быть приводимым к нему). Результат имеет тип <code>T</code>. Если левый операнд ссылочного типа, правый должен быть того же типа или производного.</li>
+                        <li>Правоассоциативен: <code>a ?? b ?? c</code> интерпретируется как <code>a ?? (b ?? c)</code>.</li>
+                        <li>
+                            Часто используется для задания значений по умолчанию:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">displayName</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">name</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">??</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">"Гость"</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">nullableValue</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">??</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">-</span><span class="token-cs-number">1</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Null-объединяющее присваивание (<code>??=</code>) (C# 8.0 и выше):</h3>
+                    <ul>
+                        <li>Присваивает значение правого операнда левому операнду только в том случае, если левый операнд имеет значение <code>null</code>.</li>
+                        <li>Синтаксис: <code>переменная ??= значение;</code></li>
+                        <li>Эквивалентно условному оператору: <code>if (переменная is null) { переменная = значение; }</code>, но является атомарным в отношении вычисления левой части (которая вычисляется только один раз).</li>
+                        <li>Применим к переменным ссылочных типов и nullable-значимых типов.</li>
+                        <li>Также правоассоциативен: <code>a ??= b ??= c</code> сначала присвоит <code>b = c</code> если <code>b</code> равно <code>null</code>, затем <code>a = b</code> если <code>a</code> равно <code>null</code>.</li>
+                        <li>
+                            <strong>Примеры:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">name</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">null</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-variable">name</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">??=</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">"Default"</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-comment">// name теперь "Default"</span>
+
+<span class="token-cs-keyword">int</span><span class="token-cs-operator">?</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">count</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">null</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-variable">count</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">??=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-comment">// count.HasValue == true, count.Value == 0</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется применять операторы <code>?.</code> и <code>?[]</code> для упрощения проверок на <code>null</code>, что уменьшает количество вложенных условных конструкций и делает код более читаемым.</li>
+                        <li>Для потокобезопасного вызова событий и делегатов рекомендуется использовать null-условный вызов (<code>?.Invoke()</code>), который автоматически создаёт локальную копию делегата и предотвращает состояние гонки.</li>
+                        <li>Оператор <code>??</code> является предпочтительным способом задания значения по умолчанию для nullable-переменных, так как он компактен и легко читается.</li>
+                        <li><code>??=</code> рекомендуется использовать для ленивой инициализации полей и свойств, когда значение должно быть присвоено только один раз при первом обращении.</li>
+                        <li>В контексте включённого nullable-анализа компилятор использует информацию от операторов <code>??</code> и <code>??=</code> для уточнения состояния переменной (после проверки/присваивания переменная считается отличной от <code>null</code>).</li>
+                        <li>Следует избегать излишне длинных цепочек <code>?.</code>, так как это может ухудшить читаемость и затруднить отладку (место, где вернулся <code>null</code>, может быть неочевидным).</li>
+                    </ul>
+                </div>
+            </details>
+        </details>
+
+        <!-- 6. Обобщения (Generics) -->
+        <details id="section-6">
+            <summary>6. Обобщения (Generics)</summary>
+
+            <!-- 6.1. Обобщённые типы (классы, структуры, интерфейсы, делегаты) -->
+            <details id="section-6.1">
+                <summary>6.1. Обобщённые типы (классы, структуры, интерфейсы, делегаты)</summary>
+                <div>
+                    <h3>Обобщения (generics):</h3>
+                    <ul>
+                        <li>Механизм языка, позволяющий создавать типы и методы, параметризованные другими типами.</li>
+                        <li>Обеспечивают повторное использование кода, типобезопасность на этапе компиляции и высокую производительность за счёт исключения операций упаковки и распаковки значимых типов.</li>
+                        <li><strong>Параметр типа</strong> указывается в угловых скобках <code>&lt;T&gt;</code> после имени типа или метода.</li>
+                    </ul>
+
+                    <h3>Обобщённые классы:</h3>
+                    <ul>
+                        <li>Классы, которые могут работать с данными произвольного типа, задаваемого при создании экземпляра.</li>
+                        <li>Параметры типа используются в объявлении полей, свойств, методов и конструкторов.</li>
+                        <li>
+                            Синтаксис объявления:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">GenericClass</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">private</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">_value</span><span class="token-cs-punctuation">;</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GenericClass</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-field">_value</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    }</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetValue</span><span class="token-cs-punctuation">() </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">_value</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            При создании экземпляра конкретный тип указывается вместо параметра <code>T</code>:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">var</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">intInstance</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">GenericClass</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">42</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-keyword">var</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">stringInstance</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">GenericClass</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">string</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"Текст"</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Допускается использование нескольких параметров типа: <code>class Dictionary&lt;TKey, TValue&gt;</code>.</li>
+                    </ul>
+
+                    <h3>Обобщённые структуры:</h3>
+                    <ul>
+                        <li>Аналогичны обобщённым классам, но являются значимыми типами.</li>
+                        <li>Широко применяются в стандартной библиотеке, например, <code>Nullable&lt;T&gt;</code>.</li>
+                        <li>
+                            Синтаксис объявления:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">struct</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">GenericStruct</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-property">Data</span><span class="token-cs-punctuation"> { </span><span class="token-cs-keyword">get</span><span class="token-cs-punctuation">; </span><span class="token-cs-keyword">set</span><span class="token-cs-punctuation">; }</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GenericStruct</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">data</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-property">Data</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">data</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Обобщённые интерфейсы:</h3>
+                    <ul>
+                        <li>Определяют контракт, параметризованный типом.</li>
+                        <li>Реализующий класс или структура могут либо указать конкретный тип, либо оставаться обобщёнными.</li>
+                        <li>
+                            Пример объявления и реализации:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">interface</span><span class="token-cs-punctuation"> </span><span class="token-cs-interface">IRepository</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Add</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">item</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetById</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">id</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">UserRepository</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-interface">IRepository</span><span class="token-cs-operator">&lt;</span><span class="token-cs-class">User</span><span class="token-cs-operator">&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Add</span><span class="token-cs-punctuation">(</span><span class="token-cs-class">User</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">item</span><span class="token-cs-punctuation">) { </span><span class="token-cs-comment">/* ... */</span><span class="token-cs-punctuation"> }</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">User</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetById</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">id</span><span class="token-cs-punctuation">) { </span><span class="token-cs-comment">/* ... */</span><span class="token-cs-punctuation"> }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Обобщённые делегаты:</h3>
+                    <ul>
+                        <li>Позволяют определить сигнатуру метода с типом-параметром.</li>
+                        <li>Многие предопределённые делегаты являются обобщёнными: <code>Action&lt;T&gt;</code>, <code>Func&lt;T, TResult&gt;</code>, <code>Predicate&lt;T&gt;</code>.</li>
+                        <li>
+                            Пользовательский обобщённый делегат объявляется следующим образом:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">delegate</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">TResult</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Transformer</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation">, </span><span class="token-cs-generic">TResult</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">input</span><span class="token-cs-punctuation">);</span>
+
+<span class="token-cs-class">Transformer</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">string</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">intToString</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">i</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">i</span><span class="token-cs-operator">.</span><span class="token-cs-method">ToString</span><span class="token-cs-punctuation">();</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Преимущества обобщённых типов:</h3>
+                    <ul>
+                        <li><strong>Повторное использование кода:</strong> один и тот же обобщённый класс или метод может работать с любым типом, удовлетворяющим ограничениям (если они заданы).</li>
+                        <li><strong>Типобезопасность:</strong> ошибки несоответствия типов выявляются на этапе компиляции, а не в режиме выполнения.</li>
+                        <li><strong>Производительность:</strong> для значимых типов исключаются операции упаковки и распаковки, что снижает нагрузку на память и сборщик мусора. Код времени выполнения генерируется отдельно для каждого значимого типа, но используется совместно для всех ссылочных типов.</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется применять обобщения всякий раз, когда логика алгоритма или структуры данных не зависит от конкретного типа обрабатываемых элементов.</li>
+                        <li>Для типов, которые должны лишь предоставлять контракт, предпочтительнее использовать обобщённые интерфейсы.</li>
+                        <li>При проектировании обобщённых библиотек следует тщательно выбирать ограничения, чтобы обеспечить баланс между гибкостью и функциональностью.</li>
+                        <li>Именование параметров типа рекомендуется начинать с префикса <code>T</code> (<code>TKey</code>, <code>TValue</code>, <code>TResult</code>) либо использовать общепринятое <code>T</code>, если параметр единственный.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 6.2. Обобщённые методы -->
+            <details id="section-6.2">
+                <summary>6.2. Обобщённые методы</summary>
+                <div>
+                    <h3>Обобщённый метод:</h3>
+                    <ul>
+                        <li>Метод, который помимо обычных параметров принимает один или несколько <strong>параметров типа</strong>, что позволяет ему работать с различными типами данных без дублирования кода.</li>
+                        <li>Параметры типа объявляются в угловых скобках после имени метода или перед списком параметров.</li>
+                        <li>Может быть членом как обобщённого, так и необобщённого класса, структуры или интерфейса.</li>
+                    </ul>
+
+                    <h3>Синтаксис объявления:</h3>
+                    <div class="code">
+                        <div class="code-header"><span>Синтаксис</span><span>C#</span></div>
+                        <pre><code class="language-csharp"><span class="token-cs-punctuation">[</span><span class="token-cs-keyword">модификаторы</span><span class="token-cs-punctuation">]</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">ТипВозврата</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">ИмяМетода</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">параметр</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// Тело метода</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                    </div>
+
+                    <p>Пример обобщённого метода, возвращающего переданное значение:</p>
+                    <div class="code">
+                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Identity</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation">;</span></code></pre>
+                    </div>
+
+                    <h3>Вывод типа при вызове:</h3>
+                    <ul>
+                        <li>Компилятор способен автоматически вывести аргументы типа на основе переданных аргументов метода, что позволяет опускать явное указание типа в угловых скобках.</li>
+                        <li>
+                            <strong>Пример с выводом типа:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">result</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Identity</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">42</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">        </span><span class="token-cs-comment">// T выводится как int</span>
+<span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">text</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Identity</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"Hello"</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// T выводится как string</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Явное указание аргументов типа:</h3>
+                    <ul>
+                        <li>
+                            В случаях, когда компилятор не может однозначно вывести тип, или для повышения ясности кода, тип указывается явно при вызове:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">result</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Identity</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">42</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">text</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Identity</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">string</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"Hello"</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Обобщённые методы в необобщённых классах:</h3>
+                    <ul>
+                        <li>Класс может не быть обобщённым, но содержать обобщённые методы. Параметры типа таких методов независимы от класса.</li>
+                        <li>
+                            <strong>Пример:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Utilities</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">PrintTwice</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">item</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">item</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">item</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">    }</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-keyword">var</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">utils</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Utilities</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-variable">utils</span><span class="token-cs-operator">.</span><span class="token-cs-method">PrintTwice</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">100</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-variable">utils</span><span class="token-cs-operator">.</span><span class="token-cs-method">PrintTwice</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"Text"</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Ограничения обобщённых методов:</h3>
+                    <ul>
+                        <li>На параметры типа метода могут накладываться <strong>ограничения</strong> с помощью ключевого слова <strong><code>where</code></strong>, которое указывает требования к типу-аргументу.</li>
+                        <li>Ограничения позволяют использовать операции, специфичные для типа (создание экземпляра, вызов методов интерфейса и т.д.).</li>
+                        <li>
+                            <strong>Пример метода с ограничением конструктора без параметров:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">CreateInstance</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">() </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation">()</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Допустимые ограничения:</strong>
+                            <ul>
+                                <li><code>where T : struct</code> — тип должен быть значимым.</li>
+                                <li><code>where T : class</code> — тип должен быть ссылочным.</li>
+                                <li><code>where T : new()</code> — тип должен иметь открытый конструктор без параметров.</li>
+                                <li><code>where T : &lt;базовый класс&gt;</code> — тип должен быть или наследовать указанный базовый класс.</li>
+                                <li><code>where T : &lt;интерфейс&gt;</code> — тип должен реализовывать указанный интерфейс.</li>
+                                <li><code>where T : unmanaged</code> — тип должен быть неуправляемым (значимый тип, не содержащий ссылок).</li>
+                                <li><code>where T : notnull</code> — тип не должен допускать значение <code>null</code>.</li>
+                                <li>Комбинирование нескольких ограничений через запятую.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Обобщённые методы рекомендуется применять, когда алгоритм не зависит от конкретного типа данных, что позволяет избежать дублирования кода для каждого типа.</li>
+                        <li>Рекомендуется полагаться на вывод типа при вызове, если это не снижает читаемость и не приводит к неоднозначности.</li>
+                        <li>Если метод требует выполнения операций, специфичных для типа (создание экземпляра, вызов методов), следует задавать соответствующие ограничения.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 6.3. Ограничения (where, new(), unmanaged, notnull, class, struct) -->
+            <details id="section-6.3">
+                <summary>6.3. Ограничения (where, new(), unmanaged, notnull, class, struct)</summary>
+                <div>
+                    <h3>Ограничения параметров типа (type parameter constraints):</h3>
+                    <ul>
+                        <li>Механизм, позволяющий указать требования к типу-аргументу, который может быть подставлен в обобщённый тип или метод.</li>
+                        <li>Задаются с помощью ключевого слова <strong><code>where</code></strong> после объявления типа или метода.</li>
+                        <li>Обеспечивают возможность использовать в теле обобщённого типа или метода операции, специфичные для указанных в ограничениях типов (создание экземпляров, вызов методов интерфейсов, обращение к членам базового класса).</li>
+                        <li>
+                            <strong>Синтаксис задания ограничений:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Синтаксис</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">GenericClass</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">ограничение</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// Тело класса</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Method</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">() </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">ограничение</span><span class="token-cs-punctuation"> { </span><span class="token-cs-comment">/* ... */</span><span class="token-cs-punctuation"> }</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Виды ограничений:</h3>
+                    <ul>
+                        <li>
+                            <strong><code>where T : struct</code></strong>
+                            <ul>
+                                <li>Тип-аргумент должен быть значимым типом (не допускающим значения <code>null</code>).</li>
+                                <li>Исключает возможность подстановки ссылочных типов.</li>
+                                <li>
+                                    <strong>Пример:</strong>
+                                    <div class="code">
+                                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">ValueHolder</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">struct</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-property">Value</span><span class="token-cs-punctuation"> { </span><span class="token-cs-keyword">get</span><span class="token-cs-punctuation">; </span><span class="token-cs-keyword">set</span><span class="token-cs-punctuation">; }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong><code>where T : class</code></strong>
+                            <ul>
+                                <li>Тип-аргумент должен быть ссылочным типом (классом, интерфейсом, делегатом, массивом). В контексте с включённым nullable-анализом <code>where T : class</code> требует non-nullable ссылочный тип; для допущения nullable-ссылочных типов используется <code>where T : class?</code>.</li>
+                                <li>Допускает подстановку классов, интерфейсов, делегатов, массивов.</li>
+                                <li>
+                                    <strong>Пример:</strong>
+                                    <div class="code">
+                                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">ReferenceHolder</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-property">Reference</span><span class="token-cs-punctuation"> { </span><span class="token-cs-keyword">get</span><span class="token-cs-punctuation">; </span><span class="token-cs-keyword">set</span><span class="token-cs-punctuation">; }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong><code>where T : new()</code></strong>
+                            <ul>
+                                <li>Тип-аргумент должен иметь открытый конструктор без параметров.</li>
+                                <li>Позволяет создавать новые экземпляры типа <code>T</code> с помощью оператора <code>new T()</code>.</li>
+                                <li>Ограничение <code>new()</code> должно указываться последним среди стандартных ограничений; после него может следовать только anti-constraint <code>allows ref struct</code> (доступен начиная с C# 13).</li>
+                                <li>
+                                    <strong>Пример:</strong>
+                                    <div class="code">
+                                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Factory</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation">()</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Create</span><span class="token-cs-punctuation">() </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong><code>where T : unmanaged</code></strong>
+                            <ul>
+                                <li>Тип-аргумент должен быть неуправляемым типом (unmanaged type).</li>
+                                <li>К неуправляемым типам относятся все встроенные числовые типы, <code>bool</code>, <code>char</code>, перечисления, а также структуры, все поля которых также являются неуправляемыми типами.</li>
+                                <li>Указатели на неуправляемые типы также допустимы.</li>
+                                <li>Ограничение <code>unmanaged</code> неявно включает в себя <code>struct</code> и не может комбинироваться с <code>struct</code>, <code>class</code>, <code>class?</code> или <code>notnull</code>, а также с ограничением базового класса.</li>
+                                <li>
+                                    <strong>Пример:</strong>
+                                    <div class="code">
+                                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">unsafe</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Process</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-operator">*</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">ptr</span><span class="token-cs-punctuation">) </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">unmanaged</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// Работа с указателем</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong><code>where T : notnull</code></strong>
+                            <ul>
+                                <li>Тип-аргумент не должен допускать значение <code>null</code>.</li>
+                                <li>Применимо как к значимым, так и к ссылочным типам в контексте nullable-аннотаций.</li>
+                                <li>Для значимых типов ограничение выполняется всегда, так как они не могут быть <code>null</code> (кроме <code>Nullable&lt;T&gt;</code>); для ссылочных типов требует, чтобы тип был non-nullable.</li>
+                                <li>В nullable-контексте нарушение этого ограничения приводит к предупреждению компилятора.</li>
+                                <li>
+                                    <strong>Пример:</strong>
+                                    <div class="code">
+                                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">NotNullHolder</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">notnull</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-property">Value</span><span class="token-cs-punctuation"> { </span><span class="token-cs-keyword">get</span><span class="token-cs-punctuation">; </span><span class="token-cs-keyword">set</span><span class="token-cs-punctuation">; }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong><code>where T : &lt;базовый класс&gt;</code></strong>
+                            <ul>
+                                <li>Тип-аргумент должен быть или наследовать указанный базовый класс.</li>
+                                <li>Позволяет обращаться к членам базового класса внутри обобщённого типа или метода.</li>
+                                <li>
+                                    <strong>Пример:</strong>
+                                    <div class="code">
+                                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">AnimalHandler</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Animal</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Feed</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">animal</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">animal</span><span class="token-cs-operator">.</span><span class="token-cs-method">Eat</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong><code>where T : &lt;интерфейс&gt;</code></strong>
+                            <ul>
+                                <li>Тип-аргумент должен реализовывать указанный интерфейс.</li>
+                                <li>Можно указать несколько интерфейсов через запятую.</li>
+                                <li>Позволяет вызывать методы интерфейса для экземпляров типа <code>T</code>.</li>
+                                <li>
+                                    <strong>Пример:</strong>
+                                    <div class="code">
+                                        <div class="code-header"><span>Код</span><span>C#</span></div>
+                                        <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Sorter</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-interface">IComparable</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Sort</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation">[] </span><span class="token-cs-variable">items</span><span class="token-cs-punctuation">) { </span><span class="token-cs-comment">/* ... */</span><span class="token-cs-punctuation"> }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Комбинирование ограничений:</h3>
+                    <ul>
+                        <li>Для одного параметра типа можно задать несколько ограничений, разделяя их запятыми в одном предложении <strong><code>where</code></strong>.</li>
+                        <li>
+                            <strong>Порядок ограничений:</strong>
+                            <ul>
+                                <li><code>struct</code>, <code>class</code>, <code>class?</code>, <code>notnull</code>, <code>unmanaged</code> — взаимоисключающие; можно указать только одно из них, и оно должно идти первым.</li>
+                                <li>Базовый класс (только один) и/или один или несколько интерфейсов.</li>
+                                <li><code>new()</code>.</li>
+                                <li>anti-constraint <code>allows ref struct</code> (C# 13+).</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Пример комбинированного ограничения:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Repository</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation">, </span><span class="token-cs-interface">IEntity</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation">()</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Create</span><span class="token-cs-punctuation">() </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Save</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">entity</span><span class="token-cs-punctuation">) { </span><span class="token-cs-comment">/* ... */</span><span class="token-cs-punctuation"> }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Область применения ограничений:</h3>
+                    <ul>
+                        <li>Ограничения могут применяться к параметрам типа обобщённых классов, структур, интерфейсов, делегатов и методов.</li>
+                        <li>Ограничения обобщённых методов могут отличаться от ограничений типа, в котором они объявлены, если это необобщённый тип.</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется задавать минимально необходимые ограничения, чтобы сохранить наибольшую гибкость типа или метода.</li>
+                        <li>Для методов и типов, которым требуется создание экземпляров, но не важны другие аспекты, допустимо использовать только <code>new()</code>.</li>
+                        <li>При работе со значимыми типами, которые требуют только семантики значения, рекомендуется применять <code>struct</code>, так как это исключает <code>null</code> и упаковку.</li>
+                        <li>Ограничение <code>unmanaged</code> следует использовать в низкоуровневом коде при взаимодействии с указателями или маршалингом данных.</li>
+                        <li>Ограничение <code>notnull</code> особенно полезно в контексте включённого nullable-анализа для предотвращения предупреждений о разыменовании <code>null</code>.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 6.4. Статические поля в обобщённых классах -->
+            <details id="section-6.4">
+                <summary>6.4. Статические поля в обобщённых классах</summary>
+                <div>
+                    <h3>Статические поля в обобщённых контекстах:</h3>
+                    <ul>
+                        <li>Статические члены, объявленные в обобщённом классе, обладают важной особенностью: для каждого <strong>закрытого обобщённого типа</strong> (то есть для каждой конкретной комбинации типов-аргументов) создаётся <strong>отдельная копия статического поля</strong>.</li>
+                        <li>Это поведение отличается от поведения необобщённых классов, где статическое поле существует в единственном экземпляре для каждого типа (одна копия на тип), независимо от числа его экземпляров.</li>
+                    </ul>
+
+                    <h3>Разделение состояния по типам-аргументам:</h3>
+                    <ul>
+                        <li>Каждый закрытый тип (например, <code>GenericClass&lt;int&gt;</code> и <code>GenericClass&lt;string&gt;</code>) получает собственный набор статических данных, независимый от других.</li>
+                        <li>
+                            <strong>Пример, иллюстрирующий разделение:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Counter</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">private</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">static</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">_count</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">;</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Counter</span><span class="token-cs-punctuation">()</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-field">_count</span><span class="token-cs-operator">++</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    }</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">static</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-property">Count</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">_count</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-comment">// Использование</span>
+<span class="token-cs-keyword">var</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">intCounter1</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Counter</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-keyword">var</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">intCounter2</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Counter</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-class">Counter</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-operator">.</span><span class="token-cs-property">Count</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">     </span><span class="token-cs-comment">// 2</span>
+
+<span class="token-cs-keyword">var</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">stringCounter</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Counter</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">string</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-class">Counter</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">string</span><span class="token-cs-operator">&gt;</span><span class="token-cs-operator">.</span><span class="token-cs-property">Count</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// 1</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Инициализация статических полей:</h3>
+                    <ul>
+                        <li>Статические поля инициализируются для каждого закрытого типа независимо при первом обращении к этому типу (создание экземпляра или доступ к статическому члену).</li>
+                        <li>Статические конструкторы, если они определены, выполняются один раз для каждого закрытого типа перед первым использованием.</li>
+                    </ul>
+
+                    <h3>Взаимодействие с наследованием:</h3>
+                    <ul>
+                        <li>Если обобщённый класс наследуется необобщённым классом с указанием конкретного типа-аргумента, статические поля базового типа разделяются всеми экземплярами одного и того же закрытого типа базового класса.</li>
+                        <li>Если производный класс также является обобщённым, статические поля базового класса разделяются в соответствии с закрытым типом производного класса.</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется учитывать разделение статического состояния при проектировании обобщённых типов, использующих статические поля для кэширования или подсчёта экземпляров.</li>
+                        <li>Не рекомендуется использовать статические поля для хранения состояния, которое должно быть общим для всех закрытых типов, поскольку такое поведение не обеспечивается автоматически и требует явной реализации (например, через статические члены необобщённого базового класса).</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 6.5. Ковариантность и контравариантность (in, out) -->
+            <details id="section-6.5">
+                <summary>6.5. Ковариантность и контравариантность (in, out)</summary>
+                <div>
+                    <h3>Ковариантность и контравариантность:</h3>
+                    <ul>
+                        <li><strong>Ковариантность</strong> и <strong>контравариантность</strong> — механизмы, позволяющие устанавливать совместимость обобщённых типов на основе иерархии их параметров типа.</li>
+                        <li>Применяются к параметрам типа обобщённых интерфейсов и делегатов, помеченных модификаторами <strong><code>out</code></strong> (ковариантность) или <strong><code>in</code></strong> (контравариантность).</li>
+                        <li>Не распространяются на обобщённые классы и структуры.</li>
+                        <li>Обеспечивают гибкость при присваивании и передаче обобщённых типов, сохраняя строгую типобезопасность на этапе компиляции.</li>
+                    </ul>
+
+                    <h3>Ковариантность (<code>out</code>):</h3>
+                    <ul>
+                        <li>Позволяет использовать производный тип там, где ожидается базовый тип.</li>
+                        <li>Параметр типа, помеченный модификатором <strong><code>out</code></strong>, может использоваться только в выходных позициях — прежде всего, в возвращаемом значении методов и делегатов.</li>
+                        <li>Запрещается использовать ковариантный параметр типа во входных позициях (параметры методов, свойства с аксессором <code>set</code>).</li>
+                        <li>
+                            <strong>Пример ковариантного интерфейса:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">interface</span><span class="token-cs-punctuation"> </span><span class="token-cs-interface">ICovariant</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">out</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetItem</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-comment">// Использование</span>
+<span class="token-cs-interface">ICovariant</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">string</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">stringSource</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetSource</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-interface">ICovariant</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">object</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">objectSource</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">stringSource</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                        <li>В стандартной библиотеке ковариантными являются интерфейсы <code>IEnumerable&lt;out T&gt;</code>, <code>IEnumerator&lt;out T&gt;</code>, <code>IReadOnlyList&lt;out T&gt;</code> и делегат <code>Func&lt;out TResult&gt;</code>.</li>
+                    </ul>
+
+                    <h3>Контравариантность (<code>in</code>):</h3>
+                    <ul>
+                        <li>Позволяет использовать базовый тип там, где ожидается производный тип.</li>
+                        <li>Параметр типа, помеченный модификатором <strong><code>in</code></strong>, может использоваться только во входных позициях (параметры методов, свойства с аксессором <code>set</code>).</li>
+                        <li>Запрещается использовать контравариантный параметр типа в выходных позициях (возвращаемые значения, свойства только для чтения).</li>
+                        <li>
+                            <strong>Пример контравариантного интерфейса:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">interface</span><span class="token-cs-punctuation"> </span><span class="token-cs-interface">IContravariant</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">in</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Process</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">item</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-comment">// Использование</span>
+<span class="token-cs-interface">IContravariant</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">object</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">objectHandler</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetHandler</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-interface">IContravariant</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">string</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">stringHandler</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">objectHandler</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                        <li>В стандартной библиотеке контравариантным является интерфейс <code>IComparer&lt;in T&gt;</code> и делегат <code>Action&lt;in T&gt;</code>.</li>
+                    </ul>
+
+                    <h3>Одновременное использование <code>in</code> и <code>out</code>:</h3>
+                    <ul>
+                        <li>Интерфейс или делегат может содержать несколько параметров типа, одни из которых ковариантны, а другие контравариантны.</li>
+                        <li>Примером служит делегат <code>Func&lt;in T, out TResult&gt;</code>, где <code>T</code> — контравариантный параметр, <code>TResult</code> — ковариантный.</li>
+                        <li>
+                            <strong>Пример пользовательского интерфейса с комбинированной вариантностью:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">interface</span><span class="token-cs-punctuation"> </span><span class="token-cs-interface">ITransformer</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">in</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">TInput</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">out</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">TOutput</span><span class="token-cs-operator">&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-generic">TOutput</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Transform</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">TInput</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">input</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-interface">ITransformer</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">object</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">string</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">objToString</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">GetTransformer</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-interface">ITransformer</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">object</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">stringToObj</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">objToString</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Ограничения вариантности:</h3>
+                    <ul>
+                        <li>Вариантность поддерживается только для обобщённых интерфейсов и делегатов.</li>
+                        <li>Параметр типа с модификатором <strong><code>out</code></strong> не может использоваться в позициях, требующих ввода; с модификатором <strong><code>in</code></strong> — в позициях, требующих вывода.</li>
+                        <li>Вариантность неприменима к значимым типам: ковариантное и контравариантное преобразование поддерживается только для ссылочных типов. Для значимых типов вариантность не работает; попытка использовать типы-значения в вариантном контексте приводит к ошибке компиляции.</li>
+                        <li>Ковариантные параметры типа (<code>out</code>) не могут использоваться в ограничениях других параметров; контравариантные параметры (<code>in</code>) в ограничениях допускаются.</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется указывать модификаторы <strong><code>out</code></strong> и <strong><code>in</code></strong> для параметров типа интерфейсов и делегатов, если это естественно для их семантики: <code>out</code> для источников данных, <code>in</code> для потребителей данных.</li>
+                        <li>Рекомендуется проверять корректность применения вариантных параметров во избежание ситуаций, когда код не компилируется из-за попытки использовать ковариантный параметр во входной позиции.</li>
+                        <li>При проектировании библиотек вариантность интерфейсов и делегатов повышает удобство их использования, позволяя избежать явного приведения типов.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 6.6. Generic math (статические абстрактные члены интерфейсов) -->
+            <details id="section-6.6">
+                <summary>6.6. Generic math (статические абстрактные члены интерфейсов)</summary>
+                <div>
+                    <h3>Статические абстрактные члены интерфейсов:</h3>
+                    <ul>
+                        <li>Начиная с C# 11, интерфейсы могут объявлять <strong>статические абстрактные</strong> (<code>static abstract</code>) и <strong>статические виртуальные</strong> (<code>static virtual</code>) члены — методы, свойства, операторы и события (кроме полей), которые должны быть реализованы в типах, реализующих интерфейс.</li>
+                        <li>Такие члены объявляются с модификаторами <code>static abstract</code> или <code>static virtual</code> (но не могут быть полями). Для <code>static abstract</code> членов реализация обязательна, для <code>static virtual</code> — может быть предоставлена по умолчанию.</li>
+                        <li>Для <code>static abstract</code> членов реализующий тип обязан предоставить статическую реализацию. Для <code>static virtual</code> членов интерфейс может предоставить реализацию по умолчанию; реализующий тип может переопределить её при необходимости, но не обязан.</li>
+                        <li>Этот механизм лежит в основе поддержки <strong>обобщённой математики (generic math)</strong> — возможности писать алгоритмы, работающие с любым числовым типом, наравне с арифметическими операциями.</li>
+                    </ul>
+
+                    <h3>Объявление статических абстрактных членов:</h3>
+                    <ul>
+                        <li>
+                            <strong>Синтаксис объявления статического абстрактного метода или оператора в интерфейсе:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">interface</span><span class="token-cs-punctuation"> </span><span class="token-cs-interface">IAddable</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-interface">IAddable</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">static</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">abstract</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">operator</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">left</span><span class="token-cs-punctuation">, </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">right</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Здесь интерфейс <code>IAddable&lt;T&gt;</code> требует, чтобы реализующий его тип предоставил статический оператор сложения.</li>
+                        <li>Ограничение <code>where T : IAddable&lt;T&gt;</code> (<strong>рекурсивное ограничение</strong>) типично для generic math, обеспечивая, что тип операнда и результата совпадают.</li>
+                    </ul>
+
+                    <h3>Реализация статических абстрактных членов:</h3>
+                    <ul>
+                        <li>Класс или структура, реализующие интерфейс со статическими абстрактными членами, обязаны предоставить их статическую реализацию.</li>
+                        <li>
+                            <strong>Пример реализации для структуры, представляющей двумерный вектор:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">readonly</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">struct</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">Vector2</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-interface">IAddable</span><span class="token-cs-operator">&lt;</span><span class="token-cs-struct">Vector2</span><span class="token-cs-operator">&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">float</span><span class="token-cs-punctuation"> </span><span class="token-cs-property">X</span><span class="token-cs-punctuation"> { </span><span class="token-cs-keyword">get</span><span class="token-cs-punctuation">; }</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">float</span><span class="token-cs-punctuation"> </span><span class="token-cs-property">Y</span><span class="token-cs-punctuation"> { </span><span class="token-cs-keyword">get</span><span class="token-cs-punctuation">; }</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">Vector2</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">float</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">float</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">y</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> (</span><span class="token-cs-property">X</span><span class="token-cs-punctuation">, </span><span class="token-cs-property">Y</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> (</span><span class="token-cs-variable">x</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">y</span><span class="token-cs-punctuation">);</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">static</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">Vector2</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">operator</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation">(</span><span class="token-cs-struct">Vector2</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">left</span><span class="token-cs-punctuation">, </span><span class="token-cs-struct">Vector2</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">right</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">Vector2</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">left</span><span class="token-cs-operator">.</span><span class="token-cs-property">X</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">right</span><span class="token-cs-operator">.</span><span class="token-cs-property">X</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">left</span><span class="token-cs-operator">.</span><span class="token-cs-property">Y</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">right</span><span class="token-cs-operator">.</span><span class="token-cs-property">Y</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Использование в обобщённых алгоритмах:</h3>
+                    <ul>
+                        <li>Обобщённый метод может ограничить параметр типа интерфейсом со статическими абстрактными членами и вызывать их напрямую через параметр типа.</li>
+                        <li>
+                            <strong>Пример метода, вычисляющего сумму элементов массива:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">static</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Sum</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">(</span><span class="token-cs-generic">T</span><span class="token-cs-punctuation">[] </span><span class="token-cs-variable">values</span><span class="token-cs-punctuation">) </span><span class="token-cs-keyword">where</span><span class="token-cs-punctuation"> </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-interface">IAddable</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">T</span><span class="token-cs-operator">&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">if</span><span class="token-cs-punctuation"> (</span><span class="token-cs-variable">values</span><span class="token-cs-operator">.</span><span class="token-cs-property">Length</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">==</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">) </span><span class="token-cs-keyword-control">throw</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">InvalidOperationException</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-generic">T</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">sum</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">values</span><span class="token-cs-punctuation">[</span><span class="token-cs-number">0</span><span class="token-cs-punctuation">];</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">for</span><span class="token-cs-punctuation"> (</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">i</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">1</span><span class="token-cs-punctuation">; </span><span class="token-cs-variable">i</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">&lt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">values</span><span class="token-cs-operator">.</span><span class="token-cs-property">Length</span><span class="token-cs-punctuation">; </span><span class="token-cs-variable">i</span><span class="token-cs-operator">++</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-variable">sum</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">sum</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">values</span><span class="token-cs-punctuation">[</span><span class="token-cs-variable">i</span><span class="token-cs-punctuation">];</span>
+<span class="token-cs-punctuation">    }</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">sum</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-comment">// Использование</span>
+<span class="token-cs-struct">Vector2</span><span class="token-cs-punctuation">[] </span><span class="token-cs-variable">vectors</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> { </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">Vector2</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">1</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">2</span><span class="token-cs-punctuation">), </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-struct">Vector2</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">3</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">4</span><span class="token-cs-punctuation">) }</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-struct">Vector2</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">total</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Sum</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">vectors</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// X=4, Y=6</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Стандартные математические интерфейсы:</h3>
+                    <ul>
+                        <li>В .NET, начиная с версии 7, определена библиотека обобщённых математических интерфейсов в пространстве имён <code>System.Numerics</code>.</li>
+                        <li>Ключевым является интерфейс <strong><code>INumber&lt;TSelf&gt;</code></strong>, который объединяет множество арифметических операций, функций сравнения и преобразований.</li>
+                        <li>Другие интерфейсы, такие как <code>IAdditionOperators&lt;TSelf, TOther, TResult&gt;</code>, <code>ISubtractionOperators&lt;TSelf, TOther, TResult&gt;</code>, <code>IMultiplyOperators&lt;TSelf, TOther, TResult&gt;</code>, позволяют использовать отдельные операции.</li>
+                        <li>Эти интерфейсы реализованы всеми встроенными числовыми типами (<code>int</code>, <code>float</code>, <code>decimal</code> и т.д.), что позволяет писать обобщённый код, работающий с любым из них без указания конкретного типа.</li>
+                    </ul>
+
+                    <h3>Статические виртуальные члены:</h3>
+                    <ul>
+                        <li><strong>Статические виртуальные члены</strong> (<code>static virtual</code>), в отличие от <code>static abstract</code>, могут иметь реализацию по умолчанию в интерфейсе. Реализующий тип может переопределить их при необходимости, но не обязан. Это позволяет расширять интерфейсы без нарушения обратной совместимости, аналогично виртуальным экземплярным членам с реализацией по умолчанию (C# 8.0).</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Использовать статические абстрактные члены интерфейсов, когда необходимо выразить операции, естественно принадлежащие типу в целом, а не его экземплярам (арифметические операторы, фабричные методы, парсинг).</li>
+                        <li>Для обобщённых числовых алгоритмов предпочитать стандартные интерфейсы из <code>System.Numerics</code>, что обеспечивает совместимость со встроенными типами.</li>
+                        <li>При объявлении собственных интерфейсов со статическими абстрактными членами рекомендуется применять рекурсивное ограничение <code>where T : IMyInterface&lt;T&gt;</code>, чтобы гарантировать, что операции принимают и возвращают тот же тип.</li>
+                        <li>Учитывать, что статические абстрактные члены не поддерживают вариантность (<code>in</code>/<code>out</code>), и их реализация в значимых типах не приводит к упаковке при вызове через обобщённый параметр.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 6.7. Производительность обобщений (избегание упаковки) -->
+            <details id="section-6.7">
+                <summary>6.7. Производительность обобщений (избегание упаковки)</summary>
+                <div>
+                    <h3>Проблема упаковки и её влияние на производительность:</h3>
+                    <ul>
+                        <li>При работе с необобщёнными коллекциями (например, <code>ArrayList</code>) значимые типы принудительно упаковываются при добавлении и распаковываются при извлечении.</li>
+                        <li>Упаковка приводит к выделению памяти в управляемой куче для каждого упакованного значения, увеличивая нагрузку на сборщик мусора.</li>
+                        <li>Распаковка требует проверки типа во время выполнения и может привести к исключениям: <code>InvalidCastException</code> при несовпадении типа и <code>NullReferenceException</code> при попытке распаковки <code>null</code>.</li>
+                        <li>В циклах или часто вызываемых методах накопление операций упаковки может существенно снизить производительность приложения и повысить потребление памяти.</li>
+                    </ul>
+
+                    <h3>Решение проблемы с помощью обобщений:</h3>
+                    <ul>
+                        <li><strong>Обобщённые коллекции</strong> (например, <code>List&lt;T&gt;</code>, <code>Dictionary&lt;TKey, TValue&gt;</code>) и обобщённые методы позволяют работать напрямую с конкретным типом, избегая приведения к <code>object</code> и, следовательно, упаковки.</li>
+                        <li>Для каждого значимого типа-аргумента среда выполнения (JIT-компилятор) генерирует специализированную версию машинного кода, в которой операции над значениями выполняются без трансформации в ссылочный тип.</li>
+                        <li>
+                            <strong>Пример сравнения:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-comment">// Необобщённая коллекция — упаковка при каждом добавлении</span>
+<span class="token-cs-class">ArrayList</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">list</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">ArrayList</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-variable">list</span><span class="token-cs-operator">.</span><span class="token-cs-method">Add</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">42</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">              </span><span class="token-cs-comment">// int -&gt; object (упаковка)</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> (</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">)</span><span class="token-cs-variable">list</span><span class="token-cs-punctuation">[</span><span class="token-cs-number">0</span><span class="token-cs-punctuation">];</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// object -&gt; int (распаковка)</span>
+
+<span class="token-cs-comment">// Обобщённая коллекция — без упаковки и приведения</span>
+<span class="token-cs-class">List</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">genericList</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">List</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-variable">genericList</span><span class="token-cs-operator">.</span><span class="token-cs-method">Add</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">42</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">                </span><span class="token-cs-comment">// Прямое хранение int</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">genericValue</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">genericList</span><span class="token-cs-punctuation">[</span><span class="token-cs-number">0</span><span class="token-cs-punctuation">];</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// Прямой доступ без приведения</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Механизм внутренней реализации:</h3>
+                    <ul>
+                        <li>Для каждого значимого типа-аргумента среда выполнения (JIT-компилятор) генерирует отдельную специализированную версию машинного кода. В этой версии размер и расположение данных известны на этапе компиляции JIT, что позволяет обрабатывать значения как значимые без упаковки.</li>
+                        <li>Для всех ссылочных типов-аргументов используется одна и та же реализация, поскольку ссылки имеют одинаковый размер и семантику.</li>
+                        <li>Такой подход обеспечивает производительность, сравнимую с вручную написанным кодом для конкретного типа, но при сохранении гибкости и повторного использования обобщённого кода.</li>
+                    </ul>
+
+                    <h3>Дополнительные аспекты производительности:</h3>
+                    <ul>
+                        <li>Обобщения устраняют не только упаковку, но и необходимость динамического приведения типов при извлечении элементов из коллекций.</li>
+                        <li>Обобщения обеспечивают типобезопасность на этапе компиляции и обычно значительно сокращают накладные расходы, связанные с проверками типов и приведениями во время выполнения.</li>
+                        <li>Интерфейсные вызовы через обобщённый параметр с ограничением (<code>where T : IMyInterface</code>) выполняются без упаковки, если тип-аргумент значимый. В этом случае используется специальная версия вызова, не требующая упаковки значения.</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется всегда использовать обобщённые коллекции вместо необобщённых (<code>List&lt;T&gt;</code> вместо <code>ArrayList</code>, <code>Dictionary&lt;TKey, TValue&gt;</code> вместо <code>Hashtable</code>) при работе со значимыми типами для предотвращения упаковки.</li>
+                        <li>При проектировании пользовательских структур, которые могут храниться в коллекциях, следует реализовывать интерфейс <code>IEquatable&lt;T&gt;</code>, что позволяет избежать упаковки при вызове методов <code>Equals</code> и при использовании в <code>Dictionary&lt;TKey, TValue&gt;</code>.</li>
+                        <li>Обобщённые методы следует предпочитать методам, принимающим <code>object</code>, если требуется обрабатывать разные типы данных единообразно.</li>
+                        <li>Не рекомендуется использовать обобщения без необходимости со ссылочными типами в целях производительности, так как для ссылочных типов код разделяется и упаковки не происходит; однако обобщения всё равно обеспечивают типобезопасность.</li>
+                    </ul>
+                </div>
+            </details>
+        </details>
     </main>
 
     <footer>
