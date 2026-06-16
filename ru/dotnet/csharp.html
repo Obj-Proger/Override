@@ -8542,6 +8542,670 @@
                 </div>
             </details>
         </details>
+
+        <!-- 7. Делегаты, события и лямбда-выражения -->
+        <details id="section-7">
+            <summary>7. Делегаты, события и лямбда-выражения</summary>
+
+            <!-- 7.1. Делегаты (объявление, создание, комбинирование, многоадресные делегаты) -->
+            <details id="section-7.1">
+                <summary>7.1. Делегаты (объявление, создание, комбинирование, многоадресные делегаты)</summary>
+                <div>
+                    <h3>Делегат:</h3>
+                    <ul>
+                        <li>Тип, который инкапсулирует ссылку на метод с определённой сигнатурой.</li>
+                        <li>Позволяет передавать методы как аргументы других методов, сохранять их в переменных и вызывать динамически.</li>
+                        <li>Является ссылочным типом; все делегаты наследуются от <code>System.MulticastDelegate</code>, который, в свою очередь, является наследником <code>System.Delegate</code>.</li>
+                        <li>Поддерживает как статические методы, так и методы экземпляра.</li>
+                    </ul>
+
+                    <h3>Объявление делегата:</h3>
+                    <ul>
+                        <li>Синтаксис объявления напоминает объявление метода, но с ключевым словом <code>delegate</code>.</li>
+                        <li>Объявление задаёт сигнатуру, которой должны соответствовать методы, присваиваемые экземпляру делегата.</li>
+                        <li>
+                            <strong>Синтаксис:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Синтаксис</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-punctuation">[</span><span class="token-cs-keyword">модификаторы</span><span class="token-cs-punctuation">]</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">delegate</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">ТипВозврата</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">ИмяДелегата</span><span class="token-cs-punctuation">([</span><span class="token-cs-variable">параметры</span><span class="token-cs-punctuation">]);</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Пример объявления делегата:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">delegate</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Transformer</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">value</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                            Этот делегат может ссылаться на любой метод, принимающий один параметр <code>int</code> и возвращающий <code>int</code>.
+                        </li>
+                    </ul>
+
+                    <h3>Создание экземпляра делегата:</h3>
+                    <ul>
+                        <li>Экземпляр делегата создаётся оператором <code>new</code> с указанием метода, сигнатура которого совпадает с объявлением делегата, либо присваиванием группы методов.</li>
+                        <li>
+                            <strong>Синтаксис с оператором <code>new</code>:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Transformer</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">t</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Transformer</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">SomeMethod</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Упрощённый синтаксис (неявное преобразование группы методов в делегат):</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Transformer</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">t</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">SomeMethod</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Пример с методом экземпляра:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Multiplier</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">private</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">_factor</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Multiplier</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">factor</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">_factor</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">factor</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">Multiply</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">*</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">_factor</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-class">Multiplier</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">m</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Multiplier</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">2</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-class">Transformer</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">t</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">m</span><span class="token-cs-operator">.</span><span class="token-cs-variable">Multiply</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Вызов делегата:</h3>
+                    <ul>
+                        <li>Экземпляр делегата вызывается так же, как и метод, с передачей аргументов в круглых скобках.</li>
+                        <li>
+                            <strong>Синтаксис вызова:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">result</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">t</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">5</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-comment">// Или</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">result</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">t</span><span class="token-cs-operator">.</span><span class="token-cs-method">Invoke</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">5</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                            Метод <code>Invoke</code> предоставляется CLR для каждого типа делегата; компилятор C# автоматически вызывает его при использовании синтаксиса вызова (например, <code>t(5)</code>).
+                        </li>
+                    </ul>
+
+                    <h3>Комбинирование делегатов (многоадресные делегаты):</h3>
+                    <ul>
+                        <li>Делегаты в C# являются <strong>многоадресными (multicast)</strong>, то есть один экземпляр делегата может хранить список нескольких методов и вызывать их последовательно при своём вызове.</li>
+                        <li>Для комбинирования используются операторы <code>+</code> и <code>+=</code> (добавление метода), а также <code>-</code> и <code>-=</code> (удаление метода).</li>
+                        <li>При вызове многоадресного делегата все методы вызываются в порядке их добавления. Исключение, выброшенное в одном из методов, прерывает цепочку, если не используется специальный обход (например, <code>GetInvocationList</code>).</li>
+                        <li>Возвращаемое значение многоадресного делегата — это значение, возвращённое последним вызванным методом. Если требуется получить результаты всех методов, необходимо перебрать список вызовов.</li>
+                        <li>
+                            <strong>Пример комбинирования:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Transformer</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">t1</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">Square</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-class">Transformer</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">t2</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">Double</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-class">Transformer</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">combined</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">t1</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">t2</span><span class="token-cs-punctuation">;</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// Или combined = t1; combined += t2;</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">result</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">combined</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">5</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">        </span><span class="token-cs-comment">// Сначала Square(5)=25, затем Double(5)=10, вернёт 10</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Оператор <code>-=</code> создаёт новый делегат, удаляя последнее (правое) вхождение указанного метода из списка вызовов. Если после удаления список вызовов становится пустым, делегат принимает значение <code>null</code>.</li>
+                    </ul>
+
+                    <h3>Проверка на null перед вызовом:</h3>
+                    <ul>
+                        <li>Поскольку делегат может быть равен <code>null</code>, перед вызовом рекомендуется применять null-условный оператор <code>?.</code> или явную проверку.</li>
+                        <li>
+                            <strong>Пример безопасного вызова:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Transformer</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">t</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">null</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-operator">?</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">result</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">t</span><span class="token-cs-operator">?.</span><span class="token-cs-method">Invoke</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">5</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется использовать делегаты для реализации callback-функций, стратегий и подписок на события.</li>
+                        <li>Для многоадресных делегатов, возвращающих значения, следует явно обрабатывать все результаты с помощью метода <code>GetInvocationList()</code>, а не полагаться на возврат последнего значения, если это не предусмотрено логикой.</li>
+                        <li>Для обычных именованных методов отписка через <code>-=</code> работает по совпадению метода, и сохранение исходного экземпляра делегата не требуется. Для анонимных методов и лямбда-выражений необходимо сохранить ссылку на делегат в переменной и использовать её при отписке, иначе удаление не сработает.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 7.2. Предопределённые делегаты (Action, Func, Predicate) -->
+            <details id="section-7.2">
+                <summary>7.2. Предопределённые делегаты (Action, Func, Predicate)</summary>
+                <div>
+                    <h3>Предопределённые делегаты:</h3>
+                    <ul>
+                        <li>Встроенные в .NET обобщённые типы делегатов, охватывающие большинство типичных сигнатур методов.</li>
+                        <li>Избавляют от необходимости объявлять пользовательские типы делегатов для часто встречающихся сценариев.</li>
+                        <li>Расположены в пространстве имён <code>System</code>.</li>
+                        <li>Основными семействами предопределённых делегатов являются <strong>Action</strong>, <strong>Func</strong> и <strong>Predicate</strong>.</li>
+                    </ul>
+
+                    <h3>Делегат Action:</h3>
+                    <ul>
+                        <li>Инкапсулирует метод, который не возвращает значения (возвращаемый тип <code>void</code>).</li>
+                        <li>Может принимать от нуля до шестнадцати параметров.</li>
+                        <li>
+                            Доступные формы:
+                            <ul>
+                                <li><code>Action</code> — без параметров.</li>
+                                <li><code>Action&lt;T&gt;</code> — один параметр типа <code>T</code>.</li>
+                                <li><code>Action&lt;T1, T2&gt;</code> — два параметра типов <code>T1</code> и <code>T2</code>.</li>
+                                <li>И так далее до <code>Action&lt;T1, ..., T16&gt;</code>.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Примеры использования:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Action</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">printHello</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> () </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"Hello"</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-class">Action</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">string</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">printMessage</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">msg</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">msg</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-class">Action</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">printSum</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> (</span><span class="token-cs-variable">a</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">a</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">);</span>
+
+<span class="token-cs-variable">printHello</span><span class="token-cs-punctuation">();</span><span class="token-cs-punctuation">           </span><span class="token-cs-comment">// Hello</span>
+<span class="token-cs-variable">printMessage</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"Текст"</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// Текст</span>
+<span class="token-cs-variable">printSum</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">3</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">5</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">         </span><span class="token-cs-comment">// 8</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Делегат Func:</h3>
+                    <ul>
+                        <li>Инкапсулирует метод, возвращающий значение.</li>
+                        <li>Последний параметр типа в списке всегда определяет тип возвращаемого значения.</li>
+                        <li>Может принимать от нуля до шестнадцати входных параметров.</li>
+                        <li>
+                            Доступные формы:
+                            <ul>
+                                <li><code>Func&lt;TResult&gt;</code> — без входных параметров, возвращает <code>TResult</code>.</li>
+                                <li><code>Func&lt;T, TResult&gt;</code> — один входной параметр типа <code>T</code>, возвращает <code>TResult</code>.</li>
+                                <li><code>Func&lt;T1, T2, TResult&gt;</code> — два входных параметра, возвращает <code>TResult</code>.</li>
+                                <li>И так далее до <code>Func&lt;T1, ..., T16, TResult&gt;</code>.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Примеры использования:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">add</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> (</span><span class="token-cs-variable">a</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">length</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">s</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">s</span><span class="token-cs-operator">.</span><span class="token-cs-property">Length</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">bool</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">isReady</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> () </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">true</span><span class="token-cs-punctuation">;</span>
+
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">sum</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">add</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">10</span><span class="token-cs-punctuation">, </span><span class="token-cs-number">20</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">      </span><span class="token-cs-comment">// 30</span>
+<span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">len</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">length</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"Hello"</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// 5</span>
+<span class="token-cs-keyword">bool</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">ready</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">isReady</span><span class="token-cs-punctuation">();</span><span class="token-cs-punctuation">     </span><span class="token-cs-comment">// true</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Делегат Predicate&lt;T&gt;:</h3>
+                    <ul>
+                        <li>Инкапсулирует метод, который проверяет соответствие некоторому условию и возвращает <code>bool</code>.</li>
+                        <li>Принимает ровно один параметр типа <code>T</code>.</li>
+                        <li>Сигнатура эквивалентна <code>Func&lt;T, bool&gt;</code>, но семантически обозначает проверку условия, а не произвольное вычисление.</li>
+                        <li>
+                            <strong>Пример использования:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Predicate</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">isPositive</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-keyword">bool</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">result1</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">isPositive</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">10</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// true</span>
+<span class="token-cs-keyword">bool</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">result2</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">isPositive</span><span class="token-cs-punctuation">(-</span><span class="token-cs-number">5</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// false</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Совместимость:</h3>
+                    <ul>
+                        <li>Типы <code>Predicate&lt;T&gt;</code> и <code>Func&lt;T, bool&gt;</code> имеют идентичные сигнатуры, но являются разными делегатами и не могут быть неявно присвоены друг другу. Однако лямбда-выражение или анонимный метод, подходящий по сигнатуре, может быть преобразован как в <code>Predicate&lt;T&gt;</code>, так и в <code>Func&lt;T, bool&gt;</code>.</li>
+                        <li>Аналогично, лямбда-выражение, подходящее по сигнатуре, может быть неявно преобразовано в любой из этих делегатов.</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется использовать предопределённые делегаты вместо объявления пользовательских, если сигнатура метода соответствует одному из них.</li>
+                        <li><strong>Action</strong> следует применять для методов, выполняющих действие без возврата результата (логирование, вывод, изменение состояния).</li>
+                        <li><strong>Func</strong> следует применять для методов, вычисляющих и возвращающих значение.</li>
+                        <li><strong>Predicate&lt;T&gt;</strong> рекомендуется использовать, когда семантика метода заключается именно в проверке условия, что улучшает читаемость кода (например, в методах фильтрации или поиска).</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 7.3. События (event): публикация и подписка, стандартный паттерн (EventHandler) -->
+            <details id="section-7.3">
+                <summary>7.3. События (event): публикация и подписка, стандартный паттерн (EventHandler)</summary>
+                <div>
+                    <h3>Событие:</h3>
+                    <ul>
+                        <li>Член типа (класса, структуры или интерфейса), предоставляющий механизм уведомления подписчиков о возникновении определённого условия или действия.</li>
+                        <li>Основывается на делегате: тип события определяет сигнатуру методов-обработчиков, которые могут быть подписаны на событие.</li>
+                        <li>Ключевое слово <code>event</code> может объявлять поле делегатного типа (field-like event) либо событие с явными аксессорами <code>add</code> и <code>remove</code> (event property). Внешнему коду доступны только операции подписки (<code>+=</code>) и отписки (<code>-=</code>); прямая инициализация, вызов или очистка делегата извне класса-издателя невозможны.</li>
+                    </ul>
+
+                    <h3>Объявление события:</h3>
+                    <ul>
+                        <li>
+                            <strong>Синтаксис:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Синтаксис</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-punctuation">[</span><span class="token-cs-keyword">модификаторы</span><span class="token-cs-punctuation">]</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">event</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">ТипДелегата</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">ИмяСобытия</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Тип делегата определяет возвращаемый тип и параметры обработчиков. Обычно используются делегаты <code>EventHandler</code> или <code>EventHandler&lt;TEventArgs&gt;</code>, либо пользовательские делегаты.</li>
+                        <li>
+                            <strong>Пример объявления события с использованием стандартного делегата <code>EventHandler</code>:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">event</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">EventHandler</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">DataUpdated</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Модификаторы доступа определяют видимость события для подписчиков (обычно <code>public</code>).</li>
+                    </ul>
+
+                    <h3>Подписка и отписка:</h3>
+                    <ul>
+                        <li>
+                            <strong>Подписка</strong> обработчика выполняется оператором <code>+=</code>:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-variable">publisher</span><span class="token-cs-operator">.</span><span class="token-cs-field">DataUpdated</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">OnDataUpdated</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Отписка</strong> обработчика выполняется оператором <code>-=</code>:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-variable">publisher</span><span class="token-cs-operator">.</span><span class="token-cs-field">DataUpdated</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">-=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">OnDataUpdated</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Обработчик должен соответствовать сигнатуре делегата события.</li>
+                        <li>Подписка и отписка возможны только из кода, имеющего доступ к событию в соответствии с его модификатором доступа.</li>
+                    </ul>
+
+                    <h3>Публикация (вызов) события:</h3>
+                    <ul>
+                        <li>Событие может быть вызвано только из типа, в котором оно объявлено. Для нестатических событий в незапечатанных классах рекомендуется предоставлять защищённый виртуальный метод, который вызывает событие; производные классы могут вызывать этот метод (или переопределять его) для инициации события.</li>
+                        <li>Перед вызовом обязательна проверка на <code>null</code>, так как при отсутствии подписчиков делегат события равен <code>null</code>.</li>
+                        <li>Для нестатических событий в незапечатанных классах рекомендуется создавать защищённый виртуальный метод с именем <strong><code>On&lt;ИмяСобытия&gt;</code></strong>, который выполняет вызов события. Это позволяет производным классам переопределять реакцию на событие.</li>
+                        <li>
+                            <strong>Пример метода публикации:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">protected</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">virtual</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">OnDataUpdated</span><span class="token-cs-punctuation">(</span><span class="token-cs-class">DataUpdatedEventArgs</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">e</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-field">DataUpdated</span><span class="token-cs-operator">?.</span><span class="token-cs-method">Invoke</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">this</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">e</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Стандартный паттерн EventHandler:</h3>
+                    <ul>
+                        <li>
+                            <strong>Базовый делегат <code>EventHandler</code></strong> имеет сигнатуру:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">delegate</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">EventHandler</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">object</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">sender</span><span class="token-cs-punctuation">, </span><span class="token-cs-class">EventArgs</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">e</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                            <ul>
+                                <li><code>sender</code> — ссылка на объект, вызвавший событие.</li>
+                                <li><code>EventArgs</code> — базовый класс для аргументов события, не несущий дополнительных данных (используется <code>EventArgs.Empty</code>).</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Для передачи дополнительных данных используется <strong>обобщённый делегат <code>EventHandler&lt;TEventArgs&gt;</code></strong>:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">delegate</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">EventHandler</span><span class="token-cs-operator">&lt;</span><span class="token-cs-generic">TEventArgs</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">object</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">sender</span><span class="token-cs-punctuation">, </span><span class="token-cs-generic">TEventArgs</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">e</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                            где <code>TEventArgs</code> — производный от <code>EventArgs</code> класс, содержащий специфичные для события данные.
+                        </li>
+                        <li>
+                            <strong>Пользовательский класс аргументов</strong> создаётся наследованием от <code>EventArgs</code>:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">DataUpdatedEventArgs</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">:</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">EventArgs</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-property">UpdatedField</span><span class="token-cs-punctuation"> { </span><span class="token-cs-keyword">get</span><span class="token-cs-punctuation">; }</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">DataUpdatedEventArgs</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">updatedField</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-property">UpdatedField</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">updatedField</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Объявление события с типом <code>EventHandler&lt;TEventArgs&gt;</code>:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">event</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">EventHandler</span><span class="token-cs-operator">&lt;</span><span class="token-cs-class">DataUpdatedEventArgs</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">DataUpdated</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Полный пример класса-издателя и подписчика:</h3>
+                    <ul>
+                        <li>
+                            <strong>Класс-издатель:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">class</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">DataSource</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">event</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">EventHandler</span><span class="token-cs-operator">&lt;</span><span class="token-cs-class">DataUpdatedEventArgs</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-field">DataUpdated</span><span class="token-cs-punctuation">;</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">protected</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">virtual</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">OnDataUpdated</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">field</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-field">DataUpdated</span><span class="token-cs-operator">?.</span><span class="token-cs-method">Invoke</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">this</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">DataUpdatedEventArgs</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">field</span><span class="token-cs-punctuation">));</span>
+<span class="token-cs-punctuation">    }</span>
+
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">public</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">void</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">UpdateData</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">field</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">    {</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-comment">// Действия по обновлению данных</span>
+<span class="token-cs-punctuation">        </span><span class="token-cs-method">OnDataUpdated</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">field</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">    }</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Подписка и обработка:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">DataSource</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">source</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">DataSource</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-variable">source</span><span class="token-cs-operator">.</span><span class="token-cs-field">DataUpdated</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+=</span><span class="token-cs-punctuation"> (</span><span class="token-cs-variable">sender</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">args</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">$"Поле <span class="token-cs-punctuation">{</span><span class="token-cs-variable">args</span><span class="token-cs-operator">.</span><span class="token-cs-property">UpdatedField</span><span class="token-cs-punctuation">}</span> обновлено"</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">};</span>
+<span class="token-cs-variable">source</span><span class="token-cs-operator">.</span><span class="token-cs-method">UpdateData</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"Имя"</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Для всех событий, следующих стандартному паттерну, рекомендуется использовать делегат <strong><code>EventHandler</code></strong> или <strong><code>EventHandler&lt;TEventArgs&gt;</code></strong>.</li>
+                        <li>Рекомендуется всегда создавать защищённый виртуальный метод <strong><code>On&lt;ИмяСобытия&gt;</code></strong> для вызова события, что обеспечивает корректную работу при наследовании.</li>
+                        <li>При подписке на событие следует помнить об отписке, если время жизни подписчика меньше времени жизни издателя, во избежание утечек памяти (подписчик не будет собран сборщиком мусора, пока издатель ссылается на его обработчик).</li>
+                        <li>Не рекомендуется вызывать событие напрямую извне типа; публикация события должна оставаться инкапсулированной в классе-издателе.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 7.4. Лямбда-выражения, анонимные методы -->
+            <details id="section-7.4">
+                <summary>7.4. Лямбда-выражения, анонимные методы</summary>
+                <div>
+                    <h3>Анонимный метод:</h3>
+                    <ul>
+                        <li>Блок кода, объявляемый непосредственно в выражении с использованием ключевого слова <code>delegate</code>, без отдельного имени метода.</li>
+                        <li>Позволяет создавать встроенные реализации делегатов в месте их использования.</li>
+                        <li>
+                            <strong>Синтаксис анонимного метода:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Синтаксис</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword">delegate</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">параметры</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// Тело анонимного метода</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                        <li>Может быть присвоен переменной делегатного типа или передан как аргумент метода.</li>
+                        <li>
+                            <strong>Пример использования с делегатом <code>Action</code>:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Action</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">string</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">print</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">delegate</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">string</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">message</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">message</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">};</span>
+<span class="token-cs-variable">print</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"Сообщение"</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Список параметров может быть опущен; в этом случае анонимный метод записывается как <code>delegate { ... }</code> (без скобок). Такой метод может быть преобразован во многие делегаты с совместимым возвращаемым типом (параметры игнорируются), однако для делегатов с <code>out</code>-параметрами требуется явный список параметров.
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Action</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">greet</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">delegate</span><span class="token-cs-punctuation"> { </span><span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-string">"Привет"</span><span class="token-cs-punctuation">); }</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Лямбда-выражение:</h3>
+                    <ul>
+                        <li>Лаконичный синтаксис для создания <strong>анонимных функций</strong>, введённый для упрощения работы с делегатами и <strong>деревьями выражений</strong>.</li>
+                        <li>Использует оператор <strong><code>=&gt;</code></strong> (лямбда-оператор), который читается как "переходит в" или "становится".</li>
+                        <li>Лямбда-выражение может быть преобразовано в совместимый тип делегата или в дерево выражений (<code>Expression&lt;TDelegate&gt;</code>), где <code>TDelegate</code> — тип делегата.</li>
+                        <li>
+                            <strong>Две формы лямбда-выражений:</strong>
+                            <ul>
+                                <li>
+                                    <strong>Выражение-лямбда (expression lambda):</strong> тело состоит из одного выражения, результат которого неявно возвращается.
+                                    <div class="code">
+                                        <div class="code-header"><span>Синтаксис</span><span>C#</span></div>
+                                        <pre><code class="language-csharp"><span class="token-cs-punctuation">(</span><span class="token-cs-variable">параметры</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-value">выражение</span></code></pre>
+                                    </div>
+                                </li>
+                                <li>
+                                    <strong>Инструкция-лямбда (statement lambda):</strong> тело заключено в фигурные скобки и может содержать одну или несколько инструкций.
+                                    <div class="code">
+                                        <div class="code-header"><span>Синтаксис</span><span>C#</span></div>
+                                        <pre><code class="language-csharp"><span class="token-cs-punctuation">(</span><span class="token-cs-variable">параметры</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-comment">// Тело лямбда-выражения</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            Параметры указываются в круглых скобках. Если параметр один и его тип может быть выведен, скобки можно опустить:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">square</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">*</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Типы параметров могут быть указаны явно, но обычно выводятся компилятором:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">add</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> (</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">) </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">a</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">+</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">b</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Если параметров нет, используются пустые скобки:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">string</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">getMessage</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> () </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-string">"Готово"</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Сравнение анонимных методов и лямбда-выражений:</h3>
+                    <ul>
+                        <li>Лямбда-выражения являются эволюцией анонимных методов и, как правило, предпочтительнее благодаря более компактному синтаксису.</li>
+                        <li>Оба механизма поддерживают <strong>захват внешних переменных</strong> (замыкания).</li>
+                        <li>Анонимные методы позволяют опускать список параметров, если они не используются; лямбда-выражения требуют явного указания хотя бы пустых скобок при отсутствии параметров.</li>
+                        <li>Лямбда-выражения могут быть преобразованы не только в делегаты, но и в <strong>деревья выражений</strong>, что делает их применимыми для построения запросов (например, LINQ to SQL). Анонимные методы не поддерживают преобразование в деревья выражений.</li>
+                    </ul>
+
+                    <h3>Использование с предопределёнными делегатами:</h3>
+                    <ul>
+                        <li>Лямбда-выражения и анонимные методы могут быть присвоены переменным типов <code>Action</code>, <code>Func</code>, <code>Predicate</code> и пользовательским делегатам при совпадении сигнатур.</li>
+                        <li>
+                            <strong>Пример с <code>Predicate&lt;int&gt;</code>:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Predicate</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">isPositive</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-comment">// Анонимный метод:</span>
+<span class="token-cs-class">Predicate</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">isPositiveAnonymous</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">delegate</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation">) { </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">; }</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется применять лямбда-выражения вместо анонимных методов во всех новых разработках, за исключением редких случаев, когда требуется опустить параметры без использования пустых скобок.</li>
+                        <li>Для тел, состоящих из одной инструкции возврата, следует предпочитать <strong>выражение-лямбду</strong>, так как она лаконичнее и не требует явного <code>return</code>.</li>
+                        <li>При использовании лямбда-выражений с несколькими параметрами или сложной логикой рекомендуется заключать тело в фигурные скобки и явно указывать <code>return</code> для улучшения читаемости.</li>
+                        <li><strong>Захват внешних переменных</strong> в лямбда-выражениях и анонимных методах следует применять осознанно, так как он может продлевать время жизни захваченных объектов.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 7.5. Замыкания -->
+            <details id="section-7.5">
+                <summary>7.5. Замыкания</summary>
+                <div>
+                    <h3>Замыкание:</h3>
+                    <ul>
+                        <li>Функциональный объект (лямбда-выражение или анонимный метод), который <strong>захватывает переменные</strong> из своей внешней области видимости.</li>
+                        <li>Предоставляет доступ к локальным переменным и параметрам метода, в котором объявлено лямбда-выражение, даже после завершения выполнения этого метода.</li>
+                        <li>Компилятор автоматически создаёт специальный класс для хранения захваченных переменных, продлевая их время жизни на время существования делегата.</li>
+                    </ul>
+
+                    <h3>Механизм захвата:</h3>
+                    <ul>
+                        <li>Когда лямбда-выражение или анонимный метод ссылается на переменную, определённую во внешнем методе, компилятор преобразует эту переменную в поле автоматически сгенерированного класса.</li>
+                        <li>Сам делегат получает ссылку на экземпляр этого класса, а не на стековую переменную.</li>
+                        <li>Все обращения к захваченной переменной, как внутри лямбды, так и во внешнем методе после создания делегата, работают с одним и тем же полем этого класса.</li>
+                        <li>
+                            <strong>Пример:</strong>
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">CreateCounter</span><span class="token-cs-punctuation">()</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">count</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword-control">return</span><span class="token-cs-punctuation"> () </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">++</span><span class="token-cs-variable">count</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">}</span>
+
+<span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">counter</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-method">CreateCounter</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">counter</span><span class="token-cs-punctuation">());</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// 1</span>
+<span class="token-cs-class">Console</span><span class="token-cs-operator">.</span><span class="token-cs-method">WriteLine</span><span class="token-cs-variable">(</span><span class="token-cs-variable">counter</span><span class="token-cs-punctuation">());</span><span class="token-cs-punctuation">  </span><span class="token-cs-comment">// 2</span></code></pre>
+                            </div>
+                            В данном примере переменная <code>count</code> захвачена лямбда-выражением. После выхода из метода <code>CreateCounter</code> она продолжает существовать, и каждое выполнение делегата увеличивает её значение.
+                        </li>
+                    </ul>
+
+                    <h3>Влияние на время жизни:</h3>
+                    <ul>
+                        <li>Захваченные переменные живут до тех пор, пока существует хотя бы один делегат, ссылающийся на них.</li>
+                        <li>Сборщик мусора не сможет освободить память, занятую замыканием, пока делегат достижим.</li>
+                    </ul>
+
+                    <h3>Особенности захвата в циклах:</h3>
+                    <ul>
+                        <li>
+                            При захвате переменной цикла <code>for</code> все лямбды разделяют одну и ту же переменную, что может приводить к неочевидному поведению.
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">List</span><span class="token-cs-operator">&lt;</span><span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">actions</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-keyword">new</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">List</span><span class="token-cs-operator">&lt;</span><span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-operator">&gt;&gt;</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-keyword-control">for</span><span class="token-cs-punctuation"> (</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">i</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">; </span><span class="token-cs-variable">i</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">&lt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">3</span><span class="token-cs-punctuation">; </span><span class="token-cs-variable">i</span><span class="token-cs-operator">++</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-variable">actions</span><span class="token-cs-operator">.</span><span class="token-cs-method">Add</span><span class="token-cs-punctuation">(() </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">i</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">}</span>
+<span class="token-cs-comment">// Все три делегата вернут 3, а не 0, 1, 2</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            Для устранения неоднозначности рекомендуется создавать локальную копию переменной цикла внутри тела:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-keyword-control">for</span><span class="token-cs-punctuation"> (</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">i</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">; </span><span class="token-cs-variable">i</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">&lt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">3</span><span class="token-cs-punctuation">; </span><span class="token-cs-variable">i</span><span class="token-cs-operator">++</span><span class="token-cs-punctuation">)</span>
+<span class="token-cs-punctuation">{</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">copy</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">i</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-variable">actions</span><span class="token-cs-operator">.</span><span class="token-cs-method">Add</span><span class="token-cs-punctuation">(() </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">copy</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-punctuation">}</span></code></pre>
+                            </div>
+                        </li>
+                        <li>В цикле <code>foreach</code>, начиная с C# 5, переменная итерации считается создаваемой на каждой итерации, поэтому каждая лямбда захватывает своё собственное значение. (В более старых версиях C# поведение <code>foreach</code> было аналогично <code>for</code>, и также рекомендовалось копирование переменной.)</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Рекомендуется с осторожностью захватывать переменные, которые изменяются после создания делегата, особенно в циклах или асинхронных операциях.</li>
+                        <li>При необходимости захвата итерируемой переменной в циклах <code>for</code> следует создавать локальную копию внутри тела цикла.</li>
+                        <li>Рекомендуется избегать длительного удержания замыканий, ссылающихся на крупные объектные графы, если делегат сохраняется на продолжительное время, так как это препятствует сборке мусора.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- 7.6. Выражения (Expression Trees) -->
+            <details id="section-7.6">
+                <summary>7.6. Выражения (Expression Trees)</summary>
+                <div>
+                    <h3>Дерево выражений (Expression Tree):</h3>
+                    <ul>
+                        <li>Представление кода в виде древовидной структуры данных, где каждый узел является выражением (константа, параметр, вызов метода, бинарная операция и т.д.).</li>
+                        <li>Позволяет анализировать, модифицировать и компилировать код во время выполнения.</li>
+                        <li>Классы, представляющие узлы дерева, находятся в пространстве имён <code>System.Linq.Expressions</code>.</li>
+                        <li>Основной тип — <code>Expression&lt;TDelegate&gt;</code>, который представляет лямбда-выражение в виде дерева выражений.</li>
+                    </ul>
+
+                    <h3>Назначение:</h3>
+                    <ul>
+                        <li>Обеспечивает возможность динамического построения запросов и их трансляции в другие языки (например, SQL) без необходимости генерации IL-кода вручную.</li>
+                        <li>Используется провайдерами LINQ (LINQ to SQL, Entity Framework) для анализа запросов, написанных на C#, и преобразования их в команды, специфичные для источника данных.</li>
+                        <li>Применяется в сценариях метапрограммирования, создания динамических правил, валидации и компиляции выражений в делегаты.</li>
+                    </ul>
+
+                    <h3>Создание дерева выражений:</h3>
+                    <ul>
+                        <li>
+                            Компилятор автоматически создаёт дерево выражений при присваивании лямбда-выражения переменной типа <code>Expression&lt;TDelegate&gt;</code>, где <code>TDelegate</code> — тип делегата.
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Expression</span><span class="token-cs-operator">&lt;</span><span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">bool</span><span class="token-cs-operator">&gt;&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">isPositiveExpr</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">;</span></code></pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Ручное построение</strong> с помощью фабричных методов класса <code>Expression</code>:
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">ParameterExpression</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">param</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Expression</span><span class="token-cs-operator">.</span><span class="token-cs-method">Parameter</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">typeof</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">), </span><span class="token-cs-string">"x"</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-class">ConstantExpression</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">constant</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Expression</span><span class="token-cs-operator">.</span><span class="token-cs-method">Constant</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">0</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">typeof</span><span class="token-cs-punctuation">(</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">));</span>
+<span class="token-cs-class">BinaryExpression</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">body</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-class">Expression</span><span class="token-cs-operator">.</span><span class="token-cs-method">GreaterThan</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">param</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">constant</span><span class="token-cs-punctuation">);</span>
+<span class="token-cs-class">Expression</span><span class="token-cs-operator">&lt;</span><span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">bool</span><span class="token-cs-operator">&gt;&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">expr</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span>
+<span class="token-cs-punctuation">    </span><span class="token-cs-class">Expression</span><span class="token-cs-operator">.</span><span class="token-cs-class">Lambda</span><span class="token-cs-operator">&lt;</span><span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">bool</span><span class="token-cs-operator">&gt;&gt;</span><span class="token-cs-punctuation">(</span><span class="token-cs-variable">body</span><span class="token-cs-punctuation">, </span><span class="token-cs-variable">param</span><span class="token-cs-punctuation">);</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Компиляция дерева выражений:</h3>
+                    <ul>
+                        <li>
+                            Метод <code>Compile()</code> преобразует дерево выражений в делегат соответствующего типа, который можно вызвать.
+                            <div class="code">
+                                <div class="code-header"><span>Код</span><span>C#</span></div>
+                                <pre><code class="language-csharp"><span class="token-cs-class">Expression</span><span class="token-cs-operator">&lt;</span><span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">bool</span><span class="token-cs-operator">&gt;&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">expr</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">x</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-number">0</span><span class="token-cs-punctuation">;</span>
+<span class="token-cs-class">Func</span><span class="token-cs-operator">&lt;</span><span class="token-cs-keyword">int</span><span class="token-cs-punctuation">, </span><span class="token-cs-keyword">bool</span><span class="token-cs-operator">&gt;</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">isPositive</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">expr</span><span class="token-cs-operator">.</span><span class="token-cs-method">Compile</span><span class="token-cs-punctuation">();</span>
+<span class="token-cs-keyword">bool</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">result</span><span class="token-cs-punctuation"> </span><span class="token-cs-operator">=</span><span class="token-cs-punctuation"> </span><span class="token-cs-variable">isPositive</span><span class="token-cs-punctuation">(</span><span class="token-cs-number">5</span><span class="token-cs-punctuation">);</span><span class="token-cs-punctuation"> </span><span class="token-cs-comment">// true</span></code></pre>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>Отличие от делегатов:</h3>
+                    <ul>
+                        <li>Делегат — это скомпилированный код, готовый к непосредственному выполнению.</li>
+                        <li>Дерево выражений — это структура данных, представляющая код. Оно не может быть вызвано напрямую (до компиляции), но может быть проанализировано или преобразовано.</li>
+                        <li>Лямбда-выражение может быть преобразовано в совместимый тип делегата. Выражения-лямбды (expression lambdas) также могут быть преобразованы в дерево выражений (<code>Expression&lt;TDelegate&gt;</code>); инструкции-лямбды (statement lambdas) в деревья выражений не преобразуются.</li>
+                    </ul>
+
+                    <h3>Анализ и изменение:</h3>
+                    <ul>
+                        <li>Дерево выражений можно обходить, изменяя или заменяя узлы, что позволяет создавать производные выражения.</li>
+                        <li>Для обхода часто используется наследник класса <code>ExpressionVisitor</code>.</li>
+                    </ul>
+
+                    <h3>Рекомендации:</h3>
+                    <ul>
+                        <li>Использовать деревья выражений, когда требуется анализ кода во время выполнения или его преобразование в другую форму (например, построение SQL-запроса).</li>
+                        <li>Для простых сценариев, где требуется только динамическое выполнение, предпочтительнее использовать делегаты или лямбда-выражения напрямую, чтобы избежать накладных расходов на компиляцию дерева.</li>
+                        <li>При ручном построении деревьев выражений рекомендуется применять статические фабричные методы класса <code>Expression</code> для создания узлов, обеспечивая корректность структуры.</li>
+                    </ul>
+                </div>
+            </details>
+        </details>
+
     </main>
 
     <footer>
