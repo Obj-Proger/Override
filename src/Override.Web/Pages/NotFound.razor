@@ -1,0 +1,12 @@
+@page "/{*path}"
+
+<PageTitle>Страница не найдена · Override</PageTitle>
+
+<h1>Страница не найдена</h1>
+<p>По этому адресу ничего нет. <a href="">На главную</a></p>
+
+@code {
+    /// <summary>The unmatched part of the address. Required by the catch-all route.</summary>
+    [Parameter]
+    public string? Path { get; set; }
+}
