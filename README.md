@@ -14,6 +14,13 @@ is never sent anywhere.
 
 Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
 
+```shell
+dotnet run --project src/Override.Web
+```
+
+Every push to `main` is built and deployed to GitHub Pages by
+[the workflow](.github/workflows/pages.yml).
+
 ## License
 
 - Source code: [MIT](LICENSE).

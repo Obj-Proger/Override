@@ -1,0 +1,70 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time; a newer push cancels an older run that has not finished.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Build
+        run: dotnet build --configuration Release
+
+      - name: Publish
+        # GitHub Pages does not serve precompressed .br/.gz files, so they are not produced.
+        run: >
+          dotnet publish src/Override.Web
+          --configuration Release
+          --output artifacts/publish
+          -p:CompressionEnabled=false
+
+      - name: Prepare for GitHub Pages
+        working-directory: artifacts/publish/wwwroot
+        run: |
+          # The site lives at https://<owner>.github.io/<repository>/, not at the domain root.
+          sed -i 's|<base href="/" />|<base href="/${{ github.event.repository.name }}/" />|' index.html
+          grep -q '<base href="/${{ github.event.repository.name }}/" />' index.html
+          # Unknown paths get 404.html: serving the app there lets the Blazor router handle deep links.
+          cp index.html 404.html
+
+      - uses: actions/upload-pages-artifact@v5
+        if: github.event_name != 'pull_request'
+        with:
+          path: artifacts/publish/wwwroot
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
