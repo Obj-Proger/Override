@@ -1,0 +1,14 @@
+* text=auto
+
+*.cs      text diff=csharp
+*.razor   text
+*.md      text
+*.svg     text
+*.json    text
+*.props   text
+*.slnx    text
+
+*.png     binary
+*.woff2   binary
+*.wasm    binary
+*.bin     binary
