@@ -1,6 +1,10 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Override.Content/Override.Content.csproj" />
     <Project Path="src/Override.Web/Override.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Override.Content.Tests/Override.Content.Tests.csproj" />
   </Folder>
   <Folder Name="/.github/workflows/">
     <File Path=".github/workflows/pages.yml" />

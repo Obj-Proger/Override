@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 250" role="img" aria-labelledby="t d">
+  <title id="t">Проверка типа при unboxing</title>
+  <desc id="d">Объект в куче помечен типом int и хранит 123. Приведение (int)o проходит: тип совпал, 123 копируется в переменную. Приведение (long)o не проходит: в обёртке int, а не long, программа падает с ошибкой во время выполнения.</desc>
+  <style>
+    .cell{fill:var(--fig-cell,#FFFFFF);stroke:var(--fig-line,#C9C9D1);stroke-width:1.5}
+    .typ{fill:var(--fig-accent-soft,#ECE8FF);stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .okc{fill:var(--fig-ok-soft,#E7F5EC);stroke:var(--fig-ok,#1F8A4C);stroke-width:1.5}
+    .errc{fill:var(--fig-err-soft,#FDECEC);stroke:var(--fig-err,#B42318);stroke-width:1.5}
+    .t{fill:var(--fig-text,#26262C);font:500 15px Inter,system-ui,sans-serif}
+    .m{fill:var(--fig-muted,#5C5C66);font:13px Inter,system-ui,sans-serif}
+    .code{fill:var(--fig-text,#26262C);font:500 15px 'JetBrains Mono',Consolas,monospace}
+    .big{fill:var(--fig-text,#26262C);font:600 20px 'JetBrains Mono',Consolas,monospace}
+    .oks{fill:none;stroke:var(--fig-ok,#1F8A4C);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+    .errs{fill:none;stroke:var(--fig-err,#B42318);stroke-width:3;stroke-linecap:round}
+    .line{fill:none;stroke:var(--fig-muted,#5C5C66);stroke-width:2}
+    .head{fill:var(--fig-muted,#5C5C66)}
+  </style>
+  <defs>
+    <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="head"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="84" class="code">object o = 123;</text>
+  <rect x="20" y="98" width="76" height="64" rx="6" class="cell"/>
+  <text x="58" y="136" class="m" text-anchor="middle">Заголовок</text>
+  <rect x="96" y="98" width="96" height="64" rx="6" class="typ"/>
+  <text x="144" y="126" class="t" text-anchor="middle">Тип:</text>
+  <text x="144" y="148" class="code" text-anchor="middle">int</text>
+  <rect x="192" y="98" width="70" height="64" rx="6" class="cell"/>
+  <text x="227" y="137" class="big" text-anchor="middle">123</text>
+
+  <path d="M266 118C320 118 330 62 404 62" class="line" marker-end="url(#ah2)"/>
+  <text x="300" y="72" class="code">(int)o</text>
+  <path d="M266 142C320 142 330 186 404 186" class="line" marker-end="url(#ah2)"/>
+  <text x="296" y="198" class="code">(long)o</text>
+
+  <rect x="412" y="26" width="290" height="72" rx="10" class="okc"/>
+  <path d="M432 62l8 8 16-18" class="oks"/>
+  <text x="470" y="56" class="code">int a = 123</text>
+  <text x="470" y="80" class="m">тип совпал, значение скопировано</text>
+
+  <rect x="412" y="150" width="290" height="72" rx="10" class="errc"/>
+  <path d="M434 176l16 16M450 176l-16 16" class="errs"/>
+  <text x="470" y="180" class="t">Ошибка во время выполнения</text>
+  <text x="470" y="204" class="m">в обёртке int, а не long</text>
+</svg>

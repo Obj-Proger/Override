@@ -32,6 +32,9 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release
 
+      - name: Test
+        run: dotnet test --configuration Release --no-build
+
       - name: Publish
         # GitHub Pages does not serve precompressed .br/.gz files, so they are not produced.
         run: >

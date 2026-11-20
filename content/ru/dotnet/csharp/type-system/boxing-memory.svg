@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 280" role="img" aria-labelledby="t d">
+  <title id="t">Boxing в памяти</title>
+  <desc id="d">В стеке переменная a хранит 456, переменная o хранит адрес. Адрес указывает на объект в куче из четырёх частей: заголовок 8 байт, указатель на тип int 8 байт, значение 123 4 байта и выравнивание 4 байта, всего 24 байта.</desc>
+  <style>
+    .panel{fill:var(--fig-panel,#F3F2F7)}
+    .cell{fill:var(--fig-cell,#FFFFFF);stroke:var(--fig-line,#C9C9D1);stroke-width:1.5}
+    .pad{fill:none;stroke:var(--fig-line,#C9C9D1);stroke-width:1.5;stroke-dasharray:5 4}
+    .hl{fill:var(--fig-accent-soft,#ECE8FF);stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .t{fill:var(--fig-text,#26262C);font:500 15px Inter,system-ui,sans-serif}
+    .m{fill:var(--fig-muted,#5C5C66);font:13px Inter,system-ui,sans-serif}
+    .h{fill:var(--fig-text,#26262C);font:600 14px Inter,system-ui,sans-serif}
+    .code{fill:var(--fig-text,#26262C);font:500 14px 'JetBrains Mono',Consolas,monospace}
+    .big{fill:var(--fig-text,#26262C);font:600 22px 'JetBrains Mono',Consolas,monospace}
+    .acc{fill:var(--fig-accent,#5B3FD9);font:700 22px 'JetBrains Mono',Consolas,monospace}
+    .arrow{fill:none;stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .dot{fill:var(--fig-accent,#5B3FD9)}
+  </style>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="dot"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="26" class="h">Стек: локальные переменные</text>
+  <rect x="20" y="38" width="240" height="210" rx="12" class="panel"/>
+
+  <rect x="40" y="62" width="200" height="66" rx="8" class="cell"/>
+  <text x="56" y="86" class="code">int a</text>
+  <text x="56" y="116" class="big">456</text>
+  <text x="224" y="116" class="m" text-anchor="end">4 байта</text>
+
+  <rect x="40" y="152" width="200" height="66" rx="8" class="cell"/>
+  <text x="56" y="176" class="code">object o</text>
+  <text x="56" y="204" class="m">адрес объекта</text>
+  <circle cx="224" cy="198" r="6" class="dot"/>
+
+  <text x="300" y="26" class="h">Управляемая куча</text>
+  <rect x="300" y="38" width="400" height="210" rx="12" class="panel"/>
+
+  <rect x="350" y="118" width="88" height="70" rx="6" class="cell"/>
+  <text x="394" y="146" class="t" text-anchor="middle">Заголовок</text>
+  <text x="394" y="170" class="m" text-anchor="middle">8 байт</text>
+
+  <rect x="438" y="118" width="88" height="70" rx="6" class="cell"/>
+  <text x="482" y="146" class="t" text-anchor="middle">Тип: int</text>
+  <text x="482" y="170" class="m" text-anchor="middle">8 байт</text>
+
+  <rect x="526" y="118" width="80" height="70" rx="6" class="hl"/>
+  <text x="566" y="152" class="acc" text-anchor="middle">123</text>
+  <text x="566" y="176" class="m" text-anchor="middle">4 байта</text>
+
+  <rect x="606" y="118" width="74" height="70" rx="6" class="pad"/>
+  <text x="643" y="146" class="m" text-anchor="middle">выравн.</text>
+  <text x="643" y="170" class="m" text-anchor="middle">4 байта</text>
+
+  <path d="M350 108V100H680V108" fill="none" stroke="var(--fig-muted,#5C5C66)" stroke-width="1.5"/>
+  <text x="515" y="90" class="m" text-anchor="middle">объект-обёртка: 24 байта ради 4 байт данных</text>
+
+  <path d="M230 198C300 198 300 160 344 156" class="arrow" marker-end="url(#ah)"/>
+
+  <text x="515" y="222" class="m" text-anchor="middle">После a = 456 в обёртке по-прежнему 123: это копия</text>
+</svg>
