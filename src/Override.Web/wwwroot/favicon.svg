@@ -1,4 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="7" fill="#5B3FD9"/>
-  <circle cx="16" cy="16" r="8" fill="none" stroke="#FFFFFF" stroke-width="3.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Override</title>
+  <!-- A quarter of the ring is taken out and replaced by an arc of the same radius,
+       shifted along the diagonal: the override replaces part of the base. -->
+  <style>
+    .base { stroke: #3949AC; }
+    .override { stroke: #822C98; }
+    @media (prefers-color-scheme: dark) {
+      .base { stroke: #8E9CF2; }
+      .override { stroke: #CF8BE3; }
+    }
+  </style>
+  <path class="base" d="M47.26 40.24A19 19 0 1 1 23.76 16.74" fill="none" stroke-width="8" stroke-linecap="round" />
+  <path class="override" d="M36.33 10.05A19 19 0 0 1 53.95 27.67" fill="none" stroke-width="8" stroke-linecap="round" />
 </svg>
