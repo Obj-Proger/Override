@@ -1,4 +1,4 @@
-@* Unknown addresses are handled by the catch-all route in Pages/NotFound.razor. *@
+@* Every address except the home page goes to Pages/ContentRoute.razor, which also shows "not found". *@
 <Router AppAssembly="typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />

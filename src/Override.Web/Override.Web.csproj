@@ -11,4 +11,60 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Override.Content.Contracts\Override.Content.Contracts.csproj" />
+  </ItemGroup>
+
+  <!--
+    Compiled content. The builder turns content/<language> into JSON under wwwroot/content,
+    which is generated and not stored in git. A broken article fails the build with the file and line.
+  -->
+  <PropertyGroup>
+    <ContentLanguage>ru</ContentLanguage>
+    <ContentSourcePath>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', '..', 'content', '$(ContentLanguage)'))</ContentSourcePath>
+    <ContentOutputPath>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', 'wwwroot', 'content'))</ContentOutputPath>
+    <ContentBuilderProject>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', 'Override.Content.Builder', 'Override.Content.Builder.csproj'))</ContentBuilderProject>
+  </PropertyGroup>
+
+  <!-- Static web assets are collected from Content items, so the generated files are added right before that. -->
+  <Target Name="CompileContent"
+          BeforeTargets="ResolveProjectStaticWebAssets"
+          DependsOnTargets="_BuildContentBuilder;_RunContentBuilder"
+          Condition="'$(DesignTimeBuild)' != 'true'">
+    <ItemGroup>
+      <Content Remove="wwwroot\content\**" />
+      <Content Include="wwwroot\content\**" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Same global properties as a project reference, so a solution build compiles the builder only once. -->
+  <Target Name="_BuildContentBuilder">
+    <MSBuild Projects="$(ContentBuilderProject)"
+             Targets="Build"
+             RemoveProperties="TargetFramework;RuntimeIdentifier;SelfContained">
+      <Output TaskParameter="TargetOutputs" ItemName="_ContentBuilderAssembly" />
+    </MSBuild>
+
+    <PropertyGroup>
+      <_ContentStamp>$(IntermediateOutputPath)content.stamp</_ContentStamp>
+      <_ContentFileList>$(IntermediateOutputPath)content.files</_ContentFileList>
+      <_DotnetHost>$(DOTNET_HOST_PATH)</_DotnetHost>
+      <_DotnetHost Condition="'$(_DotnetHost)' == ''">dotnet</_DotnetHost>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_ContentSource Include="$(ContentSourcePath)\**\*" />
+    </ItemGroup>
+
+    <!-- The list changes when a file is added or deleted, which file dates alone would not show. -->
+    <WriteLinesToFile File="$(_ContentFileList)" Lines="@(_ContentSource)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
+
+  <Target Name="_RunContentBuilder"
+          Inputs="@(_ContentSource);$(_ContentFileList);@(_ContentBuilderAssembly)"
+          Outputs="$(_ContentStamp);$(ContentOutputPath)\index.json">
+    <Exec Command="&quot;$(_DotnetHost)&quot; &quot;@(_ContentBuilderAssembly)&quot; &quot;$(ContentSourcePath)&quot; &quot;$(ContentOutputPath)&quot;" />
+    <Touch Files="$(_ContentStamp)" AlwaysCreate="true" />
+  </Target>
+
 </Project>

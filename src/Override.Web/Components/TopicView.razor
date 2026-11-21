@@ -1,0 +1,45 @@
+@* Temporary topic page: all steps one after another. The lesson layout comes with the app shell. *@
+<PageTitle>@Topic.Title · Override</PageTitle>
+
+<article class="topic">
+    <h1>@Topic.Title</h1>
+    <p class="meta">@Labels.Of(Topic.Level) · @Labels.Minutes(Topic.Minutes)</p>
+
+    @foreach (var step in Topic.Steps)
+    {
+        <section class="step">
+            <h2>
+                <span class="step-kind">@Labels.Of(step.Kind)</span>
+                @if (step.Title is not null)
+                {
+                    <span>@step.Title</span>
+                }
+            </h2>
+
+            @foreach (var block in step.Blocks)
+            {
+                <div class="block">
+                    @if (block.Level is { } level)
+                    {
+                        <span class="level-badge">@Labels.Of(level)</span>
+                    }
+
+                    @switch (block)
+                    {
+                        case HtmlBlock html:
+                            <text>@((MarkupString)html.Html)</text>
+                            break;
+                        case QuestionBlock question:
+                            <QuestionPreview Quiz="question.Quiz" />
+                            break;
+                    }
+                </div>
+            }
+        </section>
+    }
+</article>
+
+@code {
+    [Parameter, EditorRequired]
+    public TopicPage Topic { get; set; } = default!;
+}

@@ -1,0 +1,49 @@
+@page "/{*Path}"
+@inject ContentClient Content
+
+@if (_loading)
+{
+    <p class="loading">Загрузка…</p>
+}
+else if (_topic is not null)
+{
+    <TopicView Topic="_topic" />
+}
+else if (_section is not null)
+{
+    <PageTitle>@_section.Title · Override</PageTitle>
+    <h1>@_section.Title</h1>
+    <TopicList Topics="_section.Topics" />
+    <SectionTree Sections="_section.Sections" />
+}
+else
+{
+    <NotFound />
+}
+
+@code {
+    private bool _loading = true;
+    private TopicPage? _topic;
+    private SectionEntry? _section;
+
+    /// <summary>The address after the base path, e.g. dotnet/csharp/type-system/boxing.</summary>
+    [Parameter]
+    public string? Path { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _topic = null;
+        _section = null;
+
+        var path = (Path ?? "").Trim('/');
+        var index = await Content.GetIndexAsync();
+
+        if (index.FindTopic(path) is { } topic)
+            _topic = await Content.GetTopicAsync(topic.Id);
+        else
+            _section = index.FindSection(path);
+
+        _loading = false;
+    }
+}

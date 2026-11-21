@@ -4,6 +4,9 @@ obj/
 publish/
 artifacts/
 
+# Content compiled by the site build
+src/Override.Web/wwwroot/content/
+
 # IDE
 .vs/
 .vscode/

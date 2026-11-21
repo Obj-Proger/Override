@@ -355,9 +355,12 @@ public static class TopicParser
 
         private void FlushMarkdown()
         {
-            var text = _markdown.ToString().Trim('\n');
+            // Line points at the first line of the text, not at the empty lines before it.
+            var raw = _markdown.ToString();
+            var leadingLines = raw.Length - raw.TrimStart('\n').Length;
+            var text = raw.Trim('\n');
             if (!string.IsNullOrWhiteSpace(text))
-                _blocks.Add(new MarkdownBlock(text, _level, _markdownLine));
+                _blocks.Add(new MarkdownBlock(text, _level, _markdownLine + leadingLines));
 
             _markdown.Clear();
         }

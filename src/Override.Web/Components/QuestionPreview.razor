@@ -1,0 +1,34 @@
+@* Temporary: shows the question without answering. Interactive questions come later. *@
+<div class="question">
+    <div class="question-prompt">@((MarkupString)Quiz.Prompt)</div>
+
+    @if (Quiz.Code is not null)
+    {
+        <pre><code>@Quiz.Code</code></pre>
+    }
+
+    @switch (Quiz)
+    {
+        case ChoiceQuiz choice:
+            <ol class="options">
+                @foreach (var option in choice.Options)
+                {
+                    <li>@((MarkupString)option)</li>
+                }
+            </ol>
+            break;
+        case MultiQuiz multi:
+            <ol class="options">
+                @foreach (var option in multi.Options)
+                {
+                    <li>@((MarkupString)option)</li>
+                }
+            </ol>
+            break;
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public Quiz Quiz { get; set; } = default!;
+}

@@ -6,6 +6,7 @@
     --muted: #5c5c66;
     --border: #e4e4e7;
     --accent: #5b3fd9;
+    --code-bg: #f3f2f7;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,6 +16,18 @@
         --muted: #a8a8a8;
         --border: #2e2e2e;
         --accent: #b4a0ff;
+        --code-bg: #2a2a2e;
+        --fig-panel: #262629;
+        --fig-cell: #1f1f1f;
+        --fig-line: #4a4a52;
+        --fig-text: #e3e3e3;
+        --fig-muted: #a8a8a8;
+        --fig-accent: #b4a0ff;
+        --fig-accent-soft: #2f2a45;
+        --fig-ok: #5ccf8a;
+        --fig-ok-soft: #1d3326;
+        --fig-err: #f28b82;
+        --fig-err-soft: #3d2222;
     }
 }
 
@@ -62,4 +75,118 @@ a {
     padding: 12px 20px;
     background: #fdecec;
     color: #5c1b1b;
+}
+
+/* Temporary content styles until the app shell. */
+.meta {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.toc,
+.topics {
+    list-style: none;
+    padding-left: 0;
+}
+
+.toc .toc,
+.toc .topics {
+    padding-left: 20px;
+}
+
+.toc li,
+.topics li {
+    margin: 6px 0;
+}
+
+.topics .meta {
+    margin-left: 8px;
+}
+
+.toc-section {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.step {
+    margin-top: 40px;
+}
+
+.step h2 {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    font-size: 22px;
+}
+
+.step-kind {
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.level-badge {
+    display: inline-block;
+    padding: 0 8px;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    color: var(--accent);
+    font-size: 12px;
+}
+
+pre {
+    overflow-x: auto;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font: 14px/1.5 "JetBrains Mono", Consolas, monospace;
+}
+
+:not(pre) > code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--code-bg);
+    font: 0.92em "JetBrains Mono", Consolas, monospace;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    text-align: left;
+}
+
+.question {
+    margin: 16px 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+}
+
+.question-prompt {
+    font-weight: 600;
+}
+
+.figure {
+    margin: 24px 0;
+}
+
+.figure svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.figure figcaption {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
 }

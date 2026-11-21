@@ -14,17 +14,6 @@ public sealed record TopicMetadata(
 /// <summary>A parsed topic: its metadata and the lesson steps in file order.</summary>
 public sealed record Topic(TopicMetadata Metadata, IReadOnlyList<Step> Steps);
 
-/// <summary>Kind of a lesson step.</summary>
-public enum StepKind
-{
-    Warmup,
-    Part,
-    Example,
-    Practice,
-    Traps,
-    Summary,
-}
-
 /// <summary>A lesson step. Line is where the step starts in the file.</summary>
 public sealed record Step(StepKind Kind, string? Title, int Line, IReadOnlyList<Block> Blocks);
 

@@ -1,0 +1,22 @@
+@* Temporary table of contents: nested lists of sections and topics. *@
+<ul class="toc">
+    @foreach (var section in Sections)
+    {
+        <li>
+            <a class="toc-section" href="@section.Path">@section.Title</a>
+            @if (section.Topics.Count > 0)
+            {
+                <TopicList Topics="section.Topics" />
+            }
+            @if (section.Sections.Count > 0)
+            {
+                <SectionTree Sections="section.Sections" />
+            }
+        </li>
+    }
+</ul>
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<SectionEntry> Sections { get; set; } = [];
+}

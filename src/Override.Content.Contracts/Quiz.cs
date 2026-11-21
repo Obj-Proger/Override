@@ -1,6 +1,23 @@
+using System.Text.Json.Serialization;
+
 namespace Override.Content.Model;
 
-/// <summary>A question. Level is null when the question uses the level of its topic.</summary>
+/// <summary>
+/// A question. Level is null when the question uses the level of its topic.
+/// In the compiled site, Prompt, Explain, the options of choice questions and the answer of a recall
+/// question hold HTML; answers that the user types and all code stay plain text.
+/// </summary>
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+[JsonDerivedType(typeof(ChoiceQuiz), "choice")]
+[JsonDerivedType(typeof(MultiQuiz), "multi")]
+[JsonDerivedType(typeof(InputQuiz), "input")]
+[JsonDerivedType(typeof(OutputQuiz), "output")]
+[JsonDerivedType(typeof(RecallQuiz), "recall")]
+[JsonDerivedType(typeof(FillQuiz), "fill")]
+[JsonDerivedType(typeof(FindBugQuiz), "find-bug")]
+[JsonDerivedType(typeof(ParsonsQuiz), "parsons")]
+[JsonDerivedType(typeof(CodeQuiz), "code")]
+[JsonDerivedType(typeof(SqlQuiz), "sql")]
 public abstract record Quiz(string Id, Level? Level, string Prompt, string? Code, string? Explain);
 
 /// <summary>Pick one option.</summary>

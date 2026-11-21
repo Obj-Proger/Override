@@ -5,83 +5,10 @@ namespace Override.Content.Tests;
 
 public sealed class TopicParserTests
 {
-    private const string ValidTopic = """
-        ---
-        id: csharp.types.sample
-        title: Sample
-        level: junior
-        tracks: [backend]
-        minutes: 10
-        order: 1
-        quickCheck: [q-choice, q-output, q-input]
-        ---
-
-        ::::warmup
-
-        ```quiz
-        id: q-output
-        type: output
-        prompt: What does it print?
-        code: |
-          Console.WriteLine(1);
-        answer: "1"
-        explain: It prints 1.
-        ```
-
-        ::::
-
-        ::::part First part
-
-        Some text.
-
-        ```csharp
-        :::: not a step, this is code
-        ```
-
-        ```quiz
-        id: q-choice
-        type: choice
-        prompt: Pick one.
-        options: [a, b]
-        answer: 1
-        explain: b is right.
-        ```
-
-        :::level middle
-        Deeper text.
-        :::
-
-        ::::
-
-        ::::practice
-
-        ```quiz
-        id: q-input
-        type: input
-        prompt: Type it.
-        answer: [Value, Other]
-        explain: Value.
-        ```
-
-        ::::
-
-        ::::summary
-
-        ```quiz
-        id: q-recall
-        type: recall
-        prompt: Explain.
-        answer: |
-          Reference answer.
-        ```
-
-        ::::
-        """;
-
     [Fact]
     public void ParsesValidTopic()
     {
-        var result = Parse(ValidTopic);
+        var result = Parse(Samples.ValidTopic);
 
         Assert.True(result.Succeeded, string.Join(Environment.NewLine, result.Diagnostics));
         var topic = result.Topic!;
@@ -134,48 +61,48 @@ public sealed class TopicParserTests
     [Fact]
     public void ReportsUnclosedStep()
     {
-        var text = ValidTopic[..ValidTopic.LastIndexOf("::::", StringComparison.Ordinal)];
+        var text = Samples.ValidTopic[..Samples.ValidTopic.LastIndexOf("::::", StringComparison.Ordinal)];
 
         AssertError(text, "The step is not closed");
     }
 
     [Fact]
     public void ReportsLevelBlockAtTopicLevel() =>
-        AssertError(ValidTopic.Replace(":::level middle", ":::level junior", StringComparison.Ordinal), "above the topic level");
+        AssertError(Samples.ValidTopic.Replace(":::level middle", ":::level junior", StringComparison.Ordinal), "above the topic level");
 
     [Fact]
     public void ReportsChoiceAnswerOutOfRange() =>
-        AssertError(ValidTopic.Replace("answer: 1", "answer: 2", StringComparison.Ordinal), "index of the correct option");
+        AssertError(Samples.ValidTopic.Replace("answer: 1", "answer: 2", StringComparison.Ordinal), "index of the correct option");
 
     [Fact]
     public void ReportsMisspelledQuizField() =>
-        AssertError(ValidTopic.Replace("explain: b is right.", "explian: b is right.", StringComparison.Ordinal), "Invalid YAML");
+        AssertError(Samples.ValidTopic.Replace("explain: b is right.", "explian: b is right.", StringComparison.Ordinal), "Invalid YAML");
 
     [Fact]
     public void ReportsFieldNotUsedByType() =>
         AssertError(
-            ValidTopic.Replace("prompt: Type it.", "prompt: Type it.\noptions: [x, y]", StringComparison.Ordinal),
+            Samples.ValidTopic.Replace("prompt: Type it.", "prompt: Type it.\noptions: [x, y]", StringComparison.Ordinal),
             "'options' is not used by type 'input'");
 
     [Fact]
     public void ReportsDuplicateQuizId() =>
-        AssertError(ValidTopic.Replace("id: q-input", "id: q-choice", StringComparison.Ordinal), "is used twice");
+        AssertError(Samples.ValidTopic.Replace("id: q-input", "id: q-choice", StringComparison.Ordinal), "is used twice");
 
     [Fact]
     public void ReportsQuickCheckToUnknownQuestion() =>
-        AssertError(ValidTopic.Replace("q-output, q-input]", "q-output, q-missing]", StringComparison.Ordinal), "'q-missing'");
+        AssertError(Samples.ValidTopic.Replace("q-output, q-input]", "q-output, q-missing]", StringComparison.Ordinal), "'q-missing'");
 
     [Fact]
     public void RejectsRecallInQuickCheck() =>
-        AssertError(ValidTopic.Replace("q-output, q-input]", "q-output, q-recall]", StringComparison.Ordinal), "cannot be in the quick check");
+        AssertError(Samples.ValidTopic.Replace("q-output, q-input]", "q-output, q-recall]", StringComparison.Ordinal), "cannot be in the quick check");
 
     [Fact]
     public void RequiresSummaryToHoldOnlyRecall() =>
-        AssertError(ValidTopic.Replace("::::summary", "::::summary\nExtra text.", StringComparison.Ordinal), "exactly one recall question");
+        AssertError(Samples.ValidTopic.Replace("::::summary", "::::summary\nExtra text.", StringComparison.Ordinal), "exactly one recall question");
 
     [Fact]
     public void ReportsUnknownStep() =>
-        AssertError(ValidTopic.Replace("::::practice", "::::exercise", StringComparison.Ordinal), "Unknown step 'exercise'");
+        AssertError(Samples.ValidTopic.Replace("::::practice", "::::exercise", StringComparison.Ordinal), "Unknown step 'exercise'");
 
     private static ParseResult Parse(string text) => TopicParser.Parse("sample.md", text);
 

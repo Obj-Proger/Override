@@ -1,28 +1,25 @@
 using Override.Content.Parsing;
+using Override.Content.Rendering;
 
 namespace Override.Content.Tests;
 
-/// <summary>Every topic in the repository must parse: a broken article fails the build.</summary>
+/// <summary>The content in the repository compiles: a broken article fails the tests as well as the site build.</summary>
 public sealed class RepositoryContentTests
 {
     [Fact]
-    public void AllTopicsParse()
+    public void EveryLanguageCompiles()
     {
-        var contentDirectory = Path.Combine(FindRepositoryRoot(), "content");
+        // Each folder in content/ is a language. Files there (FORMAT.md, LICENSE.md) describe the content.
+        var languages = Directory.GetDirectories(Path.Combine(FindRepositoryRoot(), "content"));
+        Assert.NotEmpty(languages);
 
-        // Files directly in content/ (FORMAT.md, LICENSE.md) describe the content and are not topics.
-        var topics = Directory
-            .EnumerateFiles(contentDirectory, "*.md", SearchOption.AllDirectories)
-            .Where(path => Path.GetDirectoryName(path) != contentDirectory)
-            .ToList();
+        foreach (var language in languages)
+        {
+            var site = SiteCompiler.Compile(language);
 
-        Assert.NotEmpty(topics);
-
-        var diagnostics = topics
-            .SelectMany(path => TopicParser.Parse(Path.GetRelativePath(contentDirectory, path), File.ReadAllText(path)).Diagnostics)
-            .ToList();
-
-        Assert.Empty(diagnostics);
+            Assert.NotEmpty(site.Pages);
+            Assert.DoesNotContain(site.Diagnostics, d => d.Severity == DiagnosticSeverity.Error);
+        }
     }
 
     private static string FindRepositoryRoot()

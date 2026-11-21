@@ -1,6 +1,21 @@
 @page "/"
+@inject ContentClient Content
 
 <PageTitle>Override</PageTitle>
 
 <h1>Override</h1>
-<p>Сайт в разработке.</p>
+
+@if (_index is null)
+{
+    <p class="loading">Загрузка…</p>
+}
+else
+{
+    <SectionTree Sections="_index.Sections" />
+}
+
+@code {
+    private SiteIndex? _index;
+
+    protected override async Task OnInitializedAsync() => _index = await Content.GetIndexAsync();
+}

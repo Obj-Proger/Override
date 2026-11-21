@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Types shared by the content builder and the site. No dependencies: it is loaded in the browser. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Override.Content.Model</RootNamespace>
+  </PropertyGroup>
+
+</Project>

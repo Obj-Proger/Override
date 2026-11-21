@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Override.Content.Builder/Override.Content.Builder.csproj" />
+    <Project Path="src/Override.Content.Contracts/Override.Content.Contracts.csproj" />
     <Project Path="src/Override.Content/Override.Content.csproj" />
     <Project Path="src/Override.Web/Override.Web.csproj" />
   </Folder>
