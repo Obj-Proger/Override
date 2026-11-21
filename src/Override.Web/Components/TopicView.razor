@@ -1,45 +1,135 @@
-@* Temporary topic page: all steps one after another. The lesson layout comes with the app shell. *@
+@*
+    A lesson: one step at a time, with the steps bar on top and the page panel on the right.
+    The step is part of the address (?step=2), so Back in the browser returns to the previous step.
+*@
 <PageTitle>@Topic.Title · Override</PageTitle>
 
-<article class="topic">
-    <h1>@Topic.Title</h1>
-    <p class="meta">@Labels.Of(Topic.Level) · @Labels.Minutes(Topic.Minutes)</p>
-
-    @foreach (var step in Topic.Steps)
-    {
-        <section class="step">
-            <h2>
-                <span class="step-kind">@Labels.Of(step.Kind)</span>
-                @if (step.Title is not null)
-                {
-                    <span>@step.Title</span>
-                }
-            </h2>
-
-            @foreach (var block in step.Blocks)
+<div class="lesson">
+    <article>
+        <ol class="steps-bar" aria-label="Шаги урока">
+            @for (var i = 0; i < Topic.Steps.Count; i++)
             {
-                <div class="block">
-                    @if (block.Level is { } level)
-                    {
-                        <span class="level-badge">@Labels.Of(level)</span>
-                    }
+                var index = i;
+                <li class="@(index < _current ? "done" : null)">
+                    <a href="@StepHref(index)"
+                       aria-current="@(index == _current ? "step" : null)"
+                       aria-label="@($"Шаг {index + 1}: {Labels.Of(Topic.Steps[index])}")"></a>
+                </li>
+            }
+        </ol>
+        <div class="step-caption">Шаг @(_current + 1) из @Topic.Steps.Count · <strong>@Labels.Of(CurrentStep)</strong></div>
 
-                    @switch (block)
-                    {
-                        case HtmlBlock html:
-                            <text>@((MarkupString)html.Html)</text>
-                            break;
-                        case QuestionBlock question:
-                            <QuestionPreview Quiz="question.Quiz" CodeHtml="question.CodeHtml" />
-                            break;
-                    }
-                </div>
+        <h1>@Topic.Title</h1>
+        <div class="meta">@Labels.Of(Topic.Level) · @Labels.MinutesLong(Topic.Minutes)</div>
+
+        <section class="lesson-body">
+            <h2>@Labels.Of(CurrentStep)</h2>
+
+            @foreach (var block in CurrentStep.Blocks)
+            {
+                if (block.Level is { } level)
+                {
+                    <div class="level-block">
+                        <span class="level-label">Глубже · @Labels.Of(level)</span>
+                        <PageBlockView Block="block" />
+                    </div>
+                }
+                else
+                {
+                    <PageBlockView Block="block" />
+                }
             }
         </section>
-    }
-</article>
+
+        <nav class="lesson-nav" aria-label="Переход по шагам">
+            @if (_current > 0)
+            {
+                <a class="button" href="@StepHref(_current - 1)">Назад</a>
+            }
+            @if (_current + 1 < Topic.Steps.Count)
+            {
+                <a class="button-primary" href="@StepHref(_current + 1)">Дальше: @Labels.Of(Topic.Steps[_current + 1])</a>
+            }
+            else if (_next is not null)
+            {
+                <a class="button-primary" href="@_next.Path">Следующая тема: @_next.Title</a>
+            }
+        </nav>
+    </article>
+
+    <aside class="page-aside" aria-label="О теме">
+        <div class="page-aside-inner">
+            <section class="panel-card">
+                <div class="panel-title">На этой странице</div>
+                <ol class="panel-list">
+                    @for (var i = 0; i < Topic.Steps.Count; i++)
+                    {
+                        var index = i;
+                        <li>
+                            <a href="@StepHref(index)" aria-current="@(index == _current ? "step" : null)">@Labels.Of(Topic.Steps[index])</a>
+                        </li>
+                    }
+                </ol>
+            </section>
+
+            <section class="panel-card">
+                <div class="panel-title">Тема</div>
+                <div class="panel-facts">
+                    <span>Уровень: @Labels.Of(Topic.Level)</span>
+                    <span>Время: @Labels.MinutesLong(Topic.Minutes)</span>
+                    <span>Вопросов в тексте: @_questions</span>
+                </div>
+            </section>
+
+            @if (Topic.Requires.Count > 0)
+            {
+                <section class="panel-card">
+                    <div class="panel-title">Нужно знать</div>
+                    <ul class="panel-list">
+                        @foreach (var id in Topic.Requires)
+                        {
+                            var required = Index.FindTopicById(id);
+                            <li>
+                                @if (required is not null)
+                                {
+                                    <a href="@required.Path">@required.Title</a>
+                                }
+                                else
+                                {
+                                    <span class="meta">@id · тема ещё пишется</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </section>
+            }
+        </div>
+    </aside>
+</div>
 
 @code {
+    private int _current;
+    private int _questions;
+    private TopicEntry? _next;
+
     [Parameter, EditorRequired]
     public TopicPage Topic { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public SiteIndex Index { get; set; } = default!;
+
+    /// <summary>The step to show, counted from 1. Out of range values show the nearest step.</summary>
+    [Parameter]
+    public int Step { get; set; } = 1;
+
+    private PageStep CurrentStep => Topic.Steps[_current];
+
+    protected override void OnParametersSet()
+    {
+        _current = Math.Clamp(Step - 1, 0, Topic.Steps.Count - 1);
+        _questions = Topic.Steps.Sum(s => s.Blocks.Count(b => b is QuestionBlock));
+        _next = Index.NextTopic(Topic.Id);
+    }
+
+    private string StepHref(int index) => index == 0 ? Topic.Path : $"{Topic.Path}?step={index + 1}";
 }

@@ -1,0 +1,28 @@
+@* A section: its own topics, then each subsection with all of its topics. *@
+<PageTitle>@Section.Title · Override</PageTitle>
+
+<div class="catalog">
+    <h1>@Section.Title</h1>
+    <p class="catalog-lead">@Labels.Topics(Section.TopicsIn().Count())</p>
+
+    @if (Section.Topics.Count > 0)
+    {
+        <TopicRows Topics="Section.Topics" />
+    }
+
+    @for (var i = 0; i < Section.Sections.Count; i++)
+    {
+        var child = Section.Sections[i];
+        var title = $"{i + 1}. {child.Title}";
+
+        <section class="catalog-group">
+            <h2><a href="@child.Path">@title</a></h2>
+            <TopicRows Topics="child.TopicsIn()" />
+        </section>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public SectionEntry Section { get; set; } = default!;
+}

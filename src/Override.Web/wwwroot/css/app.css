@@ -1,13 +1,34 @@
-/* Temporary base styles. The real layout and themes come with the app shell. */
+/*
+ * Site styles. Colors come from the theme tokens below; components never use raw colors.
+ * The theme is set on <html data-theme> by js/theme.js before the page is drawn.
+ */
+
 :root {
-    color-scheme: light dark;
+    color-scheme: light;
     --bg: #ffffff;
-    --text: #26262c;
-    --muted: #5c5c66;
+    --panel: #f7f7f8;
+    --card: #f3f2f7;
     --border: #e4e4e7;
+    --border-strong: #c9c9d1;
+    --text: #26262c;
+    --strong: #0e0e12;
+    --muted: #5c5c66;
     --accent: #5b3fd9;
-    --code-bg: #f3f2f7;
-    --code-block-bg: #ffffff;
+    --accent-text: #ffffff;
+    --accent-soft: #ece8ff;
+    --current: #3b25a8;
+    --track: #e4e4e7;
+    --ok: #1f8a4c;
+    --ok-soft: #e7f5ec;
+    --err: #b42318;
+    --err-soft: #fdecec;
+    --info-bg: #eef4ff;
+    --info-title: #1d4ed8;
+    --info-body: #1e2a44;
+    --inline-code-bg: #ecebf1;
+
+    /* Code: Visual Studio 2022 Light. */
+    --code-bg: #ffffff;
     --code-text: #000000;
     --c-kw: #0000ff;
     --c-kw-ctrl: #8f08c4;
@@ -21,47 +42,81 @@
     --c-method: #74531f;
     --c-local: #1f377f;
     --c-pre: #808080;
+
+    --font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    --header-height: 56px;
+    --sidebar-width: 300px;
+    --aside-width: 280px;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg: #1f1f1f;
-        --text: #e3e3e3;
-        --muted: #a8a8a8;
-        --border: #2e2e2e;
-        --accent: #b4a0ff;
-        --code-bg: #2a2a2e;
-        --code-block-bg: #1e1e1e;
-        --code-text: #dcdcdc;
-        --c-kw: #569cd6;
-        --c-kw-ctrl: #d8a0df;
-        --c-type: #4ec9b0;
-        --c-type-struct: #86c691;
-        --c-type-iface: #b8d7a3;
-        --c-str: #d69d85;
-        --c-str-esc: #ffd68f;
-        --c-num: #b5cea8;
-        --c-cmt: #57a64a;
-        --c-method: #dcdcaa;
-        --c-local: #9cdcfe;
-        --c-pre: #9b9b9b;
-        --fig-panel: #262629;
-        --fig-cell: #1f1f1f;
-        --fig-line: #4a4a52;
-        --fig-text: #e3e3e3;
-        --fig-muted: #a8a8a8;
-        --fig-accent: #b4a0ff;
-        --fig-accent-soft: #2f2a45;
-        --fig-ok: #5ccf8a;
-        --fig-ok-soft: #1d3326;
-        --fig-err: #f28b82;
-        --fig-err-soft: #3d2222;
-    }
+[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #1f1f1f;
+    --panel: #181818;
+    --card: #262626;
+    --border: #2e2e2e;
+    --border-strong: #444444;
+    --text: #e3e3e3;
+    --strong: #ffffff;
+    --muted: #a8a8a8;
+    --accent: #b4a0ff;
+    --accent-text: #1a1530;
+    --accent-soft: #3a3358;
+    --current: #ffffff;
+    --track: #333333;
+    --ok: #6ccb8b;
+    --ok-soft: #1f3326;
+    --err: #ff8a8a;
+    --err-soft: #3a2326;
+    --info-bg: #1a2233;
+    --info-title: #9cc3ff;
+    --info-body: #d2dceb;
+    --inline-code-bg: #2e2e33;
+
+    /* Code: Visual Studio 2022 Dark. */
+    --code-bg: #1e1e1e;
+    --code-text: #dcdcdc;
+    --c-kw: #569cd6;
+    --c-kw-ctrl: #d8a0df;
+    --c-type: #4ec9b0;
+    --c-type-struct: #86c691;
+    --c-type-iface: #b8d7a3;
+    --c-str: #d69d85;
+    --c-str-esc: #ffd68f;
+    --c-num: #b5cea8;
+    --c-cmt: #57a64a;
+    --c-method: #dcdcaa;
+    --c-local: #9cdcfe;
+    --c-pre: #9b9b9b;
+}
+
+/* Figures take their colors from the theme; the SVG files keep light fallbacks. */
+:root {
+    --fig-panel: var(--card);
+    --fig-cell: var(--bg);
+    --fig-line: var(--border-strong);
+    --fig-text: var(--text);
+    --fig-muted: var(--muted);
+    --fig-accent: var(--accent);
+    --fig-accent-soft: var(--accent-soft);
+    --fig-ok: var(--ok);
+    --fig-ok-soft: var(--ok-soft);
+    --fig-err: var(--err);
+    --fig-err-soft: var(--err-soft);
+}
+
+/* Base */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    font: 16px/1.6 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font: 16px/1.6 var(--font);
     color: var(--text);
     background: var(--bg);
 }
@@ -70,25 +125,16 @@ a {
     color: var(--accent);
 }
 
-.topbar {
-    display: flex;
-    align-items: center;
-    height: 56px;
-    padding: 0 20px;
-    border-bottom: 1px solid var(--border);
+h1,
+h2,
+h3 {
+    color: var(--strong);
+    line-height: 1.25;
 }
 
-.brand {
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--text);
-    text-decoration: none;
-}
-
-.content {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 32px 20px;
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .loading {
@@ -96,85 +142,509 @@ a {
     color: var(--muted);
 }
 
-#blazor-error-ui {
-    display: none;
-    position: fixed;
-    inset: auto 0 0 0;
-    padding: 12px 20px;
-    background: #fdecec;
-    color: #5c1b1b;
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
 }
 
-/* Temporary content styles until the app shell. */
-.meta {
+/* Header */
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: var(--header-height);
+    padding: 0 20px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+}
+
+.brand {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--strong);
+    text-decoration: none;
+}
+
+.trail {
+    display: flex;
+    gap: 6px;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 14px;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.trail a {
+    color: var(--muted);
+    text-decoration: none;
+}
+
+.trail a:hover {
+    color: var(--text);
+}
+
+.trail [aria-current] {
+    color: var(--text);
+}
+
+.topbar-spacer {
+    flex: 1 1 auto;
+}
+
+.icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.icon-button:hover {
+    background: var(--card);
+}
+
+.menu-button {
+    display: none;
+}
+
+[data-theme="dark"] .theme-icon-dark,
+[data-theme="light"] .theme-icon-light {
+    display: none;
+}
+
+/* Page frame: program on the left, the page itself on the right. */
+
+.frame {
+    display: flex;
+    min-height: calc(100vh - var(--header-height));
+}
+
+.sidebar {
+    flex: 0 0 var(--sidebar-width);
+    width: var(--sidebar-width);
+    padding: 16px;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+}
+
+.sidebar-inner {
+    position: sticky;
+    top: calc(var(--header-height) + 16px);
+    max-height: calc(100vh - var(--header-height) - 32px);
+    overflow-y: auto;
+}
+
+.page {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 28px 40px 64px;
+}
+
+.sidebar-backdrop {
+    display: none;
+}
+
+/* Program navigation */
+
+.program-label {
+    margin: 4px 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.program-section {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 6px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    background: var(--card);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.program-section:hover {
+    color: var(--strong);
+}
+
+.program-count {
     color: var(--muted);
     font-size: 14px;
 }
 
-.toc,
-.topics {
-    list-style: none;
-    padding-left: 0;
+.program-open {
+    margin-top: 6px;
+    padding: 14px;
+    border-radius: 10px;
+    background: var(--card);
 }
 
-.toc .toc,
-.toc .topics {
-    padding-left: 20px;
-}
-
-.toc li,
-.topics li {
-    margin: 6px 0;
-}
-
-.topics .meta {
-    margin-left: 8px;
-}
-
-.toc-section {
+.program-open-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
     font-weight: 600;
+    font-size: 15px;
+    color: var(--strong);
+    text-decoration: none;
+}
+
+.program-topics {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+}
+
+.program-topic {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 8px;
+    border-radius: 6px;
+    color: var(--muted);
+    text-decoration: none;
+}
+
+.program-topic:hover {
     color: var(--text);
 }
 
-.step {
-    margin-top: 40px;
-}
-
-.step h2 {
-    display: flex;
-    gap: 10px;
-    align-items: baseline;
-    font-size: 22px;
-}
-
-.step-kind {
-    color: var(--accent);
-    font-size: 14px;
+.program-topic[aria-current="page"] {
+    background: var(--accent-soft);
+    color: var(--current);
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
 }
 
-.level-badge {
-    display: inline-block;
-    padding: 0 8px;
-    border: 1px solid var(--accent);
-    border-radius: 999px;
-    color: var(--accent);
-    font-size: 12px;
+.topic-dot {
+    flex: 0 0 auto;
+    width: 12px;
+    height: 12px;
+    margin: 0 2px;
+    border: 2px solid var(--border-strong);
+    border-radius: 50%;
 }
+
+[aria-current="page"] > .topic-dot {
+    border-color: var(--accent);
+    background: var(--accent);
+}
+
+.program-stack {
+    margin-top: 16px;
+}
+
+.program-stack:first-child {
+    margin-top: 0;
+}
+
+/* Catalog: home and section pages */
+
+.catalog {
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+.catalog h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    letter-spacing: -0.4px;
+}
+
+.catalog-lead {
+    margin: 0 0 28px;
+    color: var(--muted);
+}
+
+.catalog-group {
+    margin-top: 28px;
+}
+
+.catalog-group h2 {
+    margin: 0 0 12px;
+    font-size: 20px;
+}
+
+.catalog-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.catalog-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--card);
+    color: var(--text);
+    text-decoration: none;
+}
+
+.catalog-card:hover {
+    outline: 1px solid var(--border-strong);
+}
+
+.catalog-card-title {
+    font-weight: 600;
+    color: var(--strong);
+}
+
+.catalog-card-meta,
+.meta {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.topic-rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.topic-rows li + li {
+    border-top: 1px solid var(--border);
+}
+
+.topic-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 4px;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.topic-row:hover .topic-row-title {
+    color: var(--accent);
+}
+
+/* Lesson: content in the middle, page panel on the right. */
+
+.lesson {
+    display: grid;
+    grid-template-columns: minmax(0, 760px) var(--aside-width);
+    justify-content: center;
+    gap: 40px;
+}
+
+.steps-bar {
+    display: flex;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.steps-bar li {
+    flex: 1;
+}
+
+.steps-bar a {
+    display: block;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--track);
+}
+
+.steps-bar .done a {
+    background: var(--accent);
+}
+
+.steps-bar [aria-current="step"] {
+    background: var(--accent-soft);
+    outline: 1px solid var(--accent);
+}
+
+.step-caption {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.step-caption strong {
+    color: var(--strong);
+}
+
+.lesson h1 {
+    margin: 24px 0 8px;
+    font-size: 32px;
+    letter-spacing: -0.4px;
+}
+
+.lesson-body {
+    margin-top: 24px;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.lesson-body h2 {
+    font-size: 24px;
+    margin: 0 0 8px;
+}
+
+.lesson-body h3 {
+    font-size: 19px;
+    margin: 28px 0 8px;
+}
+
+.lesson-body strong {
+    color: var(--strong);
+}
+
+.lesson-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 44px;
+}
+
+.button,
+.button-primary {
+    display: inline-flex;
+    align-items: center;
+    height: 48px;
+    padding: 0 22px;
+    border-radius: 10px;
+    font: 600 15px var(--font);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.button {
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text);
+}
+
+.button-primary {
+    margin-left: auto;
+    border: 0;
+    background: var(--accent);
+    color: var(--accent-text);
+    font-weight: 700;
+}
+
+.level-block {
+    margin: 20px 0;
+    padding: 4px 18px 8px;
+    border: 1px dashed var(--border-strong);
+    border-radius: 12px;
+}
+
+.level-label {
+    display: block;
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+/* Page panel */
+
+.page-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    font-size: 14px;
+}
+
+.page-aside-inner {
+    position: sticky;
+    top: calc(var(--header-height) + 28px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.panel-card {
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--card);
+}
+
+.panel-title {
+    font-weight: 600;
+    color: var(--strong);
+}
+
+.panel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.panel-list a {
+    color: var(--muted);
+    text-decoration: none;
+}
+
+.panel-list a:hover {
+    color: var(--text);
+}
+
+.panel-list [aria-current="step"] {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.panel-facts {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+/* Text content */
 
 pre {
+    margin: 16px 0;
     overflow-x: auto;
-    padding: 12px 16px;
+    padding: 16px 18px;
     border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--code-block-bg);
+    border-radius: 10px;
+    background: var(--code-bg);
     color: var(--code-text);
-    font: 14px/1.5 "JetBrains Mono", Consolas, monospace;
+    font: 14px/1.6 var(--mono);
 }
 
-/* Code colors of Visual Studio 2022: Light and Dark themes. */
+:not(pre) > code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--inline-code-bg);
+    font: 0.88em var(--mono);
+}
+
 .c-kw { color: var(--c-kw); }
 .c-kw-ctrl { color: var(--c-kw-ctrl); }
 .c-type { color: var(--c-type); }
@@ -188,34 +658,24 @@ pre {
 .c-local { color: var(--c-local); }
 .c-pre { color: var(--c-pre); }
 
-:not(pre) > code {
-    padding: 1px 5px;
-    border-radius: 4px;
-    background: var(--code-bg);
-    font: 0.92em "JetBrains Mono", Consolas, monospace;
-}
-
 table {
+    width: 100%;
+    margin: 16px 0;
     border-collapse: collapse;
+    font-size: 15px;
 }
 
 th,
 td {
-    padding: 6px 12px;
+    padding: 8px 12px;
     border: 1px solid var(--border);
     text-align: left;
+    vertical-align: top;
 }
 
-.question {
-    margin: 16px 0;
-    padding: 16px;
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
-    border-radius: 8px;
-}
-
-.question-prompt {
-    font-weight: 600;
+th {
+    background: var(--card);
+    color: var(--strong);
 }
 
 .figure {
@@ -230,7 +690,142 @@ td {
 
 .figure figcaption {
     margin-top: 8px;
-    color: var(--muted);
     font-size: 14px;
     text-align: center;
+    color: var(--muted);
+}
+
+/* Questions */
+
+.question {
+    margin: 28px 0;
+    padding: 22px;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    background: var(--card);
+    font-size: 16px;
+}
+
+.question-kind {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.question-prompt {
+    margin: 8px 0 14px;
+    font-size: 17px;
+    color: var(--strong);
+}
+
+.question pre {
+    background: var(--code-bg);
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.options li {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 8px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--bg);
+}
+
+/* Errors of the app itself */
+
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 50;
+    padding: 12px 20px;
+    background: var(--err-soft);
+    color: var(--text);
+}
+
+/* Narrower screens: the page panel goes away first, then the program becomes a drawer. */
+
+@media (max-width: 1280px) {
+    .lesson {
+        grid-template-columns: minmax(0, 760px);
+    }
+
+    .page-aside {
+        display: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .topbar {
+        gap: 8px;
+        padding: 0 8px 0 4px;
+    }
+
+    .menu-button {
+        display: inline-flex;
+        border-color: transparent;
+    }
+
+    .trail {
+        display: none;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: var(--header-height);
+        bottom: 0;
+        left: 0;
+        z-index: 15;
+        overflow-y: auto;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease;
+    }
+
+    .sidebar-inner {
+        position: static;
+        max-height: none;
+        overflow: visible;
+    }
+
+    .frame.menu-open .sidebar {
+        transform: none;
+    }
+
+    .frame.menu-open .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: var(--header-height) 0 0 0;
+        z-index: 10;
+        border: 0;
+        background: rgb(0 0 0 / 40%);
+    }
+
+    .page {
+        padding: 18px 18px 48px;
+    }
+
+    .lesson h1,
+    .catalog h1 {
+        font-size: 26px;
+    }
+
+    .lesson-body {
+        font-size: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sidebar {
+        transition: none;
+    }
 }

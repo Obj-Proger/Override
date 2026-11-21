@@ -3,16 +3,33 @@
 
 <PageTitle>Override</PageTitle>
 
-<h1>Override</h1>
+<div class="catalog">
+    <h1>Override</h1>
+    <p class="catalog-lead">Короткие объяснения на примерах кода, с рисунками и вопросами прямо в тексте. Прогресс хранится только в этом браузере.</p>
 
-@if (_index is null)
-{
-    <p class="loading">Загрузка…</p>
-}
-else
-{
-    <SectionTree Sections="_index.Sections" />
-}
+    @if (_index is null)
+    {
+        <p class="loading" role="status">Загрузка…</p>
+    }
+    else
+    {
+        foreach (var stack in _index.Sections)
+        {
+            <section class="catalog-group">
+                <h2>@stack.Title</h2>
+                <div class="catalog-cards">
+                    @foreach (var technology in stack.Sections)
+                    {
+                        <a class="catalog-card" href="@technology.Path">
+                            <span class="catalog-card-title">@technology.Title</span>
+                            <span class="catalog-card-meta">@Labels.Topics(technology.TopicsIn().Count())</span>
+                        </a>
+                    }
+                </div>
+            </section>
+        }
+    }
+</div>
 
 @code {
     private SiteIndex? _index;

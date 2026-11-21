@@ -1,0 +1,14 @@
+@switch (Block)
+{
+    case HtmlBlock html:
+        <text>@((MarkupString)html.Html)</text>
+        break;
+    case QuestionBlock question:
+        <QuestionPreview Quiz="question.Quiz" CodeHtml="question.CodeHtml" />
+        break;
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public PageBlock Block { get; set; } = default!;
+}

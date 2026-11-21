@@ -1,0 +1,16 @@
+<ul class="topic-rows">
+    @foreach (var topic in Topics)
+    {
+        <li>
+            <a class="topic-row" href="@topic.Path">
+                <span class="topic-row-title">@topic.Title</span>
+                <span class="meta">@Labels.Of(topic.Level) · @Labels.Minutes(topic.Minutes)</span>
+            </a>
+        </li>
+    }
+</ul>
+
+@code {
+    [Parameter, EditorRequired]
+    public IEnumerable<TopicEntry> Topics { get; set; } = [];
+}

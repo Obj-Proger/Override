@@ -1,5 +1,6 @@
-@* Temporary: shows the question without answering. Interactive questions come later. *@
+@* Shows the question without answering for now. Answering comes with the next step of the site. *@
 <div class="question">
+    <div class="question-kind">Проверь себя · @Labels.Of(Quiz)</div>
     <div class="question-prompt">@((MarkupString)Quiz.Prompt)</div>
 
     @if (CodeHtml is not null)
@@ -10,20 +11,20 @@
     @switch (Quiz)
     {
         case ChoiceQuiz choice:
-            <ol class="options">
+            <ul class="options">
                 @foreach (var option in choice.Options)
                 {
                     <li>@((MarkupString)option)</li>
                 }
-            </ol>
+            </ul>
             break;
         case MultiQuiz multi:
-            <ol class="options">
+            <ul class="options">
                 @foreach (var option in multi.Options)
                 {
                     <li>@((MarkupString)option)</li>
                 }
-            </ol>
+            </ul>
             break;
     }
 </div>

@@ -1,0 +1,85 @@
+@*
+    The program: sections of the current technology, with the open section listing its topics.
+    Outside a technology it lists all of them.
+*@
+@if (_technology is null)
+{
+    foreach (var stack in Index.Sections)
+    {
+        <div class="program-stack">
+            <div class="program-label">@stack.Title</div>
+            @foreach (var technology in stack.Sections)
+            {
+                <a class="program-section" href="@technology.Path">
+                    <span>@technology.Title</span>
+                    <span class="program-count">@technology.TopicsIn().Count()</span>
+                </a>
+            }
+        </div>
+    }
+}
+else
+{
+    <div class="program-label">@_technology.Title</div>
+
+    if (_technology.Topics.Count > 0)
+    {
+        <ul class="program-topics">
+            @foreach (var topic in _technology.Topics)
+            {
+                <li><ProgramTopic Topic="topic" Path="Path" /></li>
+            }
+        </ul>
+    }
+
+    for (var i = 0; i < _technology.Sections.Count; i++)
+    {
+        var section = _technology.Sections[i];
+        var number = i + 1;
+        var topics = section.TopicsIn().ToList();
+        var title = $"{number}. {section.Title}";
+
+        if (section == _open)
+        {
+            <div class="program-open">
+                <a class="program-open-title" href="@section.Path" aria-current="@(section.Path == Path ? "page" : null)">
+                    <span>@title</span>
+                    <span class="program-count">@topics.Count</span>
+                </a>
+                <ul class="program-topics">
+                    @foreach (var topic in topics)
+                    {
+                        <li><ProgramTopic Topic="topic" Path="Path" /></li>
+                    }
+                </ul>
+            </div>
+        }
+        else
+        {
+            <a class="program-section" href="@section.Path">
+                <span>@title</span>
+                <span class="program-count">@topics.Count</span>
+            </a>
+        }
+    }
+}
+
+@code {
+    private SectionEntry? _technology;
+    private SectionEntry? _open;
+
+    [Parameter, EditorRequired]
+    public SiteIndex Index { get; set; } = default!;
+
+    /// <summary>Address of the current page.</summary>
+    [Parameter, EditorRequired]
+    public string Path { get; set; } = "";
+
+    protected override void OnParametersSet()
+    {
+        // The trail goes stack, technology, section: the program shows one technology at a time.
+        var trail = Index.Trail(Path);
+        _technology = trail.Count >= 2 ? trail[1] : null;
+        _open = trail.Count >= 3 ? trail[2] : null;
+    }
+}

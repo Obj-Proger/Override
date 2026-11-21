@@ -1,10 +1,87 @@
 @inherits LayoutComponentBase
+@implements IDisposable
+@inject NavigationManager Navigation
+@inject ContentClient Content
 
-<div class="page">
-    <header class="topbar">
-        <a class="brand" href="">Override</a>
-    </header>
-    <main class="content">
+<header class="topbar">
+    <button type="button"
+            class="icon-button menu-button"
+            aria-label="Программа"
+            aria-controls="program"
+            aria-expanded="@(_menuOpen ? "true" : "false")"
+            @onclick="ToggleMenu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+    </button>
+    <a class="brand" href="">Override</a>
+
+    @if (_trail.Count > 0)
+    {
+        <nav class="trail" aria-label="Путь">
+            @for (var i = 0; i < _trail.Count; i++)
+            {
+                var section = _trail[i];
+                if (i > 0)
+                {
+                    <span aria-hidden="true">›</span>
+                }
+
+                if (section.Path == _path)
+                {
+                    <span aria-current="page">@section.Title</span>
+                }
+                else
+                {
+                    <a href="@section.Path">@section.Title</a>
+                }
+            }
+        </nav>
+    }
+
+    <div class="topbar-spacer"></div>
+    <ThemeToggle />
+</header>
+
+<div class="frame @(_menuOpen ? "menu-open" : null)">
+    <aside class="sidebar" id="program" aria-label="Программа">
+        <div class="sidebar-inner">
+            @if (_index is not null)
+            {
+                <ProgramNav Index="_index" Path="_path" />
+            }
+        </div>
+    </aside>
+    <button type="button" class="sidebar-backdrop" aria-label="Закрыть программу" tabindex="-1" @onclick="CloseMenu"></button>
+
+    <main class="page">
         @Body
     </main>
 </div>
+
+@code {
+    private SiteIndex? _index;
+    private string _path = "";
+    private IReadOnlyList<SectionEntry> _trail = [];
+    private bool _menuOpen;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+        _path = PagePath.Of(Navigation);
+        _index = await Content.GetIndexAsync();
+        _trail = _index.Trail(_path);
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        _path = PagePath.Of(Navigation);
+        _trail = _index?.Trail(_path) ?? [];
+        _menuOpen = false;
+        StateHasChanged();
+    }
+
+    private void ToggleMenu() => _menuOpen = !_menuOpen;
+
+    private void CloseMenu() => _menuOpen = false;
+
+    public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
+}

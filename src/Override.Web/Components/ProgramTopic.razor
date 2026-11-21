@@ -1,0 +1,12 @@
+<a class="program-topic" href="@Topic.Path" aria-current="@(Topic.Path == Path ? "page" : null)">
+    <span class="topic-dot" aria-hidden="true"></span>
+    <span>@Topic.Title</span>
+</a>
+
+@code {
+    [Parameter, EditorRequired]
+    public TopicEntry Topic { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string Path { get; set; } = "";
+}
