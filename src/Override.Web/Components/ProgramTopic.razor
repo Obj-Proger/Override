@@ -1,5 +1,14 @@
-<a class="program-topic" href="@Topic.Path" aria-current="@(Topic.Path == Path ? "page" : null)">
-    <span class="topic-dot" aria-hidden="true"></span>
+<a class="program-topic" href="@Topic.Path" aria-current="@(IsCurrent ? "page" : null)">
+    @if (Status == TopicStatus.Done)
+    {
+        <svg class="topic-done" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" role="img" aria-label="Пройдена"><path d="M5 12l5 5 9-10" /></svg>
+    }
+    else
+    {
+        <span class="topic-dot @(Status == TopicStatus.Started ? "is-started" : null)"
+              role="img"
+              aria-label="@(IsCurrent ? "Текущая тема" : Status == TopicStatus.Started ? "Изучается" : "Не начата")"></span>
+    }
     <span>@Topic.Title</span>
 </a>
 
@@ -9,4 +18,9 @@
 
     [Parameter, EditorRequired]
     public string Path { get; set; } = "";
+
+    [Parameter, EditorRequired]
+    public TopicStatus Status { get; set; }
+
+    private bool IsCurrent => Topic.Path == Path;
 }

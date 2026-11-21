@@ -2,6 +2,9 @@
     The program: sections of the current technology, with the open section listing its topics.
     Outside a technology it lists all of them.
 *@
+@implements IDisposable
+@inject ProgressStore Progress
+
 @if (_technology is null)
 {
     foreach (var stack in Index.Sections)
@@ -12,7 +15,7 @@
             {
                 <a class="program-section" href="@technology.Path">
                     <span>@technology.Title</span>
-                    <span class="program-count">@technology.TopicsIn().Count()</span>
+                    <span class="program-count">@DoneOf(technology.TopicsIn())</span>
                 </a>
             }
         </div>
@@ -27,7 +30,7 @@ else
         <ul class="program-topics">
             @foreach (var topic in _technology.Topics)
             {
-                <li><ProgramTopic Topic="topic" Path="Path" /></li>
+                <li><ProgramTopic Topic="topic" Path="Path" Status="Progress.StatusOf(topic)" /></li>
             }
         </ul>
     }
@@ -44,12 +47,12 @@ else
             <div class="program-open">
                 <a class="program-open-title" href="@section.Path" aria-current="@(section.Path == Path ? "page" : null)">
                     <span>@title</span>
-                    <span class="program-count">@topics.Count</span>
+                    <span class="program-count is-open">@DoneOf(topics)</span>
                 </a>
                 <ul class="program-topics">
                     @foreach (var topic in topics)
                     {
-                        <li><ProgramTopic Topic="topic" Path="Path" /></li>
+                        <li><ProgramTopic Topic="topic" Path="Path" Status="Progress.StatusOf(topic)" /></li>
                     }
                 </ul>
             </div>
@@ -58,7 +61,7 @@ else
         {
             <a class="program-section" href="@section.Path">
                 <span>@title</span>
-                <span class="program-count">@topics.Count</span>
+                <span class="program-count">@DoneOf(topics)</span>
             </a>
         }
     }
@@ -75,6 +78,8 @@ else
     [Parameter, EditorRequired]
     public string Path { get; set; } = "";
 
+    protected override void OnInitialized() => Progress.Changed += OnProgressChanged;
+
     protected override void OnParametersSet()
     {
         // The trail goes stack, technology, section: the program shows one technology at a time.
@@ -82,4 +87,15 @@ else
         _technology = trail.Count >= 2 ? trail[1] : null;
         _open = trail.Count >= 3 ? trail[2] : null;
     }
+
+    /// <summary>Done topics out of all, e.g. 2/6.</summary>
+    private string DoneOf(IEnumerable<TopicEntry> topics)
+    {
+        var list = topics.ToList();
+        return $"{list.Count(t => Progress.StatusOf(t) == TopicStatus.Done)}/{list.Count}";
+    }
+
+    private void OnProgressChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Progress.Changed -= OnProgressChanged;
 }

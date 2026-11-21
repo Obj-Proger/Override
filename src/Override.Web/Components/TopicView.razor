@@ -2,6 +2,9 @@
     A lesson: one step at a time, with the steps bar on top and the page panel on the right.
     The step is part of the address (?step=2), so Back in the browser returns to the previous step.
 *@
+@implements IDisposable
+@inject ProgressStore Progress
+
 <PageTitle>@Topic.Title · Override</PageTitle>
 
 <div class="lesson">
@@ -31,12 +34,12 @@
                 {
                     <div class="level-block">
                         <span class="level-label">Глубже · @Labels.Of(level)</span>
-                        <PageBlockView Block="block" />
+                        <PageBlockView @key="block" Block="block" TopicId="@Topic.Id" IsSummary="IsSummary" />
                     </div>
                 }
                 else
                 {
-                    <PageBlockView Block="block" />
+                    <PageBlockView @key="block" Block="block" TopicId="@Topic.Id" IsSummary="IsSummary" />
                 }
             }
         </section>
@@ -73,11 +76,20 @@
             </section>
 
             <section class="panel-card">
-                <div class="panel-title">Тема</div>
+                <div class="panel-title-row">
+                    <span class="panel-title">Тема</span>
+                    @if (_entry is not null)
+                    {
+                        <TopicStatusChip Status="Progress.StatusOf(_entry)" />
+                    }
+                </div>
                 <div class="panel-facts">
                     <span>Уровень: @Labels.Of(Topic.Level)</span>
                     <span>Время: @Labels.MinutesLong(Topic.Minutes)</span>
-                    <span>Вопросов в тексте: @_questions</span>
+                    @if (_entry is { CheckedQuestions.Count: > 0 })
+                    {
+                        <span>Верно с первой попытки: @Progress.KnownCount(_entry) из @_entry.CheckedQuestions.Count</span>
+                    }
                 </div>
             </section>
 
@@ -109,7 +121,7 @@
 
 @code {
     private int _current;
-    private int _questions;
+    private TopicEntry? _entry;
     private TopicEntry? _next;
 
     [Parameter, EditorRequired]
@@ -124,12 +136,21 @@
 
     private PageStep CurrentStep => Topic.Steps[_current];
 
+    private bool IsSummary => CurrentStep.Kind == StepKind.Summary;
+
+    protected override void OnInitialized() => Progress.Changed += OnProgressChanged;
+
     protected override void OnParametersSet()
     {
         _current = Math.Clamp(Step - 1, 0, Topic.Steps.Count - 1);
-        _questions = Topic.Steps.Sum(s => s.Blocks.Count(b => b is QuestionBlock));
+        _entry = Index.FindTopicById(Topic.Id);
         _next = Index.NextTopic(Topic.Id);
+        Progress.Visit(Topic.Id, _current);
     }
+
+    private void OnProgressChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Progress.Changed -= OnProgressChanged;
 
     private string StepHref(int index) => index == 0 ? Topic.Path : $"{Topic.Path}?step={index + 1}";
 }

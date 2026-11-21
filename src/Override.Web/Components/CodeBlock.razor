@@ -1,0 +1,10 @@
+@if (Html is not null)
+{
+    <text>@((MarkupString)Html)</text>
+}
+
+@code {
+    /// <summary>Highlighted code from the build, or null to show nothing.</summary>
+    [Parameter]
+    public string? Html { get; set; }
+}

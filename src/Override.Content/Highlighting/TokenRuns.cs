@@ -2,7 +2,10 @@ using System.Text;
 
 namespace Override.Content.Highlighting;
 
-/// <summary>Writes code as HTML where each character may have a CSS class; neighbours with the same class share a span.</summary>
+/// <summary>
+/// Writes code as HTML where each character may have a CSS class; neighbours with the same class share a span.
+/// A span never crosses a line break, so the result can be split into lines.
+/// </summary>
 internal static class TokenRuns
 {
     public static string ToHtml(string code, IReadOnlyList<string?> classes)
@@ -24,8 +27,19 @@ internal static class TokenRuns
             }
             else
             {
-                html.Append("<span class=\"c-").Append(css).Append("\">");
-                Html.Append(html, text).Append("</span>");
+                var first = true;
+                foreach (var line in text.ToString().Split('\n'))
+                {
+                    if (!first)
+                        html.Append('\n');
+
+                    first = false;
+                    if (line.Length > 0)
+                    {
+                        html.Append("<span class=\"c-").Append(css).Append("\">");
+                        Html.Append(html, line).Append("</span>");
+                    }
+                }
             }
 
             start = end;

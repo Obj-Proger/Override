@@ -1,0 +1,9 @@
+@if (Status != TopicStatus.NotStarted)
+{
+    <span class="status-chip @(Status == TopicStatus.Done ? "is-done" : null)">@(Status == TopicStatus.Done ? "Пройдена" : "Изучается")</span>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public TopicStatus Status { get; set; }
+}

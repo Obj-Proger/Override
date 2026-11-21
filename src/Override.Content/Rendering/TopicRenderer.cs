@@ -31,7 +31,7 @@ internal static class TopicRenderer
             MarkdownBlock markdown => new HtmlBlock(
                 markdown.Level,
                 MarkdownRenderer.Block(FigureInliner.Inline(markdown.Markdown, source.FilePath, markdown.Line, diagnostics))),
-            QuizBlock quiz => new QuestionBlock(quiz.Level, RenderQuiz(quiz.Quiz), RenderCode(quiz.Quiz)),
+            QuizBlock quiz => new QuestionBlock(quiz.Level, RenderQuiz(quiz.Quiz), RenderCode(quiz.Quiz), RenderLines(quiz.Quiz)),
             _ => throw new InvalidOperationException($"Unknown block type {block.GetType().Name}."),
         };
     }
@@ -51,6 +51,20 @@ internal static class TopicRenderer
 
         return CodeHighlighter.Block(quiz.Code, language);
     }
+
+    /// <summary>Highlighted single lines for questions that work with lines; null for the others.</summary>
+    private static List<string>? RenderLines(Quiz quiz) => quiz switch
+    {
+        FindBugQuiz { Code: { } code } => CodeHighlighter
+            .Highlight(code.TrimEnd('\n'), CodeHighlighter.CSharp)
+            .Split('\n')
+            .ToList(),
+        ParsonsQuiz parsons => parsons.Lines
+            .Concat(parsons.Distractors)
+            .Select(line => CodeHighlighter.Highlight(line, CodeHighlighter.CSharp))
+            .ToList(),
+        _ => null,
+    };
 
     /// <summary>Texts meant for reading become HTML; answers the user types and code stay as written.</summary>
     private static Quiz RenderQuiz(Quiz quiz)

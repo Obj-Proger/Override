@@ -349,9 +349,23 @@ h3 {
     border-radius: 50%;
 }
 
+.topic-dot.is-started {
+    border-color: var(--accent);
+    background: linear-gradient(90deg, var(--accent) 50%, transparent 50%);
+}
+
 [aria-current="page"] > .topic-dot {
     border-color: var(--accent);
     background: var(--accent);
+}
+
+.topic-done {
+    flex: 0 0 auto;
+    color: var(--ok);
+}
+
+.program-count.is-open {
+    color: var(--accent);
 }
 
 .program-stack {
@@ -739,6 +753,293 @@ th {
     border: 1px solid var(--border-strong);
     border-radius: 8px;
     background: var(--bg);
+}
+
+/* Answering */
+
+.panel-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-chip {
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    color: var(--current);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-chip.is-done {
+    background: var(--ok-soft);
+    color: var(--ok);
+}
+
+.question.is-correct {
+    border-color: var(--ok);
+}
+
+.question.is-wrong {
+    border-color: var(--err);
+}
+
+.option {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 8px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.option:hover:not(:disabled) {
+    border-color: var(--accent);
+}
+
+.option.is-picked {
+    border: 2px solid var(--accent);
+    background: var(--accent-soft);
+}
+
+.option.is-right {
+    border: 2px solid var(--ok);
+    background: var(--ok-soft);
+}
+
+.option.is-mistake {
+    border: 2px solid var(--err);
+    background: var(--err-soft);
+}
+
+.option.is-dimmed {
+    opacity: 0.6;
+}
+
+.option:disabled {
+    cursor: default;
+}
+
+.options li {
+    display: block;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+}
+
+.option input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+}
+
+.answer-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.answer-input {
+    flex: 1 1 240px;
+    min-height: 46px;
+    padding: 10px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.5 var(--mono);
+    resize: vertical;
+}
+
+textarea.answer-input {
+    width: 100%;
+}
+
+.button-check {
+    height: 46px;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--accent-text);
+    font: 600 15px var(--font);
+    cursor: pointer;
+}
+
+.button-check:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.question-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.question-actions .button {
+    height: 44px;
+}
+
+.question-hint {
+    margin: 8px 0 12px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.feedback {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.is-correct .feedback {
+    background: var(--ok-soft);
+    border: 1px solid var(--ok);
+}
+
+.is-wrong .feedback {
+    background: var(--err-soft);
+    border: 1px solid var(--err);
+}
+
+.feedback-explain > :first-child {
+    margin-top: 6px;
+}
+
+.feedback-explain > :last-child {
+    margin-bottom: 0;
+}
+
+.reference-box,
+.summary-box {
+    margin-top: 12px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    font-size: 15px;
+    line-height: 1.65;
+}
+
+.reference-box {
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+}
+
+.summary-box {
+    background: var(--info-bg);
+    color: var(--info-body);
+}
+
+.reference-title {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.summary-box .reference-title {
+    color: var(--info-title);
+}
+
+.reference-box > p:last-child,
+.summary-box > p:last-child {
+    margin-bottom: 0;
+}
+
+.code-lines,
+.parsons-answer,
+.parsons-pool {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.code-line,
+.parsons-line {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+    min-height: 40px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--code-bg);
+    color: var(--code-text);
+    font: 14px/1.5 var(--mono);
+    text-align: left;
+    white-space: pre;
+    overflow-x: auto;
+    cursor: pointer;
+}
+
+.code-line code,
+.parsons-line code {
+    padding: 0;
+    background: none;
+    font: inherit;
+}
+
+.code-line:hover:not(:disabled),
+.parsons-line:hover:not(:disabled) {
+    border-color: var(--accent);
+}
+
+.code-line:disabled,
+.parsons-line:disabled {
+    cursor: default;
+}
+
+.code-line.is-right {
+    border: 2px solid var(--ok);
+}
+
+.code-line.is-mistake {
+    border: 2px solid var(--err);
+}
+
+.code-line.is-dimmed {
+    opacity: 0.6;
+}
+
+.line-number {
+    min-width: 1.5em;
+    color: var(--muted);
+    text-align: right;
+}
+
+.parsons-label {
+    margin: 12px 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.parsons-answer {
+    min-height: 48px;
+    padding: 8px;
+    border: 1px dashed var(--border-strong);
+    border-radius: 8px;
+}
+
+.parsons-empty {
+    padding: 6px 4px;
+    font-size: 14px;
+    color: var(--muted);
 }
 
 /* Errors of the app itself */

@@ -1,0 +1,335 @@
+@*
+    A question in the text. The answer and the explanation stay hidden until the user answers.
+    Every check is saved; whether it was a first attempt is decided by the progress store.
+*@
+@inject ProgressStore Progress
+
+<div class="question @StateClass">
+    <div class="question-kind">Проверь себя · @Labels.Of(Quiz)</div>
+    <div class="question-prompt">@((MarkupString)Quiz.Prompt)</div>
+
+    @switch (Quiz)
+    {
+        case ChoiceQuiz choice:
+            <CodeBlock Html="Question.CodeHtml" />
+            <ul class="options">
+                @for (var i = 0; i < choice.Options.Count; i++)
+                {
+                    var index = i;
+                    <li>
+                        <button type="button"
+                                class="option @OptionClass(index, index == choice.Answer, _choice == index)"
+                                disabled="@_answered"
+                                @onclick="() => AnswerChoice(choice, index)">
+                            @((MarkupString)choice.Options[index])
+                        </button>
+                    </li>
+                }
+            </ul>
+            break;
+
+        case MultiQuiz multi:
+            <CodeBlock Html="Question.CodeHtml" />
+            <ul class="options">
+                @for (var i = 0; i < multi.Options.Count; i++)
+                {
+                    var index = i;
+                    <li>
+                        <label class="option @OptionClass(index, multi.Answers.Contains(index), _selected.Contains(index))">
+                            <input type="checkbox"
+                                   checked="@_selected.Contains(index)"
+                                   disabled="@_answered"
+                                   @onchange="() => Toggle(index)" />
+                            <span>@((MarkupString)multi.Options[index])</span>
+                        </label>
+                    </li>
+                }
+            </ul>
+            if (!_answered)
+            {
+                <div class="question-actions">
+                    <button type="button" class="button-check" disabled="@(_selected.Count == 0)" @onclick="() => Check(AnswerChecker.Check(multi, _selected))">Проверить</button>
+                </div>
+            }
+            break;
+
+        case InputQuiz or OutputQuiz or FillQuiz:
+            <CodeBlock Html="Question.CodeHtml" />
+            <div class="answer-row">
+                @if (IsMultiline)
+                {
+                    <textarea class="answer-input" rows="3" aria-label="Ваш ответ" placeholder="Ответ" disabled="@_answered" @bind="_text" @bind:event="oninput"></textarea>
+                }
+                else
+                {
+                    <input class="answer-input" type="text" aria-label="Ваш ответ" placeholder="Ответ" autocomplete="off" spellcheck="false"
+                           disabled="@_answered" @bind="_text" @bind:event="oninput" @onkeydown="OnKeyDown" />
+                }
+                @if (!_answered)
+                {
+                    <button type="button" class="button-check" disabled="@string.IsNullOrWhiteSpace(_text)" @onclick="CheckText">Проверить</button>
+                }
+            </div>
+            break;
+
+        case FindBugQuiz findBug:
+            <ol class="code-lines" aria-label="Строки кода">
+                @for (var i = 0; i < Lines.Count; i++)
+                {
+                    var line = i + 1;
+                    <li>
+                        <button type="button"
+                                class="code-line @OptionClass(line, line == findBug.Line, _line == line)"
+                                disabled="@_answered"
+                                aria-label="@($"Строка {line}")"
+                                @onclick="() => AnswerLine(findBug, line)">
+                            <span class="line-number" aria-hidden="true">@line</span>
+                            <code>@((MarkupString)Lines[i])</code>
+                        </button>
+                    </li>
+                }
+            </ol>
+            break;
+
+        case ParsonsQuiz parsons:
+            <div class="parsons">
+                <div class="parsons-label">Твой код</div>
+                <ol class="parsons-answer" aria-label="Собранный код">
+                    @if (_order.Count == 0)
+                    {
+                        <li class="parsons-empty">Нажимай на строки ниже по порядку</li>
+                    }
+                    @foreach (var item in _order)
+                    {
+                        var current = item;
+                        <li>
+                            <button type="button" class="parsons-line" disabled="@_answered" @onclick="() => Unpick(current)">
+                                <code>@((MarkupString)Lines[current])</code>
+                            </button>
+                        </li>
+                    }
+                </ol>
+                @if (!_answered)
+                {
+                    <div class="parsons-label">Строки</div>
+                    <ul class="parsons-pool" aria-label="Доступные строки">
+                        @foreach (var item in _pool.Where(i => !_order.Contains(i)))
+                        {
+                            var current = item;
+                            <li>
+                                <button type="button" class="parsons-line" @onclick="() => _order.Add(current)">
+                                    <code>@((MarkupString)Lines[current])</code>
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                    <div class="question-actions">
+                        <button type="button" class="button-check" disabled="@(_order.Count == 0)" @onclick="() => CheckParsons(parsons)">Проверить</button>
+                    </div>
+                }
+            </div>
+            break;
+
+        case RecallQuiz recall:
+            <CodeBlock Html="Question.CodeHtml" />
+            if (!_revealed)
+            {
+                <p class="question-hint">Ответь про себя или запиши, потом сравни с ответом.</p>
+                <textarea class="answer-input" rows="3" aria-label="Мой ответ, не обязательно" placeholder="Мой ответ (не обязательно)" @bind="_text"></textarea>
+                <div class="question-actions">
+                    <button type="button" class="button-check" @onclick="() => _revealed = true">Показать ответ</button>
+                </div>
+            }
+            else
+            {
+                <div class="@(IsSummary ? "summary-box" : "reference-box")">
+                    <div class="reference-title">@(IsSummary ? "Кратко" : "Ответ")</div>
+                    @((MarkupString)recall.Answer)
+                </div>
+                if (_assessment is null)
+                {
+                    <div class="question-actions self-check" role="group" aria-label="Насколько вспомнил">
+                        <button type="button" class="button" @onclick="() => Assess(Outcome.Forgot)">Не вспомнил</button>
+                        <button type="button" class="button" @onclick="() => Assess(Outcome.Partial)">Частично</button>
+                        <button type="button" class="button" @onclick="() => Assess(Outcome.Recalled)">Вспомнил</button>
+                    </div>
+                }
+                else if (_assessment != Outcome.Recalled)
+                {
+                    <p class="question-hint">Тема вернётся в повторение раньше.</p>
+                }
+            }
+            break;
+
+        default:
+            <CodeBlock Html="Question.CodeHtml" />
+            <p class="question-hint">Это задание можно будет решить прямо здесь, в редакторе кода. Пока посмотри условие.</p>
+            break;
+    }
+
+    @if (_answered)
+    {
+        <div class="feedback" role="status">
+            <strong>@(_correct ? "Верно." : "Неверно.")</strong>
+            @if (!_correct && CorrectAnswer is { } answer)
+            {
+                <span> Правильный ответ: <code>@answer</code></span>
+            }
+            @if (Quiz.Explain is not null)
+            {
+                <div class="feedback-explain">@((MarkupString)Quiz.Explain)</div>
+            }
+        </div>
+        if (!_correct)
+        {
+            <div class="question-actions">
+                <button type="button" class="button" @onclick="Reset">Попробовать ещё</button>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private bool _answered;
+    private bool _correct;
+    private int? _choice;
+    private int? _line;
+    private string _text = "";
+    private bool _revealed;
+    private Outcome? _assessment;
+    private readonly HashSet<int> _selected = [];
+    private readonly List<int> _order = [];
+    private List<int> _pool = [];
+
+    [Parameter, EditorRequired]
+    public string TopicId { get; set; } = "";
+
+    [Parameter, EditorRequired]
+    public QuestionBlock Question { get; set; } = default!;
+
+    [Parameter]
+    public bool IsSummary { get; set; }
+
+    private Quiz Quiz => Question.Quiz;
+
+    private IReadOnlyList<string> Lines => Question.LinesHtml ?? [];
+
+    private bool IsMultiline => Quiz is OutputQuiz output && output.Answers.Any(a => a.Trim().Contains('\n'));
+
+    private string StateClass => !_answered ? "" : _correct ? "is-correct" : "is-wrong";
+
+    /// <summary>The expected typed answer, shown after a wrong attempt. Other question types show it by marking.</summary>
+    private string? CorrectAnswer => Quiz switch
+    {
+        InputQuiz input => input.Answers[0],
+        OutputQuiz output => output.Answers[0],
+        FillQuiz fill => fill.Answers[0],
+        _ => null,
+    };
+
+    protected override void OnParametersSet()
+    {
+        if (Quiz is ParsonsQuiz && _pool.Count == 0)
+            _pool = Shuffled(Lines.Count);
+    }
+
+    private void AnswerChoice(ChoiceQuiz quiz, int option)
+    {
+        _choice = option;
+        Check(AnswerChecker.Check(quiz, option));
+    }
+
+    private void AnswerLine(FindBugQuiz quiz, int line)
+    {
+        _line = line;
+        Check(AnswerChecker.Check(quiz, line));
+    }
+
+    private void Toggle(int option)
+    {
+        if (!_selected.Remove(option))
+            _selected.Add(option);
+    }
+
+    private void Unpick(int item) => _order.Remove(item);
+
+    private void CheckText()
+    {
+        if (string.IsNullOrWhiteSpace(_text))
+            return;
+
+        var correct = Quiz switch
+        {
+            InputQuiz input => AnswerChecker.Check(input, _text),
+            OutputQuiz output => AnswerChecker.Check(output, _text),
+            FillQuiz fill => AnswerChecker.Check(fill, _text),
+            _ => false,
+        };
+        Check(correct);
+    }
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !_answered)
+            CheckText();
+    }
+
+    private void CheckParsons(ParsonsQuiz quiz)
+    {
+        var lines = quiz.Lines.Concat(quiz.Distractors).ToList();
+        Check(AnswerChecker.Check(quiz, _order.Select(i => lines[i])));
+    }
+
+    private void Check(bool correct)
+    {
+        _answered = true;
+        _correct = correct;
+        Progress.Record(TopicId, Quiz.Id, correct ? Outcome.Correct : Outcome.Wrong);
+    }
+
+    /// <summary>"Recalled" is saved but never counts as knowledge: the user's own estimate can be too kind.</summary>
+    private void Assess(Outcome outcome)
+    {
+        _assessment = outcome;
+        Progress.Record(TopicId, Quiz.Id, outcome);
+    }
+
+    private void Reset()
+    {
+        _answered = false;
+        _correct = false;
+        _choice = null;
+        _line = null;
+        _text = "";
+        _selected.Clear();
+        _order.Clear();
+    }
+
+    /// <summary>Marks options after the answer: the right one, and the user's pick if it was wrong.</summary>
+    private string OptionClass(int option, bool isRight, bool isPicked)
+    {
+        if (!_answered)
+            return isPicked ? "is-picked" : "";
+
+        if (isRight)
+            return "is-right";
+
+        return isPicked ? "is-mistake" : "is-dimmed";
+    }
+
+    /// <summary>A random order that differs from the given one, so the task is never solved in advance.</summary>
+    private static List<int> Shuffled(int count)
+    {
+        var items = Enumerable.Range(0, count).ToList();
+        if (count < 2)
+            return items;
+
+        do
+        {
+            items = [.. items.OrderBy(_ => Random.Shared.Next())];
+        }
+        while (items.SequenceEqual(Enumerable.Range(0, count)));
+
+        return items;
+    }
+}

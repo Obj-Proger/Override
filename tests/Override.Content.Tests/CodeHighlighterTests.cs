@@ -54,6 +54,14 @@ public sealed class CodeHighlighterTests
     }
 
     [Fact]
+    public void SpansDoNotCrossLines()
+    {
+        var html = CodeHighlighter.Highlight("/* one\ntwo */", "csharp");
+
+        Assert.Equal("<span class=\"c-cmt\">/* one</span>\n<span class=\"c-cmt\">two */</span>", html);
+    }
+
+    [Fact]
     public void OtherLanguagesArePlainText()
     {
         Assert.Equal("dotnet build &amp;&amp; echo &lt;ok&gt;", CodeHighlighter.Highlight("dotnet build && echo <ok>", "shell"));

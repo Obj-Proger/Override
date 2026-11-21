@@ -25,7 +25,8 @@ public sealed class SiteCompilerTests
         Assert.Equal("a", section.Path);
         Assert.Equal("Section A", section.Title);
         var entry = Assert.Single(section.Topics);
-        Assert.Equal(("csharp.types.sample", "a/sample"), (entry.Id, entry.Path));
+        Assert.Equal(("csharp.types.sample", "a/sample", 4), (entry.Id, entry.Path, entry.Steps));
+        Assert.Equal(new[] { "q-output", "q-choice", "q-input" }, entry.CheckedQuestions);
 
         var page = JsonSerializer.Deserialize(
             File.ReadAllText(Path.Combine(output, SiteCompiler.TopicsDirectoryName, "csharp.types.sample.json")),

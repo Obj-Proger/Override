@@ -12,14 +12,19 @@ public sealed record SectionEntry(
     IReadOnlyList<SectionEntry> Sections,
     IReadOnlyList<TopicEntry> Topics);
 
-/// <summary>A topic in the table of contents. Path is its address on the site.</summary>
+/// <summary>
+/// A topic in the table of contents. Path is its address on the site. Steps is the number of lesson steps;
+/// CheckedQuestions are the ids of the questions the site checks by itself, which decide whether the topic is done.
+/// </summary>
 public sealed record TopicEntry(
     string Id,
     string Path,
     string Title,
     Level Level,
     IReadOnlyList<Track> Tracks,
-    int Minutes);
+    int Minutes,
+    int Steps,
+    IReadOnlyList<string> CheckedQuestions);
 
 /// <summary>A compiled topic, ready to show.</summary>
 public sealed record TopicPage(
@@ -45,5 +50,10 @@ public abstract record PageBlock(Level? Level);
 /// <summary>Rendered text.</summary>
 public sealed record HtmlBlock(Level? Level, string Html) : PageBlock(Level);
 
-/// <summary>A question in the text. CodeHtml is the highlighted Quiz.Code, which stays plain for checking answers.</summary>
-public sealed record QuestionBlock(Level? Level, Quiz Quiz, string? CodeHtml) : PageBlock(Level);
+/// <summary>
+/// A question in the text. CodeHtml is the highlighted Quiz.Code, which stays plain for checking answers.
+/// LinesHtml holds highlighted lines for questions that work with single lines: the code lines of find-bug,
+/// and for parsons the lines followed by the distractors.
+/// </summary>
+public sealed record QuestionBlock(Level? Level, Quiz Quiz, string? CodeHtml, IReadOnlyList<string>? LinesHtml)
+    : PageBlock(Level);

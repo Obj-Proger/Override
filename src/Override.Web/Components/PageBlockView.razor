@@ -4,11 +4,18 @@
         <text>@((MarkupString)html.Html)</text>
         break;
     case QuestionBlock question:
-        <QuestionPreview Quiz="question.Quiz" CodeHtml="question.CodeHtml" />
+        <QuestionCard TopicId="TopicId" Question="question" IsSummary="IsSummary" />
         break;
 }
 
 @code {
     [Parameter, EditorRequired]
     public PageBlock Block { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string TopicId { get; set; } = "";
+
+    /// <summary>The block belongs to the summary step, where the reference answer is the topic's short summary.</summary>
+    [Parameter]
+    public bool IsSummary { get; set; }
 }

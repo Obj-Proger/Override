@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Override.Content.Checking;
 using Override.Content.Model;
 using Override.Content.Parsing;
 using Override.Content.Site;
@@ -55,13 +56,20 @@ public static class SiteCompiler
         section.Path,
         section.Title,
         section.Sections.Select(ToEntry).ToList(),
-        section.Topics
-            .Select(topic => new TopicEntry(
-                topic.Topic.Metadata.Id,
-                topic.Path,
-                topic.Topic.Metadata.Title,
-                topic.Topic.Metadata.Level,
-                topic.Topic.Metadata.Tracks,
-                topic.Topic.Metadata.Minutes))
+        section.Topics.Select(ToTopicEntry).ToList());
+
+    private static TopicEntry ToTopicEntry(SourceTopic topic) => new(
+        topic.Topic.Metadata.Id,
+        topic.Path,
+        topic.Topic.Metadata.Title,
+        topic.Topic.Metadata.Level,
+        topic.Topic.Metadata.Tracks,
+        topic.Topic.Metadata.Minutes,
+        topic.Topic.Steps.Count,
+        topic.Topic.Steps
+            .SelectMany(step => step.Blocks)
+            .OfType<QuizBlock>()
+            .Where(block => AnswerChecker.IsChecked(block.Quiz))
+            .Select(block => block.Quiz.Id)
             .ToList());
 }

@@ -14,6 +14,7 @@ internal static class CSharpHighlighter
     /// <summary>Snippets are written like in a modern project, where these namespaces are imported implicitly.</summary>
     private const string GlobalUsings = """
         global using System;
+        global using System.Collections;
         global using System.Collections.Generic;
         global using System.IO;
         global using System.Linq;
