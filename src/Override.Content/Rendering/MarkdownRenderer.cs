@@ -1,8 +1,10 @@
 using Markdig;
+using Markdig.Renderers;
+using Markdig.Renderers.Html;
 
 namespace Override.Content.Rendering;
 
-/// <summary>Markdown to HTML with the extensions the content uses: tables and strikethrough.</summary>
+/// <summary>Markdown to HTML with the extensions the content uses: tables, strikethrough and highlighted code.</summary>
 internal static class MarkdownRenderer
 {
     private const string ParagraphStart = "<p>";
@@ -13,7 +15,19 @@ internal static class MarkdownRenderer
         .UseEmphasisExtras()
         .Build();
 
-    public static string Block(string markdown) => Markdown.ToHtml(markdown, _pipeline).Trim();
+    public static string Block(string markdown)
+    {
+        var document = Markdown.Parse(markdown, _pipeline);
+
+        using var writer = new StringWriter();
+        var renderer = new HtmlRenderer(writer);
+        _pipeline.Setup(renderer);
+        renderer.ObjectRenderers.ReplaceOrAdd<CodeBlockRenderer>(new HighlightingCodeBlockRenderer());
+        renderer.Render(document);
+        writer.Flush();
+
+        return writer.ToString().Trim();
+    }
 
     /// <summary>
     /// Renders a short text such as a question prompt or an option. A single paragraph loses its

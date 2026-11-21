@@ -7,6 +7,20 @@
     --border: #e4e4e7;
     --accent: #5b3fd9;
     --code-bg: #f3f2f7;
+    --code-block-bg: #ffffff;
+    --code-text: #000000;
+    --c-kw: #0000ff;
+    --c-kw-ctrl: #8f08c4;
+    --c-type: #2b91af;
+    --c-type-struct: #2b91af;
+    --c-type-iface: #2b91af;
+    --c-str: #a31515;
+    --c-str-esc: #b776fb;
+    --c-num: #000000;
+    --c-cmt: #008000;
+    --c-method: #74531f;
+    --c-local: #1f377f;
+    --c-pre: #808080;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,6 +31,20 @@
         --border: #2e2e2e;
         --accent: #b4a0ff;
         --code-bg: #2a2a2e;
+        --code-block-bg: #1e1e1e;
+        --code-text: #dcdcdc;
+        --c-kw: #569cd6;
+        --c-kw-ctrl: #d8a0df;
+        --c-type: #4ec9b0;
+        --c-type-struct: #86c691;
+        --c-type-iface: #b8d7a3;
+        --c-str: #d69d85;
+        --c-str-esc: #ffd68f;
+        --c-num: #b5cea8;
+        --c-cmt: #57a64a;
+        --c-method: #dcdcaa;
+        --c-local: #9cdcfe;
+        --c-pre: #9b9b9b;
         --fig-panel: #262629;
         --fig-cell: #1f1f1f;
         --fig-line: #4a4a52;
@@ -141,8 +169,24 @@ pre {
     padding: 12px 16px;
     border: 1px solid var(--border);
     border-radius: 8px;
+    background: var(--code-block-bg);
+    color: var(--code-text);
     font: 14px/1.5 "JetBrains Mono", Consolas, monospace;
 }
+
+/* Code colors of Visual Studio 2022: Light and Dark themes. */
+.c-kw { color: var(--c-kw); }
+.c-kw-ctrl { color: var(--c-kw-ctrl); }
+.c-type { color: var(--c-type); }
+.c-type-struct { color: var(--c-type-struct); }
+.c-type-iface { color: var(--c-type-iface); }
+.c-str { color: var(--c-str); }
+.c-str-esc { color: var(--c-str-esc); }
+.c-num { color: var(--c-num); }
+.c-cmt { color: var(--c-cmt); }
+.c-method { color: var(--c-method); }
+.c-local { color: var(--c-local); }
+.c-pre { color: var(--c-pre); }
 
 :not(pre) > code {
     padding: 1px 5px;

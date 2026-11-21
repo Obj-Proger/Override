@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Markdig" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
     <PackageReference Include="YamlDotNet" />
   </ItemGroup>
 

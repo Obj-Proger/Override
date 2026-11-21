@@ -2,9 +2,9 @@
 <div class="question">
     <div class="question-prompt">@((MarkupString)Quiz.Prompt)</div>
 
-    @if (Quiz.Code is not null)
+    @if (CodeHtml is not null)
     {
-        <pre><code>@Quiz.Code</code></pre>
+        <text>@((MarkupString)CodeHtml)</text>
     }
 
     @switch (Quiz)
@@ -31,4 +31,8 @@
 @code {
     [Parameter, EditorRequired]
     public Quiz Quiz { get; set; } = default!;
+
+    /// <summary>The highlighted code of the question, if it has code.</summary>
+    [Parameter]
+    public string? CodeHtml { get; set; }
 }

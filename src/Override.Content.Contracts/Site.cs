@@ -45,5 +45,5 @@ public abstract record PageBlock(Level? Level);
 /// <summary>Rendered text.</summary>
 public sealed record HtmlBlock(Level? Level, string Html) : PageBlock(Level);
 
-/// <summary>A question in the text.</summary>
-public sealed record QuestionBlock(Level? Level, Quiz Quiz) : PageBlock(Level);
+/// <summary>A question in the text. CodeHtml is the highlighted Quiz.Code, which stays plain for checking answers.</summary>
+public sealed record QuestionBlock(Level? Level, Quiz Quiz, string? CodeHtml) : PageBlock(Level);
