@@ -2,6 +2,7 @@
 @implements IDisposable
 @inject NavigationManager Navigation
 @inject ContentClient Content
+@inject IJSRuntime JS
 
 <header class="topbar">
     <button type="button"
@@ -46,7 +47,7 @@
         <div class="sidebar-inner">
             @if (_index is not null)
             {
-                <ProgramNav Index="_index" Path="_path" />
+                <ProgramNav Index="_index" Path="@_path" />
             }
         </div>
     </aside>
@@ -62,6 +63,7 @@
     private string _path = "";
     private IReadOnlyList<SectionEntry> _trail = [];
     private bool _menuOpen;
+    private bool _scrollToTop;
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,7 +78,21 @@
         _path = PagePath.Of(Navigation);
         _trail = _index?.Trail(_path) ?? [];
         _menuOpen = false;
+        _scrollToTop = true;
         StateHasChanged();
+    }
+
+    /// <summary>
+    /// A new page or a new lesson step starts at the top. The browser does not do it by itself when
+    /// only the query changes, as with ?step=.
+    /// </summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_scrollToTop)
+            return;
+
+        _scrollToTop = false;
+        await JS.InvokeVoidAsync("scrollTo", 0, 0);
     }
 
     private void ToggleMenu() => _menuOpen = !_menuOpen;

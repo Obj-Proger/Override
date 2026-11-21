@@ -1054,9 +1054,27 @@ textarea.answer-input {
     color: var(--text);
 }
 
-/* Narrower screens: the page panel goes away first, then the program becomes a drawer. */
+/*
+ * Narrower screens: the side columns get narrower first, then the page panel goes away,
+ * then the program becomes a drawer.
+ */
 
-@media (max-width: 1280px) {
+@media (max-width: 1440px) {
+    :root {
+        --sidebar-width: 260px;
+        --aside-width: 240px;
+    }
+
+    .page {
+        padding: 28px 28px 64px;
+    }
+
+    .lesson {
+        gap: 28px;
+    }
+}
+
+@media (max-width: 1180px) {
     .lesson {
         grid-template-columns: minmax(0, 760px);
     }

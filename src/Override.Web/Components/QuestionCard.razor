@@ -11,7 +11,7 @@
     @switch (Quiz)
     {
         case ChoiceQuiz choice:
-            <CodeBlock Html="Question.CodeHtml" />
+            <CodeBlock Html="@Question.CodeHtml" />
             <ul class="options">
                 @for (var i = 0; i < choice.Options.Count; i++)
                 {
@@ -29,7 +29,7 @@
             break;
 
         case MultiQuiz multi:
-            <CodeBlock Html="Question.CodeHtml" />
+            <CodeBlock Html="@Question.CodeHtml" />
             <ul class="options">
                 @for (var i = 0; i < multi.Options.Count; i++)
                 {
@@ -54,7 +54,7 @@
             break;
 
         case InputQuiz or OutputQuiz or FillQuiz:
-            <CodeBlock Html="Question.CodeHtml" />
+            <CodeBlock Html="@Question.CodeHtml" />
             <div class="answer-row">
                 @if (IsMultiline)
                 {
@@ -131,7 +131,7 @@
             break;
 
         case RecallQuiz recall:
-            <CodeBlock Html="Question.CodeHtml" />
+            <CodeBlock Html="@Question.CodeHtml" />
             if (!_revealed)
             {
                 <p class="question-hint">Ответь про себя или запиши, потом сравни с ответом.</p>
@@ -162,7 +162,7 @@
             break;
 
         default:
-            <CodeBlock Html="Question.CodeHtml" />
+            <CodeBlock Html="@Question.CodeHtml" />
             <p class="question-hint">Это задание можно будет решить прямо здесь, в редакторе кода. Пока посмотри условие.</p>
             break;
     }
