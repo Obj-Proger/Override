@@ -4,6 +4,7 @@
 *@
 @implements IDisposable
 @inject ProgressStore Progress
+@inject ProfileStore Profile
 
 @if (_technology is null)
 {
@@ -30,7 +31,7 @@ else
         <ul class="program-topics">
             @foreach (var topic in _technology.Topics)
             {
-                <li><ProgramTopic Topic="topic" Path="@Path" Status="Progress.StatusOf(topic)" /></li>
+                <li><ProgramTopic Topic="topic" Path="@Path" Status="Progress.StatusOf(topic)" AboveLevel="@(!Profile.Shows(topic.Level))" /></li>
             }
         </ul>
     }
@@ -52,7 +53,7 @@ else
                 <ul class="program-topics">
                     @foreach (var topic in topics)
                     {
-                        <li><ProgramTopic Topic="topic" Path="@Path" Status="Progress.StatusOf(topic)" /></li>
+                        <li><ProgramTopic Topic="topic" Path="@Path" Status="Progress.StatusOf(topic)" AboveLevel="@(!Profile.Shows(topic.Level))" /></li>
                     }
                 </ul>
             </div>

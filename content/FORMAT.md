@@ -24,7 +24,7 @@ order: 1
 ---
 id: csharp.types.boxing        # уникален на весь сайт, не меняется после публикации
 title: Boxing и unboxing
-level: junior                  # junior | middle | senior: с какого уровня тема видна
+level: junior                  # junior | middle | senior: для какого уровня тема; темы выше уровня читателя помечаются
 tracks: [backend, fullstack]   # backend | frontend | fullstack
 minutes: 20                    # оценка времени, вес темы в прогрессе
 order: 3

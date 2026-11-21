@@ -13,6 +13,14 @@ public static class Labels
         _ => level.ToString(),
     };
 
+    public static string Of(Track track) => track switch
+    {
+        Track.Backend => "Backend",
+        Track.Frontend => "Frontend",
+        Track.Fullstack => "Fullstack",
+        _ => track.ToString(),
+    };
+
     public static string Of(StepKind kind) => kind switch
     {
         StepKind.Warmup => "Разминка",

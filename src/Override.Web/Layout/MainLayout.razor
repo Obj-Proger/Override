@@ -3,6 +3,7 @@
 @inject NavigationManager Navigation
 @inject ContentClient Content
 @inject IJSRuntime JS
+@inject ProfileStore Profile
 
 <header class="topbar">
     <button type="button"
@@ -39,6 +40,12 @@
     }
 
     <div class="topbar-spacer"></div>
+    @if (Profile.Profile is { } profile)
+    {
+        <button type="button" class="profile-button" aria-haspopup="dialog" title="Уровень и направление" @onclick="() => _profileOpen = true">
+            @Labels.Of(profile.Level) · @Labels.Of(profile.Track)
+        </button>
+    }
     <ThemeToggle />
 </header>
 
@@ -54,9 +61,26 @@
     <button type="button" class="sidebar-backdrop" aria-label="Закрыть программу" tabindex="-1" @onclick="CloseMenu"></button>
 
     <main class="page">
-        @Body
+        @if (Profile.Profile is null)
+        {
+            <div class="catalog">
+                <ProfileChooser OnSave="SaveProfile" />
+            </div>
+        }
+        else
+        {
+            <text>@Body</text>
+        }
     </main>
 </div>
+
+@if (_profileOpen)
+{
+    <div class="dialog-backdrop" @onclick="CloseProfile"></div>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+        <ProfileChooser Initial="Profile.Profile" OnSave="SaveProfile" OnCancel="CloseProfile" />
+    </div>
+}
 
 @code {
     private SiteIndex? _index;
@@ -64,6 +88,7 @@
     private IReadOnlyList<SectionEntry> _trail = [];
     private bool _menuOpen;
     private bool _scrollToTop;
+    private bool _profileOpen;
 
     protected override async Task OnInitializedAsync()
     {
@@ -94,6 +119,14 @@
         _scrollToTop = false;
         await JS.InvokeVoidAsync("scrollTo", 0, 0);
     }
+
+    private void SaveProfile(LearnerProfile profile)
+    {
+        Profile.Set(profile);
+        _profileOpen = false;
+    }
+
+    private void CloseProfile() => _profileOpen = false;
 
     private void ToggleMenu() => _menuOpen = !_menuOpen;
 

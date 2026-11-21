@@ -10,6 +10,10 @@
               aria-label="@(IsCurrent ? "Текущая тема" : Status == TopicStatus.Started ? "Изучается" : "Не начата")"></span>
     }
     <span>@Topic.Title</span>
+    @if (AboveLevel)
+    {
+        <span class="level-tag" title="Тема для уровня выше выбранного">@Labels.Of(Topic.Level)</span>
+    }
 </a>
 
 @code {
@@ -21,6 +25,10 @@
 
     [Parameter, EditorRequired]
     public TopicStatus Status { get; set; }
+
+    /// <summary>The topic is meant for a level above the reader's.</summary>
+    [Parameter]
+    public bool AboveLevel { get; set; }
 
     private bool IsCurrent => Topic.Path == Path;
 }

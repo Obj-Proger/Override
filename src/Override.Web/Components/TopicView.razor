@@ -4,6 +4,7 @@
 *@
 @implements IDisposable
 @inject ProgressStore Progress
+@inject ProfileStore Profile
 
 <PageTitle>@Topic.Title · Override</PageTitle>
 
@@ -24,16 +25,26 @@
 
         <h1>@Topic.Title</h1>
         <div class="meta">@Labels.Of(Topic.Level) · @Labels.MinutesLong(Topic.Minutes)</div>
+        @if (!Profile.Shows(Topic.Level))
+        {
+            <p class="level-note">Тема для уровня @Labels.Of(Topic.Level), это выше выбранного. Её можно читать, но на прогресс твоего уровня она не влияет.</p>
+        }
 
         <section class="lesson-body">
             <h2>@Labels.Of(CurrentStep)</h2>
 
             @foreach (var block in CurrentStep.Blocks)
             {
-                if (block.Level is { } level)
+                var level = Levels.Of(block);
+                if (!_showAll && !Profile.Shows(level))
+                {
+                    continue;
+                }
+
+                if (level is { } higher && higher > Topic.Level)
                 {
                     <div class="level-block">
-                        <span class="level-label">Глубже · @Labels.Of(level)</span>
+                        <span class="level-label">Глубже · @Labels.Of(higher)</span>
                         <PageBlockView @key="block" Block="block" TopicId="@Topic.Id" IsSummary="IsSummary" />
                     </div>
                 }
@@ -41,6 +52,11 @@
                 {
                     <PageBlockView @key="block" Block="block" TopicId="@Topic.Id" IsSummary="IsSummary" />
                 }
+            }
+
+            @if (!_showAll && CurrentStep.Blocks.Count > 0 && CurrentStep.Blocks.All(b => !Profile.Shows(Levels.Of(b))))
+            {
+                <p class="level-note">Весь этот шаг — для уровня выше выбранного. Его можно открыть в правой панели или пропустить.</p>
             }
         </section>
 
@@ -86,12 +102,23 @@
                 <div class="panel-facts">
                     <span>Уровень: @Labels.Of(Topic.Level)</span>
                     <span>Время: @Labels.MinutesLong(Topic.Minutes)</span>
-                    @if (_entry is { CheckedQuestions.Count: > 0 })
+                    @if (_entry is not null && Progress.QuestionsFor(_entry).Count is > 0 and var total)
                     {
-                        <span>Верно с первой попытки: @Progress.KnownCount(_entry) из @_entry.CheckedQuestions.Count</span>
+                        <span>Верно с первой попытки: @Progress.KnownCount(_entry) из @total</span>
                     }
                 </div>
             </section>
+
+            @if (HiddenCount > 0 || _showAll)
+            {
+                <section class="panel-card">
+                    <div class="panel-title">Для уровня выше</div>
+                    <div class="panel-facts">
+                        <span>@(_showAll ? "Показаны блоки всех уровней." : $"Скрыто блоков и вопросов: {HiddenCount}.")</span>
+                    </div>
+                    <button type="button" class="panel-button" @onclick="() => _showAll = !_showAll">@(_showAll ? "Скрыть лишнее" : "Показать всё")</button>
+                </section>
+            }
 
             @if (Topic.Requires.Count > 0)
             {
@@ -121,6 +148,7 @@
 
 @code {
     private int _current;
+    private bool _showAll;
     private TopicEntry? _entry;
     private TopicEntry? _next;
 
@@ -137,6 +165,9 @@
     private PageStep CurrentStep => Topic.Steps[_current];
 
     private bool IsSummary => CurrentStep.Kind == StepKind.Summary;
+
+    /// <summary>Blocks and questions of the whole topic above the reader's level.</summary>
+    private int HiddenCount => Topic.Steps.Sum(step => step.Blocks.Count(block => !Profile.Shows(Levels.Of(block))));
 
     protected override void OnInitialized() => Progress.Changed += OnProgressChanged;
 

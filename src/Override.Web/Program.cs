@@ -10,8 +10,10 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddSingleton<ContentClient>();
+builder.Services.AddSingleton<ProfileStore>();
 builder.Services.AddSingleton<ProgressStore>();
 
 var host = builder.Build();
+host.Services.GetRequiredService<ProfileStore>().Load();
 host.Services.GetRequiredService<ProgressStore>().Load();
 await host.RunAsync();

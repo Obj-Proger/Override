@@ -1,0 +1,79 @@
+@*
+    Choice of level and direction. Shown once at the start, and later from the button in the header.
+*@
+<div class="chooser">
+    <h2 id="profile-title" class="chooser-title">@(Initial is null ? "С чего начнём?" : "Уровень и направление")</h2>
+    <p class="chooser-lead">От уровня зависит, какие блоки и вопросы показываются в темах. Поменять можно в любой момент кнопкой в шапке.</p>
+
+    <fieldset class="chooser-group">
+        <legend>Уровень</legend>
+        @foreach (var option in _levels)
+        {
+            var level = option.Level;
+            <label class="chooser-option @(_level == level ? "is-selected" : null)">
+                <input type="radio" name="profile-level" checked="@(_level == level)" @onchange="() => _level = level" />
+                <span class="chooser-option-title">@Labels.Of(level)</span>
+                <span class="chooser-option-text">@option.Text</span>
+            </label>
+        }
+    </fieldset>
+
+    <fieldset class="chooser-group">
+        <legend>Направление</legend>
+        @foreach (var option in _tracks)
+        {
+            var track = option.Track;
+            <label class="chooser-option @(_track == track ? "is-selected" : null)">
+                <input type="radio" name="profile-track" checked="@(_track == track)" @onchange="() => _track = track" />
+                <span class="chooser-option-title">@Labels.Of(track)</span>
+                <span class="chooser-option-text">@option.Text</span>
+            </label>
+        }
+    </fieldset>
+
+    <div class="chooser-actions">
+        @if (OnCancel.HasDelegate)
+        {
+            <button type="button" class="button" @onclick="OnCancel">Отмена</button>
+        }
+        <button type="button" class="button-primary" @onclick="SaveAsync">@(Initial is null ? "Начать" : "Сохранить")</button>
+    </div>
+</div>
+
+@code {
+    private static readonly (Level Level, string Text)[] _levels =
+    [
+        (Level.Junior, "Основы: как это устроено и почему так"),
+        (Level.Middle, "Плюс детали реализации, производительность и ошибки, которые встречаются в работе"),
+        (Level.Senior, "Плюс внутреннее устройство и компромиссы в проектировании"),
+    ];
+
+    private static readonly (Track Track, string Text)[] _tracks =
+    [
+        (Track.Backend, "C#, ASP.NET Core, базы данных"),
+        (Track.Frontend, "Браузер, вёрстка, Blazor и JavaScript"),
+        (Track.Fullstack, "Всё вместе"),
+    ];
+
+    private Level _level = Level.Junior;
+    private Track _track = Track.Backend;
+
+    /// <summary>The current choice, or null when the reader has not chosen yet.</summary>
+    [Parameter]
+    public LearnerProfile? Initial { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<LearnerProfile> OnSave { get; set; }
+
+    /// <summary>Set for the dialog; the first choice cannot be skipped.</summary>
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Initial is not null)
+            (_level, _track) = (Initial.Level, Initial.Track);
+    }
+
+    private Task SaveAsync() => OnSave.InvokeAsync(new LearnerProfile(_level, _track));
+}

@@ -45,6 +45,7 @@ public sealed class ProgressData
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     UseStringEnumConverter = true)]
 [JsonSerializable(typeof(ProgressData))]
+[JsonSerializable(typeof(LearnerProfile))]
 internal sealed partial class ProgressJsonContext : JsonSerializerContext
 {
 }

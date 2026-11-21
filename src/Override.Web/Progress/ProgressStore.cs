@@ -15,9 +15,10 @@ public enum TopicStatus
 }
 
 /// <summary>
-/// Records answers and visits and keeps them in local storage. Components subscribe to Changed to redraw.
+/// Records answers and visits and keeps them in local storage. Components subscribe to Changed to redraw;
+/// it also fires when the reader's level changes, since the status of topics depends on it.
 /// </summary>
-public sealed class ProgressStore(IJSRuntime js)
+public sealed class ProgressStore
 {
     private const string StorageKey = "override.progress";
 
@@ -27,7 +28,16 @@ public sealed class ProgressStore(IJSRuntime js)
     /// <summary>An answer within this time after the previous one is a retry, not a fresh attempt.</summary>
     private static readonly TimeSpan _retryWindow = TimeSpan.FromHours(8);
 
+    private readonly IJSRuntime _js;
+    private readonly ProfileStore _profile;
     private ProgressData _data = new();
+
+    public ProgressStore(IJSRuntime js, ProfileStore profile)
+    {
+        _js = js;
+        _profile = profile;
+        _profile.Changed += () => Changed?.Invoke();
+    }
 
     public event Action? Changed;
 
@@ -81,26 +91,30 @@ public sealed class ProgressStore(IJSRuntime js)
     public bool IsKnown(string topicId, string questionId) =>
         AttemptsOf(topicId, questionId).Any(a => a.First && a.Outcome == Outcome.Correct);
 
-    public int KnownCount(TopicEntry topic) => topic.CheckedQuestions.Count(id => IsKnown(topic.Id, id));
+    /// <summary>The checked questions of the topic at the reader's level and below: only they decide whether it is done.</summary>
+    public IReadOnlyList<QuestionEntry> QuestionsFor(TopicEntry topic) =>
+        topic.CheckedQuestions.Where(q => _profile.Shows(q.Level)).ToList();
+
+    public int KnownCount(TopicEntry topic) => QuestionsFor(topic).Count(q => IsKnown(topic.Id, q.Id));
 
     public TopicStatus StatusOf(TopicEntry topic)
     {
+        var questions = QuestionsFor(topic);
         var visited = _data.Topics.TryGetValue(topic.Id, out var visit);
-        var known = KnownCount(topic);
 
-        // A topic without checked questions is done once its last step was opened.
-        var done = topic.CheckedQuestions.Count > 0
-            ? known == topic.CheckedQuestions.Count
+        // A topic without checked questions at this level is done once its last step was opened.
+        var done = questions.Count > 0
+            ? questions.All(q => IsKnown(topic.Id, q.Id))
             : visited && visit!.FurthestStep >= topic.Steps - 1;
 
         if (done)
             return TopicStatus.Done;
 
-        var answeredAny = topic.CheckedQuestions.Any(id => AttemptsOf(topic.Id, id).Count > 0);
+        var answeredAny = topic.CheckedQuestions.Any(q => AttemptsOf(topic.Id, q.Id).Count > 0);
         return visited || answeredAny ? TopicStatus.Started : TopicStatus.NotStarted;
     }
 
-    private IJSInProcessRuntime Storage => (IJSInProcessRuntime)js;
+    private IJSInProcessRuntime Storage => (IJSInProcessRuntime)_js;
 
     private static string Key(string topicId, string questionId) => $"{topicId}/{questionId}";
 

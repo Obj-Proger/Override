@@ -70,6 +70,9 @@ public static class SiteCompiler
             .SelectMany(step => step.Blocks)
             .OfType<QuizBlock>()
             .Where(block => AnswerChecker.IsChecked(block.Quiz))
-            .Select(block => block.Quiz.Id)
+            .Select(block => new QuestionEntry(block.Quiz.Id, Highest(topic.Topic.Metadata.Level, block.Level, block.Quiz.Level)))
             .ToList());
+
+    private static Level Highest(Level topic, Level? block, Level? question) =>
+        (Level)Math.Max((int)topic, Math.Max((int)(block ?? topic), (int)(question ?? topic)));
 }

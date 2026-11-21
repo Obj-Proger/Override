@@ -1,9 +1,18 @@
+@implements IDisposable
+@inject ProfileStore Profile
+
 <ul class="topic-rows">
     @foreach (var topic in Topics)
     {
         <li>
             <a class="topic-row" href="@topic.Path">
-                <span class="topic-row-title">@topic.Title</span>
+                <span class="topic-row-title">
+                    @topic.Title
+                    @if (!Profile.Shows(topic.Level))
+                    {
+                        <span class="level-tag" title="Тема для уровня выше выбранного">@Labels.Of(topic.Level)</span>
+                    }
+                </span>
                 <span class="meta">@Labels.Of(topic.Level) · @Labels.Minutes(topic.Minutes)</span>
             </a>
         </li>
@@ -13,4 +22,10 @@
 @code {
     [Parameter, EditorRequired]
     public IEnumerable<TopicEntry> Topics { get; set; } = [];
+
+    protected override void OnInitialized() => Profile.Changed += OnProfileChanged;
+
+    private void OnProfileChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Profile.Changed -= OnProfileChanged;
 }
