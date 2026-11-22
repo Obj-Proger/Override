@@ -18,6 +18,16 @@ Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
 dotnet run --project src/Override.Web
 ```
 
+The code editor is a CodeMirror 6 bundle kept in
+`src/Override.Web/wwwroot/lib/editor`. To rebuild it after changing
+[`tools/editor`](tools/editor), use [Node.js](https://nodejs.org/) 20 or later:
+
+```shell
+cd tools/editor
+npm ci
+npm run build
+```
+
 Every push to `main` is built and deployed to GitHub Pages by
 [the workflow](.github/workflows/pages.yml).
 

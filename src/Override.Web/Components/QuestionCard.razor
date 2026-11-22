@@ -161,9 +161,13 @@
             }
             break;
 
+        case CodeQuiz or SqlQuiz:
+            <CodeBlock Html="@Question.CodeHtml" />
+            <CodeTask Quiz="Quiz" />
+            break;
+
         default:
             <CodeBlock Html="@Question.CodeHtml" />
-            <p class="question-hint">Это задание можно будет решить прямо здесь, в редакторе кода. Пока посмотри условие.</p>
             break;
     }
 

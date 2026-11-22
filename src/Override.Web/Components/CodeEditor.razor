@@ -1,0 +1,80 @@
+@*
+    A code editor. It loads the CodeMirror bundle on first use; if that fails, a plain text box takes its place,
+    so a task can always be solved.
+*@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+@if (_fallback)
+{
+    <textarea class="answer-input code-fallback" rows="@Math.Max(6, _text.Split('\n').Length + 1)" spellcheck="false"
+              aria-label="Редактор кода" @bind="_text" @bind:event="oninput"></textarea>
+}
+else
+{
+    <div class="code-editor" @ref="_host"></div>
+}
+
+@code {
+    private const string ModulePath = "./lib/editor/editor.js";
+
+    private ElementReference _host;
+    private IJSObjectReference? _module;
+    private int? _editor;
+    private bool _fallback;
+    private string _text = "";
+
+    [Parameter, EditorRequired]
+    public string InitialText { get; set; } = "";
+
+    /// <summary>"csharp" or "sql".</summary>
+    [Parameter]
+    public string Language { get; set; } = "csharp";
+
+    protected override void OnInitialized() => _text = InitialText;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _fallback)
+            return;
+
+        try
+        {
+            _module = await JS.InvokeAsync<IJSObjectReference>("import", ModulePath);
+            _editor = await _module.InvokeAsync<int>("create", _host, _text, Language);
+        }
+        catch (JSException)
+        {
+            _fallback = true;
+            StateHasChanged();
+        }
+    }
+
+    public async Task<string> GetTextAsync() =>
+        _module is not null && _editor is { } id ? await _module.InvokeAsync<string>("getText", id) : _text;
+
+    public async Task SetTextAsync(string text)
+    {
+        _text = text;
+        if (_module is not null && _editor is { } id)
+            await _module.InvokeVoidAsync("setText", id, text);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is null)
+            return;
+
+        try
+        {
+            if (_editor is { } id)
+                await _module.InvokeVoidAsync("dispose", id);
+
+            await _module.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+            // The page is closing; nothing to clean up.
+        }
+    }
+}

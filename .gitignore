@@ -7,6 +7,9 @@ artifacts/
 # Content compiled by the site build
 src/Override.Web/wwwroot/content/
 
+# Node packages of the editor bundle; the bundle itself is kept in the repository
+tools/editor/node_modules/
+
 # IDE
 .vs/
 .vscode/

@@ -1,0 +1,51 @@
+@*
+    A task to write code: the editor with the starter code, reset, and the reference solution on request.
+*@
+<CodeEditor @ref="_editor" InitialText="@Starter" Language="@Language" />
+
+<div class="question-actions">
+    <button type="button" class="button" @onclick="ResetAsync">Сбросить</button>
+    <button type="button" class="button" @onclick="() => _showSolution = !_showSolution">@(_showSolution ? "Скрыть решение" : "Показать решение")</button>
+</div>
+<p class="question-hint">Запуск и проверка кода прямо на странице скоро появятся. Пока можно написать решение и сравнить его с эталоном.</p>
+
+@if (_showSolution)
+{
+    <div class="reference-box">
+        <div class="reference-title">Решение</div>
+        <pre class="code"><code>@Solution</code></pre>
+    </div>
+}
+
+@code {
+    private CodeEditor? _editor;
+    private bool _showSolution;
+
+    [Parameter, EditorRequired]
+    public Quiz Quiz { get; set; } = default!;
+
+    private string Starter => Quiz switch
+    {
+        CodeQuiz code => code.Starter,
+        _ => "",
+    };
+
+    private string Solution => Quiz switch
+    {
+        CodeQuiz code => code.Solution,
+        SqlQuiz query => query.Solution,
+        _ => "",
+    };
+
+    private string Language => Quiz switch
+    {
+        CodeQuiz code => code.Language,
+        _ => "sql",
+    };
+
+    private async Task ResetAsync()
+    {
+        if (_editor is not null)
+            await _editor.SetTextAsync(Starter);
+    }
+}

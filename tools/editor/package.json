@@ -1,0 +1,20 @@
+{
+  "name": "override-editor",
+  "private": true,
+  "type": "module",
+  "description": "Code editor bundle for the site, built from CodeMirror 6.",
+  "scripts": {
+    "build": "esbuild editor.js --bundle --format=esm --minify --legal-comments=eof --target=es2020 --outfile=../../src/Override.Web/wwwroot/lib/editor/editor.js"
+  },
+  "devDependencies": {
+    "@codemirror/autocomplete": "^6.18.0",
+    "@codemirror/commands": "^6.8.0",
+    "@codemirror/lang-sql": "^6.8.0",
+    "@codemirror/language": "^6.11.0",
+    "@codemirror/legacy-modes": "^6.5.0",
+    "@codemirror/state": "^6.5.0",
+    "@codemirror/view": "^6.36.0",
+    "@lezer/highlight": "^1.2.0",
+    "esbuild": "^0.25.0"
+  }
+}

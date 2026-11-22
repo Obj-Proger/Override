@@ -1482,6 +1482,24 @@ textarea.answer-input {
     background: var(--accent);
 }
 
+/* Code editor */
+
+.code-editor {
+    margin: 12px 0 0;
+}
+
+.code-editor .cm-editor {
+    max-height: 480px;
+}
+
+.code-fallback {
+    width: 100%;
+    margin-top: 12px;
+    font-size: 14px;
+    white-space: pre;
+    tab-size: 4;
+}
+
 /* Errors of the app itself */
 
 #blazor-error-ui {
