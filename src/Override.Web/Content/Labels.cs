@@ -57,6 +57,22 @@ public static class Labels
     /// <summary>Full form for a topic: "20 минут".</summary>
     public static string MinutesLong(int minutes) => $"{minutes} {Plural(minutes, "минута", "минуты", "минут")}";
 
+    /// <summary>When something is planned: "сегодня", "завтра", "через 3 дня".</summary>
+    public static string When(DateTimeOffset due, DateTimeOffset now)
+    {
+        var days = (int)Math.Ceiling((due.Date - now.Date).TotalDays);
+        return days switch
+        {
+            <= 0 => "сегодня",
+            1 => "завтра",
+            _ => $"через {days} {Plural(days, "день", "дня", "дней")}",
+        };
+    }
+
+    public static string Percent(double value) => $"{Math.Round(value * 100)} %";
+
+    public static string Questions(int count) => $"{count} {Plural(count, "вопрос", "вопроса", "вопросов")}";
+
     public static string Topics(int count) => $"{count} {Plural(count, "тема", "темы", "тем")}";
 
     /// <summary>Russian plural: 1 тема, 2 темы, 5 тем, 21 тема.</summary>

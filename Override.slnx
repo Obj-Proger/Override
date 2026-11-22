@@ -3,10 +3,12 @@
     <Project Path="src/Override.Content.Builder/Override.Content.Builder.csproj" />
     <Project Path="src/Override.Content.Contracts/Override.Content.Contracts.csproj" />
     <Project Path="src/Override.Content/Override.Content.csproj" />
+    <Project Path="src/Override.Learning/Override.Learning.csproj" />
     <Project Path="src/Override.Web/Override.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Override.Content.Tests/Override.Content.Tests.csproj" />
+    <Project Path="tests/Override.Learning.Tests/Override.Learning.Tests.csproj" />
   </Folder>
   <Folder Name="/.github/workflows/">
     <File Path=".github/workflows/pages.yml" />

@@ -109,6 +109,41 @@
                 </div>
             </section>
 
+            @if (_entry is not null && Progress.QuestionsFor(_entry).Count > 0)
+            {
+                var strength = Progress.StrengthOf(_entry);
+                var due = Progress.DueCount(_entry);
+                var next = Progress.NextReview(_entry);
+
+                <section class="panel-card">
+                    <div class="panel-title-row">
+                        <span class="panel-title">Сила темы</span>
+                        <strong class="strength-value">@Labels.Percent(strength)</strong>
+                    </div>
+                    <div class="strength-bar" role="img" aria-label="@($"Сила темы {Labels.Percent(strength)}")">
+                        <div style="@($"width: {Math.Round(strength * 100)}%")"></div>
+                    </div>
+                    <div class="panel-facts">
+                        @if (due > 0)
+                        {
+                            <span>Повторить сегодня: @Labels.Questions(due)</span>
+                        }
+                        else if (next is { } date)
+                        {
+                            <span>Следующее повторение: @Labels.When(date, DateTimeOffset.Now)</span>
+                        }
+                        else
+                        {
+                            <span>Ответь на вопросы темы, и сайт спланирует повторение.</span>
+                        }
+                        @if (Progress.HasGaps(_entry))
+                        {
+                            <span class="gaps-note">Есть пробелы: на часть вопросов последний ответ был неверным или «не вспомнил».</span>
+                        }
+                    </div>
+                </section>
+            }
+
             @if (HiddenCount > 0 || _showAll)
             {
                 <section class="panel-card">

@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Override.Content.Contracts\Override.Content.Contracts.csproj" />
+    <ProjectReference Include="..\Override.Learning\Override.Learning.csproj" />
   </ItemGroup>
 
   <!--

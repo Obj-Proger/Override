@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
 using Override.Content.Model;
+using Override.Learning;
 
 namespace Override.Web.Progress;
 
@@ -113,6 +114,40 @@ public sealed class ProgressStore
         var answeredAny = topic.CheckedQuestions.Any(q => AttemptsOf(topic.Id, q.Id).Count > 0);
         return visited || answeredAny ? TopicStatus.Started : TopicStatus.NotStarted;
     }
+
+    public ReviewState ReviewOf(string topicId, string questionId) => ReviewSchedule.StateOf(AttemptsOf(topicId, questionId));
+
+    /// <summary>How well the topic is known now, from 0 to 1, by the checked questions at the reader's level.</summary>
+    public double StrengthOf(TopicEntry topic) =>
+        Strength.OfTopic(QuestionsFor(topic).Select(q => ReviewOf(topic.Id, q.Id)), DateTimeOffset.Now);
+
+    /// <summary>
+    /// Review states of every answered question of the topic, recall questions included, since their gaps
+    /// are planned for review too. Questions above the reader's level are left out.
+    /// </summary>
+    public IReadOnlyList<ReviewState> ReviewsOf(TopicEntry topic)
+    {
+        var hidden = topic.CheckedQuestions.Where(q => !_profile.Shows(q.Level)).Select(q => q.Id).ToHashSet();
+        var prefix = topic.Id + "/";
+
+        return _data.Questions
+            .Where(pair => pair.Key.StartsWith(prefix, StringComparison.Ordinal) && !hidden.Contains(pair.Key[prefix.Length..]))
+            .Select(pair => ReviewSchedule.StateOf(pair.Value))
+            .ToList();
+    }
+
+    /// <summary>Questions of the topic that are due for review now.</summary>
+    public int DueCount(TopicEntry topic)
+    {
+        var now = DateTimeOffset.Now;
+        return ReviewsOf(topic).Count(state => state.IsDue(now));
+    }
+
+    /// <summary>The nearest planned review of the topic, or null when nothing is planned.</summary>
+    public DateTimeOffset? NextReview(TopicEntry topic) => ReviewsOf(topic).Min(state => state.Due);
+
+    /// <summary>The last counted answer to some question of the topic was a problem.</summary>
+    public bool HasGaps(TopicEntry topic) => ReviewsOf(topic).Any(state => state.LastWasProblem);
 
     private IJSInProcessRuntime Storage => (IJSInProcessRuntime)_js;
 
