@@ -13,6 +13,7 @@ builder.Services.AddSingleton<ContentClient>();
 builder.Services.AddSingleton<ProfileStore>();
 builder.Services.AddSingleton<ProgressStore>();
 builder.Services.AddSingleton<Coach>();
+builder.Services.AddSingleton<SkillCard>();
 
 var host = builder.Build();
 host.Services.GetRequiredService<ProfileStore>().Load();

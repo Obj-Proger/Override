@@ -1442,6 +1442,46 @@ textarea.answer-input {
     max-width: 420px;
 }
 
+/* Skill card */
+
+.skills-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.skills-section {
+    margin: 20px 0 4px;
+    font-size: 16px;
+    color: var(--muted);
+}
+
+.skill-row {
+    align-items: center;
+}
+
+.skill-facts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+
+.skill-bar {
+    display: inline-block;
+    width: 80px;
+    margin-top: 0;
+}
+
+.skill-bar > span {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+}
+
 /* Errors of the app itself */
 
 #blazor-error-ui {

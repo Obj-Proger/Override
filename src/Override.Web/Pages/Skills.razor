@@ -1,0 +1,99 @@
+@page "/skills"
+@implements IDisposable
+@inject ContentClient Content
+@inject SkillCard Card
+@inject ProgressStore Progress
+@inject IJSRuntime JS
+
+<PageTitle>Карточка навыков · Override</PageTitle>
+
+<div class="catalog skills">
+    <h1>Карточка навыков</h1>
+    <p class="catalog-lead">Что пройдено, насколько прочно и где пробелы. Сводку можно скопировать текстом, например чтобы спланировать, что учить дальше.</p>
+
+    @if (_stacks is null)
+    {
+        <p class="loading" role="status">Загрузка…</p>
+    }
+    else
+    {
+        <div class="skills-actions">
+            <button type="button" class="button-check" @onclick="CopyAsync">Скопировать сводку</button>
+            @if (_copyMessage is not null)
+            {
+                <span class="meta" role="status">@_copyMessage</span>
+            }
+        </div>
+
+        foreach (var stack in _stacks)
+        {
+            <section class="catalog-group">
+                <h2>@stack.Stack.Title <span class="level-tag">@Labels.Of(stack.Level)</span></h2>
+                @foreach (var section in stack.Sections)
+                {
+                    <h3 class="skills-section">@section.Title</h3>
+                    <ul class="topic-rows">
+                        @foreach (var topic in section.Topics)
+                        {
+                            <li>
+                                <a class="topic-row skill-row" href="@topic.Topic.Path">
+                                    <span class="topic-row-title">@topic.Topic.Title</span>
+                                    <span class="skill-facts">
+                                        <span class="meta">@SkillCard.StatusText(topic.Status)</span>
+                                        @if (topic.Status != TopicStatus.NotStarted)
+                                        {
+                                            <span class="strength-bar skill-bar" role="img" aria-label="@($"Сила {Labels.Percent(topic.Strength)}")">
+                                                <span style="@($"width: {Math.Round(topic.Strength * 100)}%")"></span>
+                                            </span>
+                                        }
+                                        @if (topic.HasGaps)
+                                        {
+                                            <span class="gaps-note">пробелы</span>
+                                        }
+                                        @if (topic.BestTest is { } test)
+                                        {
+                                            <span class="meta">тест @Labels.Percent(test.Share)</span>
+                                        }
+                                    </span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                }
+            </section>
+        }
+    }
+</div>
+
+@code {
+    private SiteIndex? _index;
+    private IReadOnlyList<SkillStack>? _stacks;
+    private string? _copyMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Progress.Changed += OnProgressChanged;
+        _index = await Content.GetIndexAsync();
+        _stacks = Card.Build(_index);
+    }
+
+    private async Task CopyAsync()
+    {
+        if (_stacks is null)
+            return;
+
+        var copied = await JS.InvokeAsync<bool>("overrideClipboard.copy", Card.ToMarkdown(_stacks, DateTimeOffset.Now));
+        _copyMessage = copied ? "Скопировано." : "Браузер не разрешил копирование.";
+    }
+
+    private void OnProgressChanged()
+    {
+        if (_index is null)
+            return;
+
+        _stacks = Card.Build(_index);
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() => Progress.Changed -= OnProgressChanged;
+}
