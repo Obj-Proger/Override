@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Basic.Reference.Assemblies.Net100" />
     <PackageReference Include="Markdig" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
     <PackageReference Include="YamlDotNet" />
@@ -12,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Override.Content.Contracts\Override.Content.Contracts.csproj" />
+    <ProjectReference Include="..\Override.Runner\Override.Runner.csproj" />
   </ItemGroup>
 
   <ItemGroup>

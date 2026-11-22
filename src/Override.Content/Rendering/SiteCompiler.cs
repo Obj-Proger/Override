@@ -22,6 +22,7 @@ public static class SiteCompiler
     {
         var content = ContentLoader.Load(languageDirectory);
         var diagnostics = content.Diagnostics.ToList();
+        SolutionVerifier.Verify(content.TopicsInOrder(), diagnostics);
 
         var pages = content.TopicsInOrder()
             .Select(topic => TopicRenderer.Render(topic, diagnostics))

@@ -6,6 +6,40 @@ namespace Override.Content.Tests;
 
 public sealed class SiteCompilerTests
 {
+    private const string CodeTask = """
+        ```quiz
+        id: q-code
+        type: code
+        lang: csharp
+        prompt: Return one.
+        starter: |
+          public static class One { public static int Get() => 0; }
+        tests: |
+          Assert.Equal(1, One.Get());
+        solution: |
+          public static class One { public static int Get() => RESULT; }
+        explain: One.
+        ```
+        """;
+
+    [Theory]
+    [InlineData("1", true)]
+    [InlineData("2", false)]
+    public void ChecksReferenceSolutions(string result, bool passes)
+    {
+        var task = CodeTask.Replace("RESULT", result, StringComparison.Ordinal);
+        using var content = new TempContent()
+            .Section("lang/a", "Section A", 1)
+            .Write("lang/a/sample.md", Samples.ValidTopic.Replace("::::practice", "::::practice\n\n" + task, StringComparison.Ordinal));
+
+        var site = SiteCompiler.Compile(content.PathOf("lang"));
+
+        if (passes)
+            Assert.Empty(site.Diagnostics);
+        else
+            Assert.Contains(site.Diagnostics, d => d.Message.Contains("does not pass its tests", StringComparison.Ordinal));
+    }
+
     [Fact]
     public void KeepsTheTestApartFromTheLesson()
     {
