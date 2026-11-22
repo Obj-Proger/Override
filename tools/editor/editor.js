@@ -40,7 +40,6 @@ const csharpBase = clike({
         "ArgumentNullException NotImplementedException NotSupportedException KeyValuePair Lazy ValueTask"),
     blockKeywords: words("catch class do else finally for foreach if struct switch try while record interface enum namespace"),
     defKeywords: words("var"),
-    typeFirstDefinitions: true,
     atoms: words("true false null"),
     hooks: {
         "@": (stream, state) => {
@@ -67,26 +66,81 @@ function verbatimString(stream, state) {
     return "string";
 }
 
+// Built-in types: a name right after one of them is being declared.
+const typeKeywords = new Set(
+    "bool byte char decimal double float int long object sbyte short string uint ulong ushort var nint nuint dynamic"
+        .split(" "));
+
+// Punctuation that can stand between a type and the declared name: generic arguments, arrays, nullable.
+const typePunctuation = /^[<>?\[\],]+$/;
+
+const callFollows = /^\s*(<[\w\s,<>]*>)?\s*\(/;
+
+// Locals and parameters are colored on every use, as in Visual Studio. The editor has no compiler, so it
+// remembers lower-case names declared after a type ("long sum", "object item", "ArrayList numbers") and colors
+// those names further on. Capitalized names after a type are fields and properties, which stay uncolored.
+function copyState(state) {
+    const copy = csharpBase.copyState ? csharpBase.copyState(state) : { ...state };
+    copy.locals = new Set(state.locals);
+    return copy;
+}
+
 const csharp = {
     ...csharpBase,
+    startState(indentUnit) {
+        const state = csharpBase.startState(indentUnit);
+        state.locals = new Set();
+        state.afterType = false;
+        return state;
+    },
+    copyState,
     token(stream, state) {
         const style = csharpBase.token(stream, state);
+        const text = stream.current();
 
         // "builtin" already has a meaning in CodeMirror's legacy token names, so control keywords are
         // returned under the name of their highlighting tag instead.
-        if (style === "builtin")
+        if (style === "builtin") {
+            state.afterType = false;
             return "controlKeyword";
+        }
 
-        if (style !== "variable" && style !== "def")
+        if (style === "keyword") {
+            state.afterType = typeKeywords.has(text);
+            return style;
+        }
+
+        if (style === "type") {
+            state.afterType = true;
+            return style;
+        }
+
+        if (style === "variable" || style === "def") {
+            const afterType = state.afterType;
+            const isMember = stream.string.charAt(stream.start - 1) === ".";
+            state.afterType = false;
+
+            if (stream.match(callFollows, false))
+                return "function";
+
+            if (!isMember && /^[A-Z]/.test(text)) {
+                state.afterType = true;
+                return "type";
+            }
+
+            if (!isMember && /^[a-z_]/.test(text) && (afterType || state.locals.has(text))) {
+                state.locals.add(text);
+                return "def";
+            }
+
+            return "variable";
+        }
+
+        // Spaces keep the type in mind; other punctuation and operators end it, except inside a type.
+        if ((style == null || style === "operator") && (/^\s+$/.test(text) || typePunctuation.test(text)))
             return style;
 
-        if (stream.match(/^\s*(<[\w\s,<>]*>)?\s*\(/, false))
-            return "function";
-
-        const isMember = stream.string.charAt(stream.start - 1) === ".";
-        if (style === "variable" && !isMember && /^[A-Z]/.test(stream.current()))
-            return "type";
-
+        state.afterType = false;
         return style;
     },
     tokenTable: {
