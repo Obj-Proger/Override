@@ -71,6 +71,12 @@ const csharp = {
     ...csharpBase,
     token(stream, state) {
         const style = csharpBase.token(stream, state);
+
+        // "builtin" already has a meaning in CodeMirror's legacy token names, so control keywords are
+        // returned under the name of their highlighting tag instead.
+        if (style === "builtin")
+            return "controlKeyword";
+
         if (style !== "variable" && style !== "def")
             return style;
 
@@ -84,7 +90,6 @@ const csharp = {
         return style;
     },
     tokenTable: {
-        builtin: tags.controlKeyword,
         function: tags.function(tags.variableName),
     },
 };
