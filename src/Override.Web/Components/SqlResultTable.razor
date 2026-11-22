@@ -1,0 +1,39 @@
+@* The result of a query: columns and the first rows. *@
+<div class="sql-result">
+    <table>
+        <thead>
+            <tr>
+                @foreach (var column in Table.Columns)
+                {
+                    <th>@column</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Table.Rows.Take(MaxRows))
+            {
+                <tr>
+                    @foreach (var value in row)
+                    {
+                        <td>@value</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (Table.Rows.Count > MaxRows)
+    {
+        <p class="question-hint">Показаны первые @MaxRows из @Table.Rows.Count строк.</p>
+    }
+    else if (Table.Rows.Count == 0)
+    {
+        <p class="question-hint">Запрос не вернул строк.</p>
+    }
+</div>
+
+@code {
+    private const int MaxRows = 50;
+
+    [Parameter, EditorRequired]
+    public SqlTable Table { get; set; } = default!;
+}

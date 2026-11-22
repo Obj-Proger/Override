@@ -1541,6 +1541,24 @@ textarea.answer-input {
     margin: 6px 0 0;
 }
 
+/* SQL results */
+
+.sql-result {
+    margin-top: 10px;
+    overflow-x: auto;
+}
+
+.sql-result table {
+    margin: 0;
+    font: 13px/1.5 var(--mono);
+}
+
+.sql-result th,
+.sql-result td {
+    padding: 4px 10px;
+    white-space: nowrap;
+}
+
 /* Errors of the app itself */
 
 #blazor-error-ui {

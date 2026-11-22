@@ -3,6 +3,7 @@
     A passed or failed run is saved like any answer; code that does not compile is not counted.
 *@
 @inject CodeRunService Runner
+@inject SqlRunService Sql
 @inject ProgressStore Progress
 
 <CodeEditor @ref="_editor" InitialText="@Starter" Language="@Language" />
@@ -11,7 +12,7 @@
     @if (CanRun)
     {
         <button type="button" class="button-check" disabled="@_running" @onclick="RunAsync">
-            @(_running ? (Runner.IsLoaded ? "Проверяем…" : "Загружаем компилятор…") : "Запустить проверки")
+            @RunLabel
         </button>
     }
     <button type="button" class="button" @onclick="ResetAsync">Сбросить</button>
@@ -24,7 +25,7 @@
 }
 else if (_first && _result is null && !_running)
 {
-    <p class="question-hint">Первый запуск загрузит компилятор C#, это несколько мегабайт и несколько секунд.</p>
+    <p class="question-hint">@(IsSql ? "Первый запуск загрузит PostgreSQL" : "Первый запуск загрузит компилятор C#"), это несколько мегабайт и несколько секунд.</p>
 }
 
 @if (_result is not null)
@@ -39,6 +40,10 @@ else if (_first && _result is null && !_running)
                     <li>@message</li>
                 }
             </ul>
+        }
+        @if (_table is not null)
+        {
+            <SqlResultTable Table="_table" />
         }
         @if (!string.IsNullOrEmpty(_result.Output))
         {
@@ -78,6 +83,7 @@ else if (_first && _result is null && !_running)
     private bool _running;
     private bool _first = true;
     private CodeRunResult? _result;
+    private SqlTable? _table;
     private string? _error;
 
     [Parameter, EditorRequired]
@@ -94,7 +100,15 @@ else if (_first && _result is null && !_running)
     [Parameter]
     public EventCallback<AnswerResult> OnAnswered { get; set; }
 
-    private bool CanRun => Quiz is CodeQuiz { Language: "csharp" };
+    private bool CanRun => Quiz is CodeQuiz { Language: "csharp" } or SqlQuiz;
+
+    private bool IsSql => Quiz is SqlQuiz;
+
+    private string RunLabel => !_running
+        ? (IsSql ? "Выполнить запрос" : "Запустить проверки")
+        : IsSql
+            ? (Sql.IsLoaded ? "Выполняем…" : "Загружаем PostgreSQL…")
+            : (Runner.IsLoaded ? "Проверяем…" : "Загружаем компилятор…");
 
     private string Starter => Quiz switch
     {
@@ -117,9 +131,9 @@ else if (_first && _result is null && !_running)
 
     private string ResultTitle => _result!.Status switch
     {
-        CodeRunStatus.Passed => "Все проверки пройдены.",
-        CodeRunStatus.Failed => "Проверка не пройдена.",
-        CodeRunStatus.CompileError => "Код не компилируется.",
+        CodeRunStatus.Passed => IsSql ? "Результат совпадает с ожидаемым." : "Все проверки пройдены.",
+        CodeRunStatus.Failed => IsSql ? "Результат не совпадает с ожидаемым." : "Проверка не пройдена.",
+        CodeRunStatus.CompileError => IsSql ? "Запрос не выполнился." : "Код не компилируется.",
         CodeRunStatus.Stopped => "Выполнение остановлено.",
         _ => "Во время выполнения возникло исключение.",
     };
@@ -133,7 +147,7 @@ else if (_first && _result is null && !_running)
 
     private async Task RunAsync()
     {
-        if (_editor is null || Quiz is not CodeQuiz task)
+        if (_editor is null || !CanRun)
             return;
 
         _running = true;
@@ -142,10 +156,19 @@ else if (_first && _result is null && !_running)
         try
         {
             var code = await _editor.GetTextAsync();
-            _result = await Runner.RunTestsAsync(code, task.Tests);
+            (CodeRunResult? Result, SqlTable? Table) run = Quiz switch
+            {
+                SqlQuiz query => ToResult(await Sql.RunAsync(query, code)),
+                CodeQuiz task => (await Runner.RunTestsAsync(code, task.Tests), null),
+                _ => (null, null),
+            };
+            (_result, _table) = run;
             _first = false;
+            if (_result is null)
+                return;
 
-            // Typos are not mistakes in understanding: code that does not compile is not counted.
+            // Typos are not mistakes in understanding: code that does not compile, or a query that fails,
+            // is not counted.
             if (_result.Status != CodeRunStatus.CompileError)
             {
                 var outcome = _result.Status == CodeRunStatus.Passed ? Outcome.Correct : Outcome.Wrong;
@@ -161,6 +184,14 @@ else if (_first && _result is null && !_running)
         {
             _running = false;
         }
+    }
+
+    /// <summary>A query that fails counts like code that does not compile: it is shown, not graded.</summary>
+    private static (CodeRunResult, SqlTable?) ToResult(SqlRunResult result)
+    {
+        var status = !result.Executed ? CodeRunStatus.CompileError : result.Matches ? CodeRunStatus.Passed : CodeRunStatus.Failed;
+        string[] messages = result.Message is null ? [] : [result.Message];
+        return (new CodeRunResult(status, messages, ""), result.Table);
     }
 
     private async Task ResetAsync()
