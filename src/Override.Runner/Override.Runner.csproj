@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Compiles and runs C# tasks with Roslyn: in the browser for the reader, and in the content builder to check
+    that every reference solution passes its tests. Reference assemblies are passed in by the caller.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Override.Runner.Tests" />
+  </ItemGroup>
+
+</Project>
