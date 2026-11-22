@@ -73,6 +73,10 @@ public sealed class SiteCompilerTests
 
         var output = content.PathOf("out");
         SiteCompiler.Write(site, output);
+        Assert.True(File.Exists(Path.Combine(output, SiteCompiler.SearchFileName)));
+        var searched = Assert.Single(site.Search.Entries);
+        Assert.Equal(("a/sample", "Section A"), (searched.Path, searched.Section));
+        Assert.Contains("Some text.", searched.Text, StringComparison.Ordinal);
 
         var index = JsonSerializer.Deserialize(
             File.ReadAllText(Path.Combine(output, SiteCompiler.IndexFileName)), ContentJsonContext.Default.SiteIndex)!;

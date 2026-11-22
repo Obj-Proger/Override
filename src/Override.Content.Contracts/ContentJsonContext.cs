@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Override.Content.Search;
 
 namespace Override.Content.Model;
 
@@ -9,6 +10,7 @@ namespace Override.Content.Model;
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(SiteIndex))]
 [JsonSerializable(typeof(TopicPage))]
+[JsonSerializable(typeof(SearchIndex))]
 public sealed partial class ContentJsonContext : JsonSerializerContext
 {
 }

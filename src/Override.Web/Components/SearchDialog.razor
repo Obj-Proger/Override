@@ -1,0 +1,84 @@
+@*
+    The site search: titles, sections and text of the topics. Enter opens the first result, Escape closes.
+*@
+@inject ContentClient Content
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<div class="dialog-backdrop" @onclick="OnClose"></div>
+<div class="dialog search-dialog" role="dialog" aria-modal="true" aria-label="Поиск по сайту">
+    <input @ref="_input"
+           class="answer-input search-input"
+           type="search"
+           placeholder="Поиск по темам"
+           aria-label="Поиск по темам"
+           autocomplete="off"
+           @bind="_query"
+           @bind:event="oninput"
+           @bind:after="Search"
+           @onkeydown="OnKeyDown" />
+
+    @if (_index is null)
+    {
+        <p class="question-hint">Загрузка…</p>
+    }
+    else if (!string.IsNullOrWhiteSpace(_query) && _hits.Count == 0)
+    {
+        <p class="question-hint">Ничего не найдено.</p>
+    }
+    else if (_hits.Count > 0)
+    {
+        <ul class="search-results">
+            @foreach (var hit in _hits)
+            {
+                <li>
+                    <a href="@hit.Entry.Path" @onclick="OnClose">
+                        <span class="search-title">@hit.Entry.Title</span>
+                        <span class="meta">@hit.Entry.Section</span>
+                        @if (hit.Snippet.Length > 0)
+                        {
+                            <span class="search-snippet">@hit.Snippet</span>
+                        }
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p class="question-hint">Ищет по названиям, разделам и тексту тем. Открыть поиск можно и с клавиатуры: Ctrl K или /.</p>
+    }
+</div>
+
+@code {
+    private ElementReference _input;
+    private SearchIndex? _index;
+    private string _query = "";
+    private IReadOnlyList<SearchHit> _hits = [];
+
+    [Parameter, EditorRequired]
+    public EventCallback OnClose { get; set; }
+
+    protected override async Task OnInitializedAsync() => _index = await Content.GetSearchAsync();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await JS.InvokeVoidAsync("overrideShortcuts.focus", _input);
+    }
+
+    private void Search() => _hits = _index is null ? [] : SiteSearch.Find(_index, _query);
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+        {
+            await OnClose.InvokeAsync();
+        }
+        else if (e.Key == "Enter" && _hits.Count > 0)
+        {
+            await OnClose.InvokeAsync();
+            Navigation.NavigateTo(_hits[0].Entry.Path);
+        }
+    }
+}

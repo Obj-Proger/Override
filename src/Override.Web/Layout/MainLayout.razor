@@ -42,6 +42,11 @@
     }
 
     <div class="topbar-spacer"></div>
+    <button type="button" class="search-button" aria-label="Поиск по сайту" title="Поиск (Ctrl K)" @onclick="OpenSearch">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+        <span class="search-button-text">Поиск</span>
+        <kbd>Ctrl K</kbd>
+    </button>
     @if (_dueCount > 0)
     {
         <a class="review-link" href="review" title="Вопросы на повторение сегодня">Повторить <strong>@_dueCount</strong></a>
@@ -81,6 +86,11 @@
     </main>
 </div>
 
+@if (_searchOpen)
+{
+    <SearchDialog OnClose="CloseSearch" />
+}
+
 @if (_profileOpen)
 {
     <div class="dialog-backdrop" @onclick="CloseProfile"></div>
@@ -96,7 +106,9 @@
     private bool _menuOpen;
     private bool _scrollToTop;
     private bool _profileOpen;
+    private bool _searchOpen;
     private int _dueCount;
+    private DotNetObjectReference<MainLayout>? _self;
 
     /// <summary>The diagnostic opens before the level is chosen: it is a way to choose it.</summary>
     private const string DiagnosticPath = "diagnostic";
@@ -128,6 +140,7 @@
         _trail = _index?.Trail(_path) ?? [];
         _menuOpen = false;
         _profileOpen = false;
+        _searchOpen = false;
         _scrollToTop = true;
         StateHasChanged();
     }
@@ -138,6 +151,12 @@
     /// </summary>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            _self = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("overrideShortcuts.register", _self);
+        }
+
         if (!_scrollToTop)
             return;
 
@@ -153,6 +172,16 @@
 
     private void CloseProfile() => _profileOpen = false;
 
+    /// <summary>Called from the button and from the Ctrl+K and "/" shortcuts.</summary>
+    [JSInvokable]
+    public void OpenSearch()
+    {
+        _searchOpen = true;
+        StateHasChanged();
+    }
+
+    private void CloseSearch() => _searchOpen = false;
+
     private void ToggleMenu() => _menuOpen = !_menuOpen;
 
     private void CloseMenu() => _menuOpen = false;
@@ -161,5 +190,6 @@
     {
         Navigation.LocationChanged -= OnLocationChanged;
         Progress.Changed -= OnProgressChanged;
+        _self?.Dispose();
     }
 }

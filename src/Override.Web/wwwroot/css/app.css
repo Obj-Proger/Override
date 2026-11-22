@@ -1559,6 +1559,78 @@ textarea.answer-input {
     white-space: nowrap;
 }
 
+/* Search */
+
+.search-button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font: 14px var(--font);
+    cursor: pointer;
+}
+
+.search-button:hover {
+    background: var(--card);
+}
+
+.search-button kbd {
+    padding: 1px 5px;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    font: 11px var(--font);
+}
+
+.search-dialog {
+    top: 12vh;
+    transform: translateX(-50%);
+}
+
+.search-input {
+    width: 100%;
+    font-family: var(--font);
+}
+
+.search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.search-results a {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.search-results a:hover,
+.search-results a:focus-visible {
+    background: var(--card);
+}
+
+.search-title {
+    font-weight: 600;
+    color: var(--strong);
+}
+
+.search-snippet {
+    font-size: 14px;
+    color: var(--muted);
+}
+
 /* Errors of the app itself */
 
 #blazor-error-ui {
@@ -1623,6 +1695,11 @@ textarea.answer-input {
 
     .review-link {
         padding: 0 8px;
+    }
+
+    .search-button-text,
+    .search-button kbd {
+        display: none;
     }
 
     .sidebar {
