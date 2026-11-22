@@ -130,7 +130,7 @@ const csharp = {
 
             if (!isMember && /^[a-z_]/.test(text) && (afterType || state.locals.has(text))) {
                 state.locals.add(text);
-                return "def";
+                return "local";
             }
 
             return "variable";
@@ -143,8 +143,11 @@ const csharp = {
         state.afterType = false;
         return style;
     },
+    // Own token names map to tags here. Legacy names such as "def" are mapped by CodeMirror itself,
+    // and their tags did not reach the colors below.
     tokenTable: {
         function: tags.function(tags.variableName),
+        local: tags.local(tags.variableName),
     },
 };
 
@@ -157,7 +160,7 @@ const highlight = HighlightStyle.define([
     { tag: tags.number, color: "var(--c-num)" },
     { tag: [tags.comment, tags.lineComment, tags.blockComment], color: "var(--c-cmt)" },
     { tag: tags.function(tags.variableName), color: "var(--c-method)" },
-    { tag: tags.definition(tags.variableName), color: "var(--c-local)" },
+    { tag: [tags.local(tags.variableName), tags.definition(tags.variableName)], color: "var(--c-local)" },
     { tag: [tags.meta, tags.processingInstruction], color: "var(--c-pre)" },
 ]);
 
