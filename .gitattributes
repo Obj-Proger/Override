@@ -8,6 +8,10 @@
 *.props   text
 *.slnx    text
 
+# Generated files: kept byte for byte and collapsed in diffs.
+src/Override.Web/wwwroot/lib/** -text -diff linguist-generated
+package-lock.json               -diff linguist-generated
+
 *.png     binary
 *.woff2   binary
 *.wasm    binary

@@ -61,7 +61,14 @@ else if (_first && _result is null && !_running)
 {
     <div class="reference-box">
         <div class="reference-title">Решение</div>
-        <pre class="code"><code>@Solution</code></pre>
+        @if (SolutionHtml is not null)
+        {
+            <text>@((MarkupString)SolutionHtml)</text>
+        }
+        else
+        {
+            <pre class="code"><code>@Solution</code></pre>
+        }
     </div>
 }
 
@@ -78,6 +85,10 @@ else if (_first && _result is null && !_running)
 
     [Parameter, EditorRequired]
     public Quiz Quiz { get; set; } = default!;
+
+    /// <summary>The reference solution highlighted by the build.</summary>
+    [Parameter]
+    public string? SolutionHtml { get; set; }
 
     /// <summary>Called after a counted run, like an answer to any other question.</summary>
     [Parameter]

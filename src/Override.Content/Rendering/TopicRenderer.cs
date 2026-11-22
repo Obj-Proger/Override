@@ -41,7 +41,8 @@ internal static class TopicRenderer
             MarkdownBlock markdown => new HtmlBlock(
                 markdown.Level,
                 MarkdownRenderer.Block(FigureInliner.Inline(markdown.Markdown, source.FilePath, markdown.Line, diagnostics))),
-            QuizBlock quiz => new QuestionBlock(quiz.Level, RenderQuiz(quiz.Quiz), RenderCode(quiz.Quiz), RenderLines(quiz.Quiz)),
+            QuizBlock quiz => new QuestionBlock(
+                quiz.Level, RenderQuiz(quiz.Quiz), RenderCode(quiz.Quiz), RenderLines(quiz.Quiz), RenderSolution(quiz.Quiz)),
             _ => throw new InvalidOperationException($"Unknown block type {block.GetType().Name}."),
         };
     }
@@ -61,6 +62,13 @@ internal static class TopicRenderer
 
         return CodeHighlighter.Block(quiz.Code, language);
     }
+
+    private static string? RenderSolution(Quiz quiz) => quiz switch
+    {
+        CodeQuiz code => CodeHighlighter.Block(code.Solution, code.Language),
+        SqlQuiz query => CodeHighlighter.Block(query.Solution, CodeHighlighter.Sql),
+        _ => null,
+    };
 
     /// <summary>Highlighted single lines for questions that work with lines; null for the others.</summary>
     private static List<string>? RenderLines(Quiz quiz) => quiz switch

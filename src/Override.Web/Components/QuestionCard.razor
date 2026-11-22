@@ -163,7 +163,7 @@
 
         case CodeQuiz or SqlQuiz:
             <CodeBlock Html="@Question.CodeHtml" />
-            <CodeTask TopicId="@TopicId" Quiz="Quiz" OnAnswered="OnAnswered" />
+            <CodeTask TopicId="@TopicId" Quiz="Quiz" SolutionHtml="@Question.SolutionHtml" OnAnswered="OnAnswered" />
             break;
 
         default:
