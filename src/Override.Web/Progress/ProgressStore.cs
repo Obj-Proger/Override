@@ -88,6 +88,15 @@ public sealed class ProgressStore
         Save();
     }
 
+    /// <summary>Marks a topic as known after a passed quick check.</summary>
+    public void MarkKnown(string topicId)
+    {
+        _data.KnownTopics[topicId] = DateTimeOffset.Now;
+        Save();
+    }
+
+    public bool PassedQuickCheck(string topicId) => _data.KnownTopics.ContainsKey(topicId);
+
     /// <summary>Whether this question was ever answered right at the first attempt.</summary>
     public bool IsKnown(string topicId, string questionId) =>
         AttemptsOf(topicId, questionId).Any(a => a.First && a.Outcome == Outcome.Correct);
@@ -103,10 +112,12 @@ public sealed class ProgressStore
         var questions = QuestionsFor(topic);
         var visited = _data.Topics.TryGetValue(topic.Id, out var visit);
 
+        // A passed quick check counts until a later answer shows a gap.
         // A topic without checked questions at this level is done once its last step was opened.
-        var done = questions.Count > 0
-            ? questions.All(q => IsKnown(topic.Id, q.Id))
-            : visited && visit!.FurthestStep >= topic.Steps - 1;
+        var done = (PassedQuickCheck(topic.Id) && !HasGaps(topic))
+            || (questions.Count > 0
+                ? questions.All(q => IsKnown(topic.Id, q.Id))
+                : visited && visit!.FurthestStep >= topic.Steps - 1);
 
         if (done)
             return TopicStatus.Done;
@@ -117,9 +128,18 @@ public sealed class ProgressStore
 
     public ReviewState ReviewOf(string topicId, string questionId) => ReviewSchedule.StateOf(AttemptsOf(topicId, questionId));
 
-    /// <summary>How well the topic is known now, from 0 to 1, by the checked questions at the reader's level.</summary>
-    public double StrengthOf(TopicEntry topic) =>
-        Strength.OfTopic(QuestionsFor(topic).Select(q => ReviewOf(topic.Id, q.Id)), DateTimeOffset.Now);
+    /// <summary>
+    /// How well the topic is known now, from 0 to 1, by the checked questions at the reader's level.
+    /// After a passed quick check only the answered questions count: the rest were skipped on purpose.
+    /// </summary>
+    public double StrengthOf(TopicEntry topic)
+    {
+        var states = QuestionsFor(topic).Select(q => ReviewOf(topic.Id, q.Id)).ToList();
+        if (PassedQuickCheck(topic.Id) && states.Any(s => s.Box > 0))
+            states = states.Where(s => s.Box > 0).ToList();
+
+        return Strength.OfTopic(states, DateTimeOffset.Now);
+    }
 
     /// <summary>
     /// Review states of every answered question of the topic, recall questions included, since their gaps

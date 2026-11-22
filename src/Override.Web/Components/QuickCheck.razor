@@ -1,0 +1,87 @@
+@*
+    The quick check: a few questions picked by the author. All right at the first attempt marks the topic
+    as known without reading it. Answers given shortly before do not count, so it cannot be passed by
+    reading the lesson and coming back.
+*@
+@inject ProgressStore Progress
+
+<section class="quick-check" aria-label="Быстрая проверка">
+    @if (_position < Questions.Count)
+    {
+        var question = Questions[_position];
+
+        <p class="catalog-lead">Вопрос @(_position + 1) из @Questions.Count. Отвечай сразу, без подсказок.</p>
+        <QuestionCard @key="question" TopicId="@Topic.Id" Question="question" OnAnswered="OnAnswered" />
+
+        <div class="lesson-nav">
+            <button type="button" class="button" @onclick="OnClose">К уроку</button>
+            <button type="button" class="button-primary" disabled="@(_results.Count <= _position)" @onclick="() => _position++">
+                @(_position + 1 < Questions.Count ? "Дальше" : "Итог")
+            </button>
+        </div>
+    }
+    else
+    {
+        var allRight = _results.All(r => r.Outcome == Outcome.Correct);
+        var allFirst = _results.All(r => r.First);
+
+        <div class="quick-result @(allRight && allFirst ? "is-passed" : null)">
+            @if (allRight && allFirst)
+            {
+                <strong>Тема засчитана.</strong>
+                <p>Все ответы верные. Эти вопросы вернутся в повторение по расписанию, остальное можно прочитать, когда захочешь.</p>
+            }
+            else if (allRight)
+            {
+                <strong>Проверка не засчитана.</strong>
+                <p>На часть вопросов ты уже отвечал в последние часы, а засчитываются только ответы с первой попытки. Попробуй позже.</p>
+            }
+            else
+            {
+                <strong>Не всё верно: @_results.Count(r => r.Outcome == Outcome.Correct) из @_results.Count.</strong>
+                <p>Тему лучше пройти: в ней разобрано то, на чём были ошибки.</p>
+            }
+        </div>
+
+        <div class="lesson-nav">
+            <button type="button" class="button" @onclick="OnClose">К уроку</button>
+            @if (allRight && allFirst && Next is not null)
+            {
+                <a class="button-primary" href="@Next.Path">Следующая тема: @Next.Title</a>
+            }
+        </div>
+    }
+</section>
+
+@code {
+    private readonly List<AnswerResult> _results = [];
+    private int _position;
+    private bool _marked;
+
+    [Parameter, EditorRequired]
+    public TopicPage Topic { get; set; } = default!;
+
+    /// <summary>The quick check questions at the reader's level, in the author's order.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<QuestionBlock> Questions { get; set; } = [];
+
+    [Parameter]
+    public TopicEntry? Next { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback OnClose { get; set; }
+
+    /// <summary>Only the first answer to each question counts; "try again" inside the card does not change the result.</summary>
+    private void OnAnswered(AnswerResult result)
+    {
+        if (_results.Count > _position)
+            return;
+
+        _results.Add(result);
+        if (_results.Count == Questions.Count && !_marked && _results.All(r => r.Outcome == Outcome.Correct && r.First))
+        {
+            _marked = true;
+            Progress.MarkKnown(Topic.Id);
+        }
+    }
+}

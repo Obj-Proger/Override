@@ -1314,6 +1314,46 @@ textarea.answer-input {
     cursor: default;
 }
 
+/* Quick check */
+
+.quick-offer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 14px 16px;
+    border: 1px dashed var(--border-strong);
+    border-radius: 12px;
+}
+
+.quick-offer > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.quick-check {
+    margin-top: 24px;
+}
+
+.quick-result {
+    padding: 16px 18px;
+    border: 1px solid var(--err);
+    border-radius: 12px;
+    background: var(--err-soft);
+}
+
+.quick-result.is-passed {
+    border-color: var(--ok);
+    background: var(--ok-soft);
+}
+
+.quick-result p {
+    margin: 6px 0 0;
+}
+
 /* Errors of the app itself */
 
 #blazor-error-ui {

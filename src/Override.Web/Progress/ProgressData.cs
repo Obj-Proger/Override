@@ -18,6 +18,9 @@ public sealed class ProgressData
 
     /// <summary>Visits by topic id.</summary>
     public Dictionary<string, TopicVisit> Topics { get; set; } = [];
+
+    /// <summary>Topics passed by the quick check, with the time it was passed.</summary>
+    public Dictionary<string, DateTimeOffset> KnownTopics { get; set; } = [];
 }
 
 [JsonSourceGenerationOptions(
@@ -28,3 +31,6 @@ public sealed class ProgressData
 internal sealed partial class ProgressJsonContext : JsonSerializerContext
 {
 }
+
+/// <summary>How an answer ended and whether it counted as a first attempt.</summary>
+public sealed record AnswerResult(Outcome Outcome, bool First);

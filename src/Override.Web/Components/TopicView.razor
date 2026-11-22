@@ -25,6 +25,24 @@
 
         <h1>@Topic.Title</h1>
         <div class="meta">@Labels.Of(Topic.Level) · @Labels.MinutesLong(Topic.Minutes)</div>
+        @if (_quickCheck)
+        {
+            <QuickCheck Topic="Topic" Questions="QuickQuestions" Next="_next" OnClose="() => _quickCheck = false" />
+        }
+        else
+        {
+        <div class="lesson-content">
+        @if (_current == 0 && QuickQuestions.Count > 0 && _entry is not null && Progress.StatusOf(_entry) != TopicStatus.Done)
+        {
+            <div class="quick-offer">
+                <div>
+                    <strong>Уже знаешь эту тему?</strong>
+                    <span class="meta">Ответь на @Labels.Questions(QuickQuestions.Count) без подготовки. Если все ответы верные, тема засчитается без чтения.</span>
+                </div>
+                <button type="button" class="button" @onclick="() => _quickCheck = true">Быстрая проверка</button>
+            </div>
+        }
+
         @if (!Profile.Shows(Topic.Level, Topic.Path))
         {
             <p class="level-note">Тема для уровня @Labels.Of(Topic.Level), это выше выбранного. Её можно читать, но на прогресс твоего уровня она не влияет.</p>
@@ -74,6 +92,8 @@
                 <a class="button-primary" href="@_next.Path">Следующая тема: @_next.Title</a>
             }
         </nav>
+        </div>
+        }
     </article>
 
     <aside class="page-aside" aria-label="О теме">
@@ -184,6 +204,7 @@
 @code {
     private int _current;
     private bool _showAll;
+    private bool _quickCheck;
     private TopicEntry? _entry;
     private TopicEntry? _next;
 
@@ -200,6 +221,13 @@
     private PageStep CurrentStep => Topic.Steps[_current];
 
     private bool IsSummary => CurrentStep.Kind == StepKind.Summary;
+
+    /// <summary>The quick check questions at the reader's level, in the order the author listed them.</summary>
+    private IReadOnlyList<QuestionBlock> QuickQuestions => Topic.QuickCheck
+        .Select(id => Topic.Steps.SelectMany(step => step.Blocks).OfType<QuestionBlock>().FirstOrDefault(block => block.Quiz.Id == id))
+        .OfType<QuestionBlock>()
+        .Where(block => Profile.Shows(Levels.Of(block), Topic.Path))
+        .ToList();
 
     /// <summary>Blocks and questions of the whole topic above the reader's level.</summary>
     private int HiddenCount => Topic.Steps.Sum(step => step.Blocks.Count(block => !Profile.Shows(Levels.Of(block), Topic.Path)));
