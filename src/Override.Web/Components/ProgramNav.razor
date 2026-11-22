@@ -31,7 +31,7 @@ else
         <ul class="program-topics">
             @foreach (var topic in _technology.Topics)
             {
-                <li><ProgramTopic Topic="topic" Path="@Path" Status="Progress.StatusOf(topic)" AboveLevel="@(!Profile.Shows(topic.Level))" /></li>
+                <li><ProgramTopic Topic="topic" Path="@Path" Status="Progress.StatusOf(topic)" AboveLevel="@(!Profile.Shows(topic.Level, topic.Path))" /></li>
             }
         </ul>
     }
@@ -53,7 +53,7 @@ else
                 <ul class="program-topics">
                     @foreach (var topic in topics)
                     {
-                        <li><ProgramTopic Topic="topic" Path="@Path" Status="Progress.StatusOf(topic)" AboveLevel="@(!Profile.Shows(topic.Level))" /></li>
+                        <li><ProgramTopic Topic="topic" Path="@Path" Status="Progress.StatusOf(topic)" AboveLevel="@(!Profile.Shows(topic.Level, topic.Path))" /></li>
                     }
                 </ul>
             </div>

@@ -25,7 +25,7 @@
 
         <h1>@Topic.Title</h1>
         <div class="meta">@Labels.Of(Topic.Level) · @Labels.MinutesLong(Topic.Minutes)</div>
-        @if (!Profile.Shows(Topic.Level))
+        @if (!Profile.Shows(Topic.Level, Topic.Path))
         {
             <p class="level-note">Тема для уровня @Labels.Of(Topic.Level), это выше выбранного. Её можно читать, но на прогресс твоего уровня она не влияет.</p>
         }
@@ -36,7 +36,7 @@
             @foreach (var block in CurrentStep.Blocks)
             {
                 var level = Levels.Of(block);
-                if (!_showAll && !Profile.Shows(level))
+                if (!_showAll && !Profile.Shows(level, Topic.Path))
                 {
                     continue;
                 }
@@ -54,7 +54,7 @@
                 }
             }
 
-            @if (!_showAll && CurrentStep.Blocks.Count > 0 && CurrentStep.Blocks.All(b => !Profile.Shows(Levels.Of(b))))
+            @if (!_showAll && CurrentStep.Blocks.Count > 0 && CurrentStep.Blocks.All(b => !Profile.Shows(Levels.Of(b), Topic.Path)))
             {
                 <p class="level-note">Весь этот шаг — для уровня выше выбранного. Его можно открыть в правой панели или пропустить.</p>
             }
@@ -202,7 +202,7 @@
     private bool IsSummary => CurrentStep.Kind == StepKind.Summary;
 
     /// <summary>Blocks and questions of the whole topic above the reader's level.</summary>
-    private int HiddenCount => Topic.Steps.Sum(step => step.Blocks.Count(block => !Profile.Shows(Levels.Of(block))));
+    private int HiddenCount => Topic.Steps.Sum(step => step.Blocks.Count(block => !Profile.Shows(Levels.Of(block), Topic.Path)));
 
     protected override void OnInitialized() => Progress.Changed += OnProgressChanged;
 

@@ -1131,6 +1131,33 @@ textarea.answer-input {
     color: var(--muted);
 }
 
+.chooser-hint {
+    margin: -4px 0 4px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.chooser-stack {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    background: var(--bg);
+}
+
+.chooser-stack select {
+    height: 34px;
+    padding: 0 8px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    background: var(--panel);
+    color: var(--text);
+    font: 14px var(--font);
+}
+
 .chooser-actions {
     display: flex;
     gap: 12px;

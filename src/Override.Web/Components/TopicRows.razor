@@ -8,7 +8,7 @@
             <a class="topic-row" href="@topic.Path">
                 <span class="topic-row-title">
                     @topic.Title
-                    @if (!Profile.Shows(topic.Level))
+                    @if (!Profile.Shows(topic.Level, topic.Path))
                     {
                         <span class="level-tag" title="Тема для уровня выше выбранного">@Labels.Of(topic.Level)</span>
                     }

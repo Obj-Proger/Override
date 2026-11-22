@@ -18,6 +18,29 @@
         }
     </fieldset>
 
+    @if (Stacks.Count > 0)
+    {
+        <fieldset class="chooser-group">
+            <legend>Уровень по стекам</legend>
+            <p class="chooser-hint">Необязательно. Если в каком-то стеке ты сильнее или слабее, задай уровень для него отдельно.</p>
+            @foreach (var stack in Stacks)
+            {
+                var key = stack.Path;
+                <label class="chooser-stack">
+                    <span>@stack.Title</span>
+                    <select @onchange="e => SetStackLevel(key, e.Value as string)">
+                        <option value="" selected="@(!_stackLevels.ContainsKey(key))">Как общий (@Labels.Of(_level))</option>
+                        @foreach (var option in _levels)
+                        {
+                            var level = option.Level;
+                            <option value="@level" selected="@IsStackLevel(key, level)">@Labels.Of(level)</option>
+                        }
+                    </select>
+                </label>
+            }
+        </fieldset>
+    }
+
     <fieldset class="chooser-group">
         <legend>Направление</legend>
         @foreach (var option in _tracks)
@@ -57,6 +80,7 @@
 
     private Level _level = Level.Junior;
     private Track _track = Track.Backend;
+    private readonly Dictionary<string, Level> _stackLevels = [];
 
     /// <summary>The current choice, or null when the reader has not chosen yet.</summary>
     [Parameter]
@@ -65,15 +89,38 @@
     [Parameter, EditorRequired]
     public EventCallback<LearnerProfile> OnSave { get; set; }
 
+    /// <summary>Top sections of the site, for levels by stack.</summary>
+    [Parameter]
+    public IReadOnlyList<SectionEntry> Stacks { get; set; } = [];
+
     /// <summary>Set for the dialog; the first choice cannot be skipped.</summary>
     [Parameter]
     public EventCallback OnCancel { get; set; }
 
     protected override void OnInitialized()
     {
-        if (Initial is not null)
-            (_level, _track) = (Initial.Level, Initial.Track);
+        if (Initial is null)
+            return;
+
+        (_level, _track) = (Initial.Level, Initial.Track);
+        foreach (var (stack, level) in Initial.StackLevels ?? new Dictionary<string, Level>())
+            _stackLevels[stack] = level;
     }
 
-    private Task SaveAsync() => OnSave.InvokeAsync(new LearnerProfile(_level, _track));
+    private bool IsStackLevel(string stack, Level level) => _stackLevels.TryGetValue(stack, out var chosen) && chosen == level;
+
+    private void SetStackLevel(string stack, string? value)
+    {
+        if (Enum.TryParse<Level>(value, out var level))
+            _stackLevels[stack] = level;
+        else
+            _stackLevels.Remove(stack);
+    }
+
+    /// <summary>A stack set to the general level needs no override.</summary>
+    private Task SaveAsync()
+    {
+        var overrides = _stackLevels.Where(pair => pair.Value != _level).ToDictionary();
+        return OnSave.InvokeAsync(new LearnerProfile(_level, _track, overrides.Count > 0 ? overrides : null));
+    }
 }

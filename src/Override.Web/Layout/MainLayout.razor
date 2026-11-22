@@ -42,8 +42,9 @@
     <div class="topbar-spacer"></div>
     @if (Profile.Profile is { } profile)
     {
+        @* The level shown is the one for the current page: a stack can have its own. *@
         <button type="button" class="profile-button" aria-haspopup="dialog" title="Уровень и направление" @onclick="() => _profileOpen = true">
-            @Labels.Of(profile.Level) · @Labels.Of(profile.Track)
+            @Labels.Of(Profile.LevelFor(_path)) · @Labels.Of(profile.Track)
         </button>
     }
     <ThemeToggle />
@@ -64,7 +65,7 @@
         @if (Profile.Profile is null)
         {
             <div class="catalog">
-                <ProfileChooser OnSave="SaveProfile" />
+                <ProfileChooser Stacks="Stacks" OnSave="SaveProfile" />
             </div>
         }
         else
@@ -78,7 +79,7 @@
 {
     <div class="dialog-backdrop" @onclick="CloseProfile"></div>
     <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="profile-title">
-        <ProfileChooser Initial="Profile.Profile" OnSave="SaveProfile" OnCancel="CloseProfile" />
+        <ProfileChooser Initial="Profile.Profile" Stacks="Stacks" OnSave="SaveProfile" OnCancel="CloseProfile" />
     </div>
 }
 
@@ -89,6 +90,8 @@
     private bool _menuOpen;
     private bool _scrollToTop;
     private bool _profileOpen;
+
+    private IReadOnlyList<SectionEntry> Stacks => _index?.Sections ?? [];
 
     protected override async Task OnInitializedAsync()
     {

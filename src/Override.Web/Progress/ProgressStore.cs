@@ -94,7 +94,7 @@ public sealed class ProgressStore
 
     /// <summary>The checked questions of the topic at the reader's level and below: only they decide whether it is done.</summary>
     public IReadOnlyList<QuestionEntry> QuestionsFor(TopicEntry topic) =>
-        topic.CheckedQuestions.Where(q => _profile.Shows(q.Level)).ToList();
+        topic.CheckedQuestions.Where(q => _profile.Shows(q.Level, topic.Path)).ToList();
 
     public int KnownCount(TopicEntry topic) => QuestionsFor(topic).Count(q => IsKnown(topic.Id, q.Id));
 
@@ -127,7 +127,7 @@ public sealed class ProgressStore
     /// </summary>
     public IReadOnlyList<ReviewState> ReviewsOf(TopicEntry topic)
     {
-        var hidden = topic.CheckedQuestions.Where(q => !_profile.Shows(q.Level)).Select(q => q.Id).ToHashSet();
+        var hidden = topic.CheckedQuestions.Where(q => !_profile.Shows(q.Level, topic.Path)).Select(q => q.Id).ToHashSet();
         var prefix = topic.Id + "/";
 
         return _data.Questions
