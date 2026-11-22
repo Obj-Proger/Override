@@ -210,6 +210,10 @@
     [Parameter]
     public bool IsSummary { get; set; }
 
+    /// <summary>Called after each answer or self-assessment.</summary>
+    [Parameter]
+    public EventCallback OnAnswered { get; set; }
+
     private Quiz Quiz => Question.Quiz;
 
     private IReadOnlyList<string> Lines => Question.LinesHtml ?? [];
@@ -285,6 +289,7 @@
         _answered = true;
         _correct = correct;
         Progress.Record(TopicId, Quiz.Id, correct ? Outcome.Correct : Outcome.Wrong);
+        _ = OnAnswered.InvokeAsync();
     }
 
     /// <summary>"Recalled" is saved but never counts as knowledge: the user's own estimate can be too kind.</summary>
@@ -292,6 +297,7 @@
     {
         _assessment = outcome;
         Progress.Record(TopicId, Quiz.Id, outcome);
+        _ = OnAnswered.InvokeAsync();
     }
 
     private void Reset()

@@ -1244,6 +1244,76 @@ textarea.answer-input {
     color: var(--err);
 }
 
+/* Today: review and weak topics */
+
+.review-link {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--text);
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.review-link strong {
+    padding: 0 7px;
+    border-radius: 9px;
+    background: var(--accent);
+    color: var(--accent-text);
+    font-size: 12px;
+}
+
+.today {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.today-card {
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--card);
+}
+
+.today-text {
+    margin: 8px 0 12px;
+    color: var(--muted);
+}
+
+.today-action {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.weak-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.review .question {
+    margin-top: 12px;
+}
+
+.review .lesson-nav {
+    margin-top: 20px;
+}
+
+.button-primary:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
 /* Errors of the app itself */
 
 #blazor-error-ui {
@@ -1304,6 +1374,10 @@ textarea.answer-input {
     .profile-button {
         padding: 0 8px;
         font-size: 12px;
+    }
+
+    .review-link {
+        padding: 0 8px;
     }
 
     .sidebar {

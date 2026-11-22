@@ -4,6 +4,8 @@
 @inject ContentClient Content
 @inject IJSRuntime JS
 @inject ProfileStore Profile
+@inject ProgressStore Progress
+@inject Coach Coach
 
 <header class="topbar">
     <button type="button"
@@ -40,6 +42,10 @@
     }
 
     <div class="topbar-spacer"></div>
+    @if (_dueCount > 0)
+    {
+        <a class="review-link" href="review" title="Вопросы на повторение сегодня">Повторить <strong>@_dueCount</strong></a>
+    }
     @if (Profile.Profile is { } profile)
     {
         @* The level shown is the one for the current page: a stack can have its own. *@
@@ -90,6 +96,7 @@
     private bool _menuOpen;
     private bool _scrollToTop;
     private bool _profileOpen;
+    private int _dueCount;
 
     private IReadOnlyList<SectionEntry> Stacks => _index?.Sections ?? [];
 
@@ -97,8 +104,19 @@
     {
         Navigation.LocationChanged += OnLocationChanged;
         _path = PagePath.Of(Navigation);
+        Progress.Changed += OnProgressChanged;
         _index = await Content.GetIndexAsync();
         _trail = _index.Trail(_path);
+        _dueCount = Coach.PlanReview(_index).Questions.Count;
+    }
+
+    private void OnProgressChanged()
+    {
+        if (_index is null)
+            return;
+
+        _dueCount = Coach.PlanReview(_index).Questions.Count;
+        InvokeAsync(StateHasChanged);
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -135,5 +153,9 @@
 
     private void CloseMenu() => _menuOpen = false;
 
-    public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+        Progress.Changed -= OnProgressChanged;
+    }
 }

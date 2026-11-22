@@ -6,12 +6,22 @@ namespace Override.Web.Content;
 /// <summary>Loads the compiled content that the build puts under wwwroot/content.</summary>
 public sealed class ContentClient(HttpClient http)
 {
+    private readonly Dictionary<string, Task<TopicPage>> _topics = [];
     private Task<SiteIndex>? _index;
 
     /// <summary>The table of contents. Loaded once per visit.</summary>
     public Task<SiteIndex> GetIndexAsync() => _index ??= LoadIndexAsync();
 
-    public async Task<TopicPage> GetTopicAsync(string id) =>
+    /// <summary>A compiled topic. Each topic is loaded once per visit.</summary>
+    public Task<TopicPage> GetTopicAsync(string id)
+    {
+        if (!_topics.TryGetValue(id, out var topic))
+            _topics[id] = topic = LoadTopicAsync(id);
+
+        return topic;
+    }
+
+    private async Task<TopicPage> LoadTopicAsync(string id) =>
         await http.GetFromJsonAsync($"content/topics/{id}.json", ContentJsonContext.Default.TopicPage)
         ?? throw new InvalidOperationException($"Topic '{id}' is empty.");
 

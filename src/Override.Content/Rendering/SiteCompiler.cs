@@ -71,7 +71,8 @@ public static class SiteCompiler
             .OfType<QuizBlock>()
             .Where(block => AnswerChecker.IsChecked(block.Quiz))
             .Select(block => new QuestionEntry(block.Quiz.Id, Highest(topic.Topic.Metadata.Level, block.Level, block.Quiz.Level)))
-            .ToList());
+            .ToList(),
+        topic.Topic.Metadata.Requires);
 
     private static Level Highest(Level topic, Level? block, Level? question) =>
         (Level)Math.Max((int)topic, Math.Max((int)(block ?? topic), (int)(question ?? topic)));

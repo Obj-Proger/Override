@@ -1,0 +1,74 @@
+@page "/review"
+@inject ContentClient Content
+@inject Coach Coach
+@inject ProgressStore Progress
+
+<PageTitle>Повторение · Override</PageTitle>
+
+<div class="catalog review">
+    <h1>Повторение</h1>
+
+    @if (_items is null)
+    {
+        <p class="loading" role="status">Загрузка…</p>
+    }
+    else if (_items.Count == 0)
+    {
+        <p class="catalog-lead">На сегодня повторять нечего. Вопросы возвращаются по расписанию: через 1, 3, 7, 16 и 35 дней после верного ответа, а после ошибки — на следующий день.</p>
+        <a class="button" href="">На главную</a>
+    }
+    else if (_position >= _items.Count)
+    {
+        <p class="catalog-lead">Готово: @Labels.Questions(_items.Count). Следующие вопросы появятся по расписанию.</p>
+        <a class="button" href="">На главную</a>
+    }
+    else
+    {
+        var item = _items[_position];
+
+        <p class="catalog-lead">Вопрос @(_position + 1) из @_items.Count · тема <a href="@item.Topic.Path">@item.Topic.Title</a></p>
+        <QuestionCard @key="item" TopicId="@item.Topic.Id" Question="item.Question" IsSummary="item.IsSummary" OnAnswered="() => _answered = true" />
+
+        <div class="lesson-nav">
+            <button type="button" class="button-primary" disabled="@(!_answered)" @onclick="Next">
+                @(_position + 1 < _items.Count ? "Дальше" : "Завершить")
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    private List<ReviewItem>? _items;
+    private int _position;
+    private bool _answered;
+
+    private sealed record ReviewItem(TopicPage Topic, QuestionBlock Question, bool IsSummary);
+
+    /// <summary>The queue is fixed when the page opens, so answering does not reshuffle it.</summary>
+    protected override async Task OnInitializedAsync()
+    {
+        var index = await Content.GetIndexAsync();
+        var plan = Coach.PlanReview(index);
+        var items = new List<ReviewItem>();
+
+        foreach (var due in plan.Questions)
+        {
+            var topic = await Content.GetTopicAsync(due.TopicId);
+            var found = topic.Steps
+                .SelectMany(step => step.Blocks.OfType<QuestionBlock>().Select(block => (Step: step, Block: block)))
+                .FirstOrDefault(pair => pair.Block.Quiz.Id == due.QuestionId);
+
+            // A question removed from the content since it was answered is skipped.
+            if (found.Block is not null)
+                items.Add(new ReviewItem(topic, found.Block, found.Step.Kind == StepKind.Summary));
+        }
+
+        _items = items;
+    }
+
+    private void Next()
+    {
+        _position++;
+        _answered = false;
+    }
+}

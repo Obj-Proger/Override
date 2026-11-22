@@ -1,0 +1,70 @@
+@*
+    Today's work on the home page: the review and the topics to work on. Hidden until there are answers.
+*@
+@implements IDisposable
+@inject ProgressStore Progress
+@inject Coach Coach
+
+@if (_plan is not null && (_plan.Questions.Count > 0 || _weak.Count > 0))
+{
+    <section class="today">
+        <div class="today-card">
+            <div class="panel-title">Повторение</div>
+            @if (_plan.Questions.Count > 0)
+            {
+                <p class="today-text">Сегодня: @Labels.Questions(_plan.Questions.Count), тем: @_plan.TopicCount · примерно @Labels.MinutesLong(_plan.Minutes)</p>
+                <a class="button-check today-action" href="review">Начать повторение</a>
+            }
+            else
+            {
+                <p class="today-text">На сегодня всё повторено.</p>
+            }
+        </div>
+
+        @if (_weak.Count > 0)
+        {
+            <div class="today-card">
+                <div class="panel-title">Подтянуть</div>
+                <ul class="weak-list">
+                    @foreach (var weak in _weak)
+                    {
+                        <li>
+                            <a href="@weak.Topic.Path">@weak.Topic.Title</a>
+                            <span class="meta"> · @weak.Reason</span>
+                            @if (weak.StartWith is { } first)
+                            {
+                                <div class="meta">Возможно, дело в теме <a href="@first.Path">@first.Title</a>, начни с неё.</div>
+                            }
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </section>
+}
+
+@code {
+    private ReviewPlan? _plan;
+    private IReadOnlyList<WeakTopic> _weak = [];
+
+    [Parameter, EditorRequired]
+    public SiteIndex Index { get; set; } = default!;
+
+    protected override void OnInitialized() => Progress.Changed += OnProgressChanged;
+
+    protected override void OnParametersSet() => Refresh();
+
+    private void Refresh()
+    {
+        _plan = Coach.PlanReview(Index);
+        _weak = Coach.WeakTopics(Index);
+    }
+
+    private void OnProgressChanged()
+    {
+        Refresh();
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() => Progress.Changed -= OnProgressChanged;
+}

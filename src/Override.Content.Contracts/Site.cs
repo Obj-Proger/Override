@@ -15,6 +15,7 @@ public sealed record SectionEntry(
 /// <summary>
 /// A topic in the table of contents. Path is its address on the site. Steps is the number of lesson steps;
 /// CheckedQuestions are the questions the site checks by itself, which decide whether the topic is done.
+/// Requires are the ids of the topics to know first.
 /// </summary>
 public sealed record TopicEntry(
     string Id,
@@ -24,7 +25,8 @@ public sealed record TopicEntry(
     IReadOnlyList<Track> Tracks,
     int Minutes,
     int Steps,
-    IReadOnlyList<QuestionEntry> CheckedQuestions);
+    IReadOnlyList<QuestionEntry> CheckedQuestions,
+    IReadOnlyList<string> Requires);
 
 /// <summary>A question of a topic with the level it is meant for: its own, its block's or the topic's, whichever is higher.</summary>
 public sealed record QuestionEntry(string Id, Level Level);

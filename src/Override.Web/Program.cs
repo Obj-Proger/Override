@@ -12,6 +12,7 @@ builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri(builder.Hos
 builder.Services.AddSingleton<ContentClient>();
 builder.Services.AddSingleton<ProfileStore>();
 builder.Services.AddSingleton<ProgressStore>();
+builder.Services.AddSingleton<Coach>();
 
 var host = builder.Build();
 host.Services.GetRequiredService<ProfileStore>().Load();

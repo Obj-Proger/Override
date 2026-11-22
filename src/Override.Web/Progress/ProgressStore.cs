@@ -125,29 +125,38 @@ public sealed class ProgressStore
     /// Review states of every answered question of the topic, recall questions included, since their gaps
     /// are planned for review too. Questions above the reader's level are left out.
     /// </summary>
-    public IReadOnlyList<ReviewState> ReviewsOf(TopicEntry topic)
-    {
-        var hidden = topic.CheckedQuestions.Where(q => !_profile.Shows(q.Level, topic.Path)).Select(q => q.Id).ToHashSet();
-        var prefix = topic.Id + "/";
+    public IReadOnlyList<ReviewState> ReviewsOf(TopicEntry topic) => ReviewEntries(topic).Select(e => e.State).ToList();
 
-        return _data.Questions
-            .Where(pair => pair.Key.StartsWith(prefix, StringComparison.Ordinal) && !hidden.Contains(pair.Key[prefix.Length..]))
-            .Select(pair => ReviewSchedule.StateOf(pair.Value))
-            .ToList();
-    }
-
-    /// <summary>Questions of the topic that are due for review now.</summary>
-    public int DueCount(TopicEntry topic)
+    /// <summary>Ids of the topic's questions that are due for review now.</summary>
+    public IReadOnlyList<string> DueQuestions(TopicEntry topic)
     {
         var now = DateTimeOffset.Now;
-        return ReviewsOf(topic).Count(state => state.IsDue(now));
+        return ReviewEntries(topic).Where(e => e.State.IsDue(now)).Select(e => e.Id).ToList();
     }
+
+    public int DueCount(TopicEntry topic) => DueQuestions(topic).Count;
+
+    /// <summary>The topic has answers at all: only such topics can be weak.</summary>
+    public bool HasAnswers(TopicEntry topic) => ReviewEntries(topic).Any(e => e.State.Box > 0);
 
     /// <summary>The nearest planned review of the topic, or null when nothing is planned.</summary>
     public DateTimeOffset? NextReview(TopicEntry topic) => ReviewsOf(topic).Min(state => state.Due);
 
     /// <summary>The last counted answer to some question of the topic was a problem.</summary>
     public bool HasGaps(TopicEntry topic) => ReviewsOf(topic).Any(state => state.LastWasProblem);
+
+    private IEnumerable<(string Id, ReviewState State)> ReviewEntries(TopicEntry topic)
+    {
+        var hidden = topic.CheckedQuestions.Where(q => !_profile.Shows(q.Level, topic.Path)).Select(q => q.Id).ToHashSet();
+        var prefix = topic.Id + "/";
+
+        return _data.Questions
+            .Where(pair => pair.Key.StartsWith(prefix, StringComparison.Ordinal))
+            .Select(pair => (Id: pair.Key[prefix.Length..], Attempts: pair.Value))
+            .Where(entry => !hidden.Contains(entry.Id))
+            .Select(entry => (entry.Id, ReviewSchedule.StateOf(entry.Attempts)))
+            .ToList();
+    }
 
     private IJSInProcessRuntime Storage => (IJSInProcessRuntime)_js;
 
