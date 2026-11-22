@@ -588,12 +588,20 @@ h3 {
     font-size: 14px;
 }
 
+/*
+ * The panel stays in view while the lesson scrolls. When it is taller than the window, it scrolls by itself,
+ * so its lower cards are reachable at any point of the lesson, not only at its end.
+ */
 .page-aside-inner {
     position: sticky;
     top: calc(var(--header-height) + 28px);
     display: flex;
     flex-direction: column;
     gap: 16px;
+    max-height: calc(100vh - var(--header-height) - 56px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
 }
 
 .panel-card {
