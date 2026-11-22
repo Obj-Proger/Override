@@ -1631,6 +1631,22 @@ textarea.answer-input {
     color: var(--muted);
 }
 
+/* Reporting an inaccuracy */
+
+.report-link {
+    margin: 12px 0 0;
+    font-size: 13px;
+    text-align: right;
+}
+
+.report-link a {
+    color: var(--muted);
+}
+
+.report-link a:hover {
+    color: var(--accent);
+}
+
 /* Errors of the app itself */
 
 #blazor-error-ui {

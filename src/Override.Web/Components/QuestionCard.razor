@@ -3,6 +3,7 @@
     Every check is saved; whether it was a first attempt is decided by the progress store.
 *@
 @inject ProgressStore Progress
+@inject NavigationManager Navigation
 
 <div class="question @StateClass">
     <div class="question-kind">Проверь себя · @Labels.Of(Quiz)</div>
@@ -194,6 +195,7 @@
                 <button type="button" class="button" @onclick="Reset">Попробовать ещё</button>
             </div>
         }
+        <p class="report-link"><a href="@ReportUrl" target="_blank" rel="noopener">Неточность в вопросе?</a></p>
     }
 </div>
 
@@ -227,6 +229,10 @@
     public EventCallback<AnswerResult> OnAnswered { get; set; }
 
     private Quiz Quiz => Question.Quiz;
+
+    private string ReportUrl => Feedback.Issue(
+        $"Неточность в вопросе {Quiz.Id}",
+        $"Тема: {TopicId}\nВопрос: {Quiz.Id}\nАдрес: {Navigation.Uri}");
 
     private IReadOnlyList<string> Lines => Question.LinesHtml ?? [];
 

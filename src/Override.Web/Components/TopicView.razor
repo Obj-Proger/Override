@@ -5,6 +5,7 @@
 @implements IDisposable
 @inject ProgressStore Progress
 @inject ProfileStore Profile
+@inject NavigationManager Navigation
 
 <PageTitle>@Topic.Title · Override</PageTitle>
 
@@ -96,6 +97,7 @@
                 <a class="button-primary" href="@_next.Path">Следующая тема: @_next.Title</a>
             }
         </nav>
+        <p class="report-link"><a href="@ReportUrl" target="_blank" rel="noopener">Нашли неточность в этом шаге?</a></p>
         </div>
         }
     </article>
@@ -264,6 +266,10 @@
     public void Dispose() => Progress.Changed -= OnProgressChanged;
 
     private string TestHref => $"{Topic.Path}?mode=test";
+
+    private string ReportUrl => Feedback.Issue(
+        $"Неточность: {Topic.Title}",
+        $"Тема: {Topic.Title}\nШаг: {Labels.Of(CurrentStep)}\nАдрес: {Navigation.Uri}");
 
     private string StepHref(int index) => index == 0 ? Topic.Path : $"{Topic.Path}?step={index + 1}";
 }
