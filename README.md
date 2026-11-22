@@ -28,6 +28,9 @@ npm ci
 npm run build
 ```
 
+SQL tasks run on [PGlite](https://pglite.dev/), PostgreSQL compiled to WebAssembly, kept in
+`src/Override.Web/wwwroot/lib/pglite` and rebuilt the same way from [`tools/pglite`](tools/pglite).
+
 Every push to `main` is built and deployed to GitHub Pages by
 [the workflow](.github/workflows/pages.yml).
 

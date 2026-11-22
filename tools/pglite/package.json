@@ -1,0 +1,15 @@
+{
+  "name": "override-pglite",
+  "private": true,
+  "type": "module",
+  "description": "PostgreSQL in the browser for SQL tasks, built from PGlite.",
+  "scripts": {
+    "build": "esbuild sql.js --bundle --format=esm --minify --legal-comments=eof --target=es2022 --platform=browser --external:node:* --external:fs --external:fs/promises --external:path --external:url --external:module --external:crypto --external:child_process --external:worker_threads --outfile=../../src/Override.Web/wwwroot/lib/pglite/sql.js && node copy-assets.js"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.5.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}
