@@ -7,6 +7,8 @@
 @inject ProgressStore Progress
 @inject Coach Coach
 
+<a class="skip-link" href="@SkipHref">К содержанию</a>
+
 <header class="topbar">
     <button type="button"
             class="icon-button menu-button"
@@ -55,7 +57,7 @@
     {
         @* The level shown is the one for the current page: a stack can have its own. *@
         <button type="button" class="profile-button" aria-haspopup="dialog" title="Уровень и направление" @onclick="() => _profileOpen = true">
-            @Labels.Of(Profile.LevelFor(_path)) · @Labels.Of(profile.Track)
+            @Labels.Of(Profile.LevelFor(_path))<span class="profile-track"> · @Labels.Of(profile.Track)</span>
         </button>
     }
     <ThemeToggle />
@@ -72,7 +74,7 @@
     </aside>
     <button type="button" class="sidebar-backdrop" aria-label="Закрыть программу" tabindex="-1" @onclick="CloseMenu"></button>
 
-    <main class="page">
+    <main class="page" id="content" tabindex="-1" @ref="_main">
         @if (Profile.Profile is null && _path != DiagnosticPath)
         {
             <div class="catalog">
@@ -105,6 +107,8 @@
     private IReadOnlyList<SectionEntry> _trail = [];
     private bool _menuOpen;
     private bool _scrollToTop;
+    private bool _focusMain;
+    private ElementReference _main;
     private bool _profileOpen;
     private bool _searchOpen;
     private int _dueCount;
@@ -114,6 +118,9 @@
     private const string DiagnosticPath = "diagnostic";
 
     private IReadOnlyList<SectionEntry> Stacks => _index?.Sections ?? [];
+
+    /// <summary>The skip link keeps the query, so a lesson step stays the same.</summary>
+    private string SkipHref => Navigation.ToBaseRelativePath(Navigation.Uri).Split('#')[0] + "#content";
 
     protected override async Task OnInitializedAsync()
     {
@@ -142,6 +149,7 @@
         _profileOpen = false;
         _searchOpen = false;
         _scrollToTop = true;
+        _focusMain = true;
         StateHasChanged();
     }
 
@@ -157,11 +165,18 @@
             await JS.InvokeVoidAsync("overrideShortcuts.register", _self);
         }
 
-        if (!_scrollToTop)
-            return;
+        if (_scrollToTop)
+        {
+            _scrollToTop = false;
+            await JS.InvokeVoidAsync("scrollTo", 0, 0);
+        }
 
-        _scrollToTop = false;
-        await JS.InvokeVoidAsync("scrollTo", 0, 0);
+        // After a link the keyboard continues from the new page, not from the link that is gone.
+        if (_focusMain)
+        {
+            _focusMain = false;
+            await JS.InvokeVoidAsync("overrideShortcuts.focusQuietly", _main);
+        }
     }
 
     private void SaveProfile(LearnerProfile profile)
@@ -181,6 +196,19 @@
     }
 
     private void CloseSearch() => _searchOpen = false;
+
+    /// <summary>Escape closes whatever is open on top of the page: a dialog or the program drawer.</summary>
+    [JSInvokable]
+    public void CloseOverlays()
+    {
+        if (!_searchOpen && !_profileOpen && !_menuOpen)
+            return;
+
+        _searchOpen = false;
+        _profileOpen = false;
+        _menuOpen = false;
+        StateHasChanged();
+    }
 
     private void ToggleMenu() => _menuOpen = !_menuOpen;
 

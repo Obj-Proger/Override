@@ -137,6 +137,29 @@ h3 {
     outline-offset: 2px;
 }
 
+/* The page gets the focus after a link, so the keyboard continues there; it needs no ring for that. */
+.page:focus {
+    outline: none;
+}
+
+.skip-link {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    z-index: 40;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--accent-text);
+    font-weight: 600;
+    text-decoration: none;
+    transform: translateY(-200%);
+}
+
+.skip-link:focus {
+    transform: none;
+}
+
 .loading {
     padding: 32px 20px;
     color: var(--muted);
@@ -1684,8 +1707,13 @@ textarea.answer-input {
         grid-template-columns: minmax(0, 760px);
     }
 
-    .page-aside {
-        display: none;
+    /* The panel moves under the lesson: its steps, strength and test stay reachable on a tablet and a phone. */
+    .page-aside-inner {
+        position: static;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        max-height: none;
+        overflow: visible;
     }
 }
 
@@ -1718,6 +1746,7 @@ textarea.answer-input {
         display: none;
     }
 
+    /* A closed drawer is hidden from Tab and screen readers too, not only moved off the screen. */
     .sidebar {
         position: fixed;
         top: var(--header-height);
@@ -1725,8 +1754,10 @@ textarea.answer-input {
         left: 0;
         z-index: 15;
         overflow-y: auto;
+        overscroll-behavior: contain;
+        visibility: hidden;
         transform: translateX(-100%);
-        transition: transform 0.2s ease;
+        transition: transform 0.2s ease, visibility 0s linear 0.2s;
     }
 
     .sidebar-inner {
@@ -1736,7 +1767,13 @@ textarea.answer-input {
     }
 
     .frame.menu-open .sidebar {
+        visibility: visible;
         transform: none;
+        transition: transform 0.2s ease;
+    }
+
+    html:has(.frame.menu-open) {
+        overflow: hidden;
     }
 
     .frame.menu-open .sidebar-backdrop {
@@ -1760,10 +1797,70 @@ textarea.answer-input {
     .lesson-body {
         font-size: 16px;
     }
+
+    /* A wide table scrolls by itself instead of widening the page. */
+    .lesson-body table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    /* Phones zoom into a field with text smaller than 16px; with 16px they keep the page as is. */
+    .answer-input,
+    .code-fallback,
+    .code-editor .cm-content {
+        font-size: 16px;
+    }
+
+    .panel-list {
+        gap: 4px;
+    }
+
+    .panel-list a {
+        display: block;
+        padding: 6px 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .profile-track {
+        display: none;
+    }
+
+    .page {
+        padding: 14px 14px 40px;
+    }
+
+    pre {
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+
+    .dialog {
+        top: auto;
+        bottom: 0;
+        width: 100vw;
+        max-height: calc(100dvh - 48px);
+        padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+        border-radius: 14px 14px 0 0;
+        transform: translateX(-50%);
+    }
+
+    .search-dialog {
+        top: 8px;
+        bottom: auto;
+        border-radius: 14px;
+        width: calc(100vw - 16px);
+    }
+
+    .question-actions .button,
+    .button-check {
+        flex: 1 1 auto;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .sidebar {
+    .sidebar,
+    .frame.menu-open .sidebar {
         transition: none;
     }
 }
