@@ -21,6 +21,9 @@ public sealed class ProgressData
 
     /// <summary>Topics passed by the quick check, with the time it was passed.</summary>
     public Dictionary<string, DateTimeOffset> KnownTopics { get; set; } = [];
+
+    /// <summary>Results of topic tests by topic id, oldest first.</summary>
+    public Dictionary<string, List<TestResult>> Tests { get; set; } = [];
 }
 
 [JsonSourceGenerationOptions(
@@ -34,3 +37,9 @@ internal sealed partial class ProgressJsonContext : JsonSerializerContext
 
 /// <summary>How an answer ended and whether it counted as a first attempt.</summary>
 public sealed record AnswerResult(Outcome Outcome, bool First);
+
+/// <summary>A finished topic test: right answers out of all, the time it took and whether time ran out.</summary>
+public sealed record TestResult(DateTimeOffset At, int Correct, int Total, int Seconds, bool TimedOut)
+{
+    public double Share => Total == 0 ? 0 : (double)Correct / Total;
+}

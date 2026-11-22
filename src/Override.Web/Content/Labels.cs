@@ -69,6 +69,18 @@ public static class Labels
         };
     }
 
+    /// <summary>When something happened: "сегодня", "вчера", "5 дней назад".</summary>
+    public static string WhenPast(DateTimeOffset at, DateTimeOffset now)
+    {
+        var days = (int)Math.Floor((now.Date - at.Date).TotalDays);
+        return days switch
+        {
+            <= 0 => "сегодня",
+            1 => "вчера",
+            _ => $"{days} {Plural(days, "день", "дня", "дней")} назад",
+        };
+    }
+
     public static string Percent(double value) => $"{Math.Round(value * 100)} %";
 
     public static string Questions(int count) => $"{count} {Plural(count, "вопрос", "вопроса", "вопросов")}";

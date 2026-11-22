@@ -77,6 +77,32 @@ internal static class Samples
         ::::
         """;
 
+    /// <summary>A test step to append to the valid topic.</summary>
+    public const string TestStep = """
+
+
+        ::::test
+
+        ```quiz
+        id: t-one
+        type: choice
+        prompt: Which?
+        options: [a, b]
+        answer: 0
+        explain: a.
+        ```
+
+        ```quiz
+        id: t-two
+        type: input
+        prompt: Type.
+        answer: x
+        explain: x.
+        ```
+
+        ::::
+        """;
+
     /// <summary>The valid topic with another id, order and required topics.</summary>
     public static string Topic(string id, int order = 1, params string[] requires)
     {

@@ -104,6 +104,33 @@ public sealed class TopicParserTests
     public void ReportsUnknownStep() =>
         AssertError(Samples.ValidTopic.Replace("::::practice", "::::exercise", StringComparison.Ordinal), "Unknown step 'exercise'");
 
+    [Fact]
+    public void ParsesTopicTestAfterSummary()
+    {
+        var result = Parse(Samples.ValidTopic + Samples.TestStep);
+
+        Assert.True(result.Succeeded, string.Join("\n", result.Diagnostics));
+        var test = result.Topic!.Steps[^1];
+        Assert.Equal(StepKind.Test, test.Kind);
+        Assert.Equal(2, test.Blocks.Count);
+    }
+
+    [Fact]
+    public void ReportsTestBeforeSummary() =>
+        AssertError(
+            Samples.ValidTopic.Replace("::::summary", Samples.TestStep.Trim() + "\n\n::::summary", StringComparison.Ordinal),
+            "after the summary");
+
+    [Fact]
+    public void ReportsTextInTest() =>
+        AssertError(
+            Samples.ValidTopic + Samples.TestStep.Replace("::::test", "::::test\n\nSome words.", StringComparison.Ordinal),
+            "contains only questions");
+
+    [Fact]
+    public void ReportsTestMinutesWithoutTest() =>
+        AssertError(Samples.ValidTopic.Replace("order: 1", "order: 1\ntestMinutes: 5", StringComparison.Ordinal), "no ::::test step");
+
     private static ParseResult Parse(string text) => TopicParser.Parse("sample.md", text);
 
     private static void AssertError(string text, string expected)

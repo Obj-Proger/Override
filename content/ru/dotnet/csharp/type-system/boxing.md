@@ -7,6 +7,7 @@ minutes: 20
 order: 3
 requires: [csharp.types.value-reference, csharp.types.struct-class-record, csharp.oop.interfaces]
 quickCheck: [boxing-copy, boxing-where, unboxing-runtime, struct-interface-copy]
+testMinutes: 4
 ---
 
 ::::warmup
@@ -352,6 +353,69 @@ answer: |
   **Boxing** — копирование значимого типа в объект в куче, когда значение попадает туда, где ожидается ссылка (`object`, интерфейс). Обёртка — это заголовок, указатель на тип и копия значения: для `int` 24 байта вместо 4.
   **Unboxing** — явное приведение обратно: среда проверяет, что в обёртке лежит ровно этот тип, и копирует значение. Другой тип — ошибка во время выполнения.
   Каждая упаковка — аллокация и работа для сборщика мусора, поэтому в часто выполняемом коде её избегают.
+```
+
+::::
+
+::::test
+
+```quiz
+id: test-box-size
+type: choice
+prompt: Сколько памяти занимает обёртка для одного `int` на 64-битной платформе?
+options:
+  - "4 байта"
+  - "8 байт"
+  - "16 байт"
+  - "24 байта"
+answer: 3
+explain: |
+  Заголовок 8 байт, указатель на тип 8 байт, само значение 4 байта и ещё 4 байта выравнивания: всего 24.
+```
+
+```quiz
+id: test-unbox-copy
+type: output
+prompt: Что выведет код?
+code: |
+  object o = 7;
+  int a = (int)o;
+  a++;
+  Console.WriteLine(o);
+answer: "7"
+explain: |
+  Распаковка копирует значение из обёртки в `a`. `a++` меняет копию, обёртка по-прежнему хранит 7.
+```
+
+```quiz
+id: test-box-where
+type: multi
+prompt: В каких строках происходит boxing?
+options:
+  - "`Console.WriteLine(5);`"
+  - "`object[] items = { 1, 2 };`"
+  - "`int[] numbers = { 1, 2 };`"
+  - "`IComparable c = 3;`"
+answer: [1, 3]
+explain: |
+  Элементы `object[]` — ссылки, поэтому каждое число упаковывается. `IComparable` — интерфейс, тоже ссылка.
+  `WriteLine(5)` выбирает перегрузку `WriteLine(int)`, а `int[]` хранит сами числа: обёрток нет.
+```
+
+```quiz
+id: test-unbox-short
+type: choice
+prompt: Что произойдёт при выполнении этого кода?
+code: |
+  object o = (short)5;
+  int i = (int)o;
+options:
+  - "`i` станет равно 5"
+  - "Ошибка компиляции"
+  - "Ошибка во время выполнения"
+answer: 2
+explain: |
+  В обёртке лежит `short`, а распаковка разрешает только ровно тот тип, что был упакован. Правильно: `(int)(short)o`.
 ```
 
 ::::

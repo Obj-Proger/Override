@@ -7,6 +7,27 @@ namespace Override.Content.Tests;
 public sealed class SiteCompilerTests
 {
     [Fact]
+    public void KeepsTheTestApartFromTheLesson()
+    {
+        using var content = new TempContent()
+            .Section("lang/a", "Section A", 1)
+            .Write("lang/a/sample.md", Samples.ValidTopic.Replace("order: 1", "order: 1\ntestMinutes: 5", StringComparison.Ordinal) + Samples.TestStep);
+
+        var site = SiteCompiler.Compile(content.PathOf("lang"));
+        Assert.Empty(site.Diagnostics);
+
+        var page = Assert.Single(site.Pages);
+        Assert.DoesNotContain(page.Steps, step => step.Kind == StepKind.Test);
+        Assert.Equal(new[] { "t-one", "t-two" }, page.Test.Select(q => q.Quiz.Id));
+        Assert.Equal(5, page.TestMinutes);
+
+        var entry = Assert.Single(Assert.Single(site.Index.Sections).Topics);
+        Assert.Equal(4, entry.Steps);
+        Assert.Equal(2, entry.TestQuestions);
+        Assert.DoesNotContain(entry.CheckedQuestions, q => q.Id.StartsWith("t-", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void WritesIndexAndTopicsThatReadBack()
     {
         using var content = new TempContent()

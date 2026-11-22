@@ -1,0 +1,196 @@
+@*
+    The topic test: its own questions, one at a time, answered without hints. Right answers and
+    explanations are shown at the end, with the score in points and percent. Some tests have a time limit.
+*@
+@implements IDisposable
+@inject ProgressStore Progress
+
+<PageTitle>Тест: @Topic.Title · Override</PageTitle>
+
+<div class="catalog topic-test">
+    <h1>Тест: @Topic.Title</h1>
+
+    @switch (_stage)
+    {
+        case Stage.Intro:
+            <p class="catalog-lead">
+                @Labels.Questions(Topic.Test.Count) · @(Topic.TestMinutes is { } minutes ? $"время {Labels.MinutesLong(minutes)}" : "без ограничения по времени")
+            </p>
+            <p>Отвечай без подсказок: правильные ответы и объяснения покажутся в конце. К пройденному вопросу вернуться нельзя.</p>
+            <div class="lesson-nav">
+                <a class="button" href="@Topic.Path">К теме</a>
+                <button type="button" class="button-primary" @onclick="Start">Начать</button>
+            </div>
+            break;
+
+        case Stage.Running:
+            var question = Topic.Test[_position];
+            <div class="test-bar">
+                <span>Вопрос @(_position + 1) из @Topic.Test.Count</span>
+                @if (_deadline is { } deadline)
+                {
+                    <span class="test-timer @(Remaining(deadline) <= TimeSpan.FromSeconds(30) ? "is-ending" : null)" role="timer" aria-label="Осталось времени">
+                        @Clock(Remaining(deadline))
+                    </span>
+                }
+            </div>
+            <QuestionCard @key="question" TopicId="@Topic.Id" Question="question" HideFeedback="true" OnAnswered="OnAnswered" />
+            <div class="lesson-nav">
+                @if (!_answers.ContainsKey(_position))
+                {
+                    <button type="button" class="button" @onclick="Next">Пропустить</button>
+                }
+                <button type="button" class="button-primary" disabled="@(!_answers.ContainsKey(_position))" @onclick="Next">
+                    @(_position + 1 < Topic.Test.Count ? "Дальше" : "Завершить")
+                </button>
+            </div>
+            break;
+
+        case Stage.Finished:
+            <div class="quick-result @(_result!.Share >= PassShare ? "is-passed" : null)">
+                <strong>@_result.Correct из @_result.Total · @Labels.Percent(_result.Share)</strong>
+                <p>
+                    @(_result.TimedOut ? "Время вышло. " : null)Затрачено @Clock(TimeSpan.FromSeconds(_result.Seconds)).
+                    @(_result.Share >= PassShare ? "Тема усвоена." : "Стоит вернуться к теме и разобрать ошибки ниже.")
+                </p>
+            </div>
+
+            <ol class="test-review">
+                @for (var i = 0; i < Topic.Test.Count; i++)
+                {
+                    var item = Topic.Test[i];
+                    var outcome = _answers.TryGetValue(i, out var answer) ? answer.Outcome : (Outcome?)null;
+                    <li class="@(outcome == Outcome.Correct ? "is-right" : "is-mistake")">
+                        <div class="test-review-status">@StatusText(outcome)</div>
+                        <div class="question-prompt">@((MarkupString)item.Quiz.Prompt)</div>
+                        @if (item.Quiz.Explain is not null)
+                        {
+                            <div class="feedback-explain">@((MarkupString)item.Quiz.Explain)</div>
+                        }
+                    </li>
+                }
+            </ol>
+
+            <div class="lesson-nav">
+                <a class="button" href="@Topic.Path">К теме</a>
+                <button type="button" class="button-primary" @onclick="Restart">Пройти ещё раз</button>
+            </div>
+            break;
+    }
+</div>
+
+@code {
+    /// <summary>From this share of right answers a test counts as passed.</summary>
+    private const double PassShare = 0.8;
+
+    private enum Stage
+    {
+        Intro,
+        Running,
+        Finished,
+    }
+
+    private readonly Dictionary<int, AnswerResult> _answers = [];
+    private Stage _stage;
+    private int _position;
+    private DateTimeOffset _started;
+    private DateTimeOffset? _deadline;
+    private TestResult? _result;
+    private CancellationTokenSource? _timer;
+
+    [Parameter, EditorRequired]
+    public TopicPage Topic { get; set; } = default!;
+
+    private void Start()
+    {
+        _answers.Clear();
+        _position = 0;
+        _result = null;
+        _started = DateTimeOffset.Now;
+        _deadline = Topic.TestMinutes is { } minutes ? _started.AddMinutes(minutes) : null;
+        _stage = Stage.Running;
+
+        if (_deadline is not null)
+            _ = RunTimerAsync();
+    }
+
+    private void Restart() => Start();
+
+    /// <summary>Only the first answer to a question counts.</summary>
+    private void OnAnswered(AnswerResult result) => _answers.TryAdd(_position, result);
+
+    private void Next()
+    {
+        if (_position + 1 < Topic.Test.Count)
+            _position++;
+        else
+            Finish(timedOut: false);
+    }
+
+    private void Finish(bool timedOut)
+    {
+        if (_stage != Stage.Running)
+            return;
+
+        StopTimer();
+        var seconds = (int)Math.Round((DateTimeOffset.Now - _started).TotalSeconds);
+        var correct = _answers.Values.Count(a => a.Outcome == Outcome.Correct);
+        _result = new TestResult(DateTimeOffset.Now, correct, Topic.Test.Count, seconds, timedOut);
+        Progress.RecordTest(Topic.Id, _result);
+        _stage = Stage.Finished;
+    }
+
+    /// <summary>Redraws the clock every second and ends the test when time is up.</summary>
+    private async Task RunTimerAsync()
+    {
+        StopTimer();
+        var source = _timer = new CancellationTokenSource();
+        using var ticks = new PeriodicTimer(TimeSpan.FromSeconds(1));
+
+        try
+        {
+            while (await ticks.WaitForNextTickAsync(source.Token))
+            {
+                if (_deadline is { } deadline && Remaining(deadline) <= TimeSpan.Zero)
+                {
+                    await InvokeAsync(() =>
+                    {
+                        Finish(timedOut: true);
+                        StateHasChanged();
+                    });
+                    return;
+                }
+
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // The test ended or the page was closed.
+        }
+    }
+
+    private void StopTimer()
+    {
+        _timer?.Cancel();
+        _timer?.Dispose();
+        _timer = null;
+    }
+
+    private static TimeSpan Remaining(DateTimeOffset deadline)
+    {
+        var left = deadline - DateTimeOffset.Now;
+        return left < TimeSpan.Zero ? TimeSpan.Zero : left;
+    }
+
+    private static string StatusText(Outcome? outcome) => outcome switch
+    {
+        Outcome.Correct => "Верно",
+        null => "Без ответа",
+        _ => "Неверно",
+    };
+
+    private static string Clock(TimeSpan time) => $"{(int)time.TotalMinutes}:{time.Seconds:00}";
+
+    public void Dispose() => StopTimer();
+}

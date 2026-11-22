@@ -167,7 +167,11 @@
             break;
     }
 
-    @if (_answered)
+    @if (_answered && HideFeedback)
+    {
+        <p class="question-hint" role="status">Ответ принят.</p>
+    }
+    else if (_answered)
     {
         <div class="feedback" role="status">
             <strong>@(_correct ? "Верно." : "Неверно.")</strong>
@@ -210,6 +214,10 @@
     [Parameter]
     public bool IsSummary { get; set; }
 
+    /// <summary>In a test the answer is taken without showing whether it was right; results come at the end.</summary>
+    [Parameter]
+    public bool HideFeedback { get; set; }
+
     /// <summary>Called after each answer or self-assessment, with how it ended and whether it was a first attempt.</summary>
     [Parameter]
     public EventCallback<AnswerResult> OnAnswered { get; set; }
@@ -220,7 +228,7 @@
 
     private bool IsMultiline => Quiz is OutputQuiz output && output.Answers.Any(a => a.Trim().Contains('\n'));
 
-    private string StateClass => !_answered ? "" : _correct ? "is-correct" : "is-wrong";
+    private string StateClass => !_answered || HideFeedback ? "" : _correct ? "is-correct" : "is-wrong";
 
     /// <summary>The expected typed answer, shown after a wrong attempt. Other question types show it by marking.</summary>
     private string? CorrectAnswer => Quiz switch
@@ -315,7 +323,7 @@
     /// <summary>Marks options after the answer: the right one, and the user's pick if it was wrong.</summary>
     private string OptionClass(int option, bool isRight, bool isPicked)
     {
-        if (!_answered)
+        if (!_answered || HideFeedback)
             return isPicked ? "is-picked" : "";
 
         if (isRight)

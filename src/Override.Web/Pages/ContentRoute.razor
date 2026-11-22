@@ -7,7 +7,14 @@
 }
 else if (_topic is not null)
 {
-    <TopicView Topic="_topic" Index="_index" Step="Step ?? 1" />
+    if (Mode == "test" && _topic.Test.Count > 0)
+    {
+        <TopicTest Topic="_topic" />
+    }
+    else
+    {
+        <TopicView Topic="_topic" Index="_index" Step="Step ?? 1" />
+    }
 }
 else if (_section is not null)
 {
@@ -31,6 +38,10 @@ else
     /// <summary>The lesson step from ?step=, counted from 1.</summary>
     [SupplyParameterFromQuery(Name = "step")]
     public int? Step { get; set; }
+
+    /// <summary>"test" opens the topic test instead of the lesson.</summary>
+    [SupplyParameterFromQuery(Name = "mode")]
+    public string? Mode { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {

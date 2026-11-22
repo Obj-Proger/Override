@@ -15,7 +15,7 @@ public sealed record SectionEntry(
 /// <summary>
 /// A topic in the table of contents. Path is its address on the site. Steps is the number of lesson steps;
 /// CheckedQuestions are the questions the site checks by itself, which decide whether the topic is done.
-/// Requires are the ids of the topics to know first.
+/// Requires are the ids of the topics to know first. TestQuestions is the size of the topic test, 0 without one.
 /// </summary>
 public sealed record TopicEntry(
     string Id,
@@ -26,12 +26,16 @@ public sealed record TopicEntry(
     int Minutes,
     int Steps,
     IReadOnlyList<QuestionEntry> CheckedQuestions,
-    IReadOnlyList<string> Requires);
+    IReadOnlyList<string> Requires,
+    int TestQuestions);
 
 /// <summary>A question of a topic with the level it is meant for: its own, its block's or the topic's, whichever is higher.</summary>
 public sealed record QuestionEntry(string Id, Level Level);
 
-/// <summary>A compiled topic, ready to show.</summary>
+/// <summary>
+/// A compiled topic, ready to show. Steps are the lesson; Test holds the questions of the topic test, empty when
+/// there is none, and TestMinutes its time limit, null for a test without a timer.
+/// </summary>
 public sealed record TopicPage(
     string Id,
     string Path,
@@ -41,7 +45,9 @@ public sealed record TopicPage(
     int Minutes,
     IReadOnlyList<string> Requires,
     IReadOnlyList<string> QuickCheck,
-    IReadOnlyList<PageStep> Steps);
+    IReadOnlyList<PageStep> Steps,
+    IReadOnlyList<QuestionBlock> Test,
+    int? TestMinutes);
 
 /// <summary>A lesson step of a compiled topic.</summary>
 public sealed record PageStep(StepKind Kind, string? Title, IReadOnlyList<PageBlock> Blocks);

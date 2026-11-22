@@ -97,6 +97,24 @@ public sealed class ProgressStore
 
     public bool PassedQuickCheck(string topicId) => _data.KnownTopics.ContainsKey(topicId);
 
+    public void RecordTest(string topicId, TestResult result)
+    {
+        if (!_data.Tests.TryGetValue(topicId, out var results))
+            _data.Tests[topicId] = results = [];
+
+        results.Add(result);
+        if (results.Count > MaxAttemptsPerQuestion)
+            results.RemoveRange(0, results.Count - MaxAttemptsPerQuestion);
+
+        Save();
+    }
+
+    /// <summary>The best result of the topic test, or null if it was never taken.</summary>
+    public TestResult? BestTest(string topicId) =>
+        _data.Tests.TryGetValue(topicId, out var results)
+            ? results.OrderByDescending(r => r.Share).ThenByDescending(r => r.At).FirstOrDefault()
+            : null;
+
     /// <summary>Whether this question was ever answered right at the first attempt.</summary>
     public bool IsKnown(string topicId, string questionId) =>
         AttemptsOf(topicId, questionId).Any(a => a.First && a.Outcome == Outcome.Correct);

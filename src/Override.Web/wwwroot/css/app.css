@@ -1354,6 +1354,62 @@ textarea.answer-input {
     margin: 6px 0 0;
 }
 
+/* Topic test */
+
+.test-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    color: var(--muted);
+}
+
+.test-timer {
+    padding: 2px 10px;
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--strong);
+    font: 600 15px var(--mono);
+}
+
+.test-timer.is-ending {
+    background: var(--err-soft);
+    color: var(--err);
+}
+
+.test-review {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.test-review li {
+    padding: 14px 16px;
+    border-left: 3px solid var(--err);
+    border-radius: 8px;
+    background: var(--card);
+}
+
+.test-review li.is-right {
+    border-left-color: var(--ok);
+}
+
+.test-review-status {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.panel-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
 /* Errors of the app itself */
 
 #blazor-error-ui {

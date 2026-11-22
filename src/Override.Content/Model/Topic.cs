@@ -9,9 +9,10 @@ public sealed record TopicMetadata(
     int Minutes,
     int Order,
     IReadOnlyList<string> Requires,
-    IReadOnlyList<string> QuickCheck);
+    IReadOnlyList<string> QuickCheck,
+    int? TestMinutes = null);
 
-/// <summary>A parsed topic: its metadata and the lesson steps in file order.</summary>
+/// <summary>A parsed topic: its metadata and the steps in file order, the test step last if there is one.</summary>
 public sealed record Topic(TopicMetadata Metadata, IReadOnlyList<Step> Steps);
 
 /// <summary>A lesson step. Line is where the step starts in the file.</summary>

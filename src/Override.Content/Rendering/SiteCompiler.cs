@@ -65,14 +65,16 @@ public static class SiteCompiler
         topic.Topic.Metadata.Level,
         topic.Topic.Metadata.Tracks,
         topic.Topic.Metadata.Minutes,
-        topic.Topic.Steps.Count,
+        topic.Topic.Steps.Count(step => step.Kind != StepKind.Test),
         topic.Topic.Steps
+            .Where(step => step.Kind != StepKind.Test)
             .SelectMany(step => step.Blocks)
             .OfType<QuizBlock>()
             .Where(block => AnswerChecker.IsChecked(block.Quiz))
             .Select(block => new QuestionEntry(block.Quiz.Id, Highest(topic.Topic.Metadata.Level, block.Level, block.Quiz.Level)))
             .ToList(),
-        topic.Topic.Metadata.Requires);
+        topic.Topic.Metadata.Requires,
+        topic.Topic.Steps.Where(step => step.Kind == StepKind.Test).Sum(step => step.Blocks.Count));
 
     private static Level Highest(Level topic, Level? block, Level? question) =>
         (Level)Math.Max((int)topic, Math.Max((int)(block ?? topic), (int)(question ?? topic)));

@@ -87,6 +87,10 @@
             {
                 <a class="button-primary" href="@StepHref(_current + 1)">Дальше: @Labels.Of(Topic.Steps[_current + 1])</a>
             }
+            else if (Topic.Test.Count > 0)
+            {
+                <a class="button-primary" href="@TestHref">Пройти тест по теме</a>
+            }
             else if (_next is not null)
             {
                 <a class="button-primary" href="@_next.Path">Следующая тема: @_next.Title</a>
@@ -161,6 +165,19 @@
                             <span class="gaps-note">Есть пробелы: на часть вопросов последний ответ был неверным или «не вспомнил».</span>
                         }
                     </div>
+                </section>
+            }
+
+            @if (_entry is { TestQuestions: > 0 })
+            {
+                var best = Progress.BestTest(Topic.Id);
+                <section class="panel-card">
+                    <div class="panel-title">Тест по теме</div>
+                    <div class="panel-facts">
+                        <span>@Labels.Questions(Topic.Test.Count) · @(Topic.TestMinutes is { } minutes ? Labels.MinutesLong(minutes) : "без таймера")</span>
+                        <span>@(best is null ? "Ещё не пройден" : $"Лучший результат: {Labels.Percent(best.Share)}, {Labels.WhenPast(best.At, DateTimeOffset.Now)}")</span>
+                    </div>
+                    <a class="panel-button panel-link" href="@TestHref">Пройти тест</a>
                 </section>
             }
 
@@ -245,6 +262,8 @@
     private void OnProgressChanged() => InvokeAsync(StateHasChanged);
 
     public void Dispose() => Progress.Changed -= OnProgressChanged;
+
+    private string TestHref => $"{Topic.Path}?mode=test";
 
     private string StepHref(int index) => index == 0 ? Topic.Path : $"{Topic.Path}?step={index + 1}";
 }

@@ -9,4 +9,7 @@ public enum StepKind
     Practice,
     Traps,
     Summary,
+
+    /// <summary>The topic test: questions apart from the lesson, answered without hints, with a score.</summary>
+    Test,
 }

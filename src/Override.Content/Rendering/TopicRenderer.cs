@@ -12,7 +12,15 @@ internal static class TopicRenderer
     {
         var metadata = source.Topic.Metadata;
         var steps = source.Topic.Steps
+            .Where(step => step.Kind != StepKind.Test)
             .Select(step => new PageStep(step.Kind, step.Title, step.Blocks.Select(RenderBlock).ToList()))
+            .ToList();
+
+        var test = source.Topic.Steps
+            .Where(step => step.Kind == StepKind.Test)
+            .SelectMany(step => step.Blocks)
+            .Select(RenderBlock)
+            .OfType<QuestionBlock>()
             .ToList();
 
         return new TopicPage(
@@ -24,7 +32,9 @@ internal static class TopicRenderer
             metadata.Minutes,
             metadata.Requires,
             metadata.QuickCheck,
-            steps);
+            steps,
+            test,
+            metadata.TestMinutes);
 
         PageBlock RenderBlock(Block block) => block switch
         {

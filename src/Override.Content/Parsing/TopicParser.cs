@@ -18,6 +18,7 @@ public static class TopicParser
     private const string QuizLanguage = "quiz";
     private const int MaxQuickCheck = 4;
     private const int MinQuickCheck = 3;
+    private const int MinTestQuestions = 2;
 
     private static readonly Dictionary<string, StepKind> _stepKinds = new()
     {
@@ -27,6 +28,7 @@ public static class TopicParser
         ["practice"] = StepKind.Practice,
         ["traps"] = StepKind.Traps,
         ["summary"] = StepKind.Summary,
+        ["test"] = StepKind.Test,
     };
 
     /// <summary>Questions in the quick check must be graded automatically and take seconds.</summary>
@@ -74,9 +76,33 @@ public static class TopicParser
         if (!steps.Any(s => s.Kind == StepKind.Part))
             Error(1, "A topic needs at least one ::::part step.");
 
-        var summaries = steps.Where(s => s.Kind == StepKind.Summary).ToList();
-        if (summaries.Count != 1 || steps[^1].Kind != StepKind.Summary)
-            Error(1, "A topic needs exactly one ::::summary step, and it must be the last one.");
+        var lesson = steps.Where(s => s.Kind != StepKind.Test).ToList();
+        var summaries = lesson.Where(s => s.Kind == StepKind.Summary).ToList();
+        if (summaries.Count != 1 || lesson.Count == 0 || lesson[^1].Kind != StepKind.Summary)
+            Error(1, "A topic needs exactly one ::::summary step, and it must be the last lesson step.");
+
+        var tests = steps.Where(s => s.Kind == StepKind.Test).ToList();
+        if (tests.Count > 1 || (tests.Count == 1 && steps[^1].Kind != StepKind.Test))
+            Error(tests.Count > 0 ? tests[^1].Line : 1, "A topic can have one ::::test step, after the summary.");
+
+        foreach (var test in tests)
+        {
+            if (test.Blocks.Count < MinTestQuestions)
+                Error(test.Line, $"The test step needs at least {MinTestQuestions} questions.");
+
+            foreach (var block in test.Blocks)
+            {
+                if (block is not QuizBlock { Level: null } testQuiz)
+                    Error(block.Line, "The test step contains only questions, without text or level blocks.");
+                else if (!_quickCheckTypes.Contains(testQuiz.Quiz.GetType()))
+                    Error(block.Line, $"Question '{testQuiz.Quiz.Id}' cannot be in the test: it is not graded automatically.");
+            }
+        }
+
+        if (metadata.TestMinutes is not null && tests.Count == 0)
+            Error(2, "'testMinutes' is set, but the topic has no ::::test step.");
+
+        var testIds = tests.SelectMany(t => t.Blocks).OfType<QuizBlock>().Select(b => b.Quiz.Id).ToHashSet();
 
         foreach (var summary in summaries)
         {
@@ -121,6 +147,12 @@ public static class TopicParser
             if (!quizzes.TryGetValue(id, out var block))
             {
                 Error(2, $"'quickCheck' refers to '{id}', which is not a question in this topic.");
+                continue;
+            }
+
+            if (testIds.Contains(id))
+            {
+                Error(block.Line, $"Question '{id}' is in the test, so it cannot be in the quick check.");
                 continue;
             }
 

@@ -6,6 +6,7 @@ namespace Override.Content.Parsing;
 internal static class FrontMatterReader
 {
     private const int MaxMinutes = 240;
+    private const int MaxTestMinutes = 60;
 
     public static TopicMetadata? Read(string yaml, string file, int firstLine, ICollection<ContentDiagnostic> diagnostics)
     {
@@ -65,6 +66,9 @@ internal static class FrontMatterReader
         if (quickCheck.Distinct().Count() != quickCheck.Count)
             Error("'quickCheck' lists a question twice.");
 
+        if (document.TestMinutes is { } testMinutes && testMinutes is < 1 or > MaxTestMinutes)
+            Error($"'testMinutes' must be from 1 to {MaxTestMinutes}.");
+
         if (diagnostics.Count != errorsBefore)
             return null;
 
@@ -76,7 +80,8 @@ internal static class FrontMatterReader
             document.Minutes!.Value,
             document.Order!.Value,
             requires,
-            quickCheck);
+            quickCheck,
+            document.TestMinutes);
     }
 
     /// <summary>The front matter as written in YAML.</summary>
@@ -97,5 +102,7 @@ internal static class FrontMatterReader
         public List<string>? Requires { get; set; }
 
         public List<string>? QuickCheck { get; set; }
+
+        public int? TestMinutes { get; set; }
     }
 }
