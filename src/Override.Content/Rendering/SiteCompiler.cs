@@ -71,7 +71,10 @@ public static class SiteCompiler
             .SelectMany(step => step.Blocks)
             .OfType<QuizBlock>()
             .Where(block => AnswerChecker.IsChecked(block.Quiz))
-            .Select(block => new QuestionEntry(block.Quiz.Id, Highest(topic.Topic.Metadata.Level, block.Level, block.Quiz.Level)))
+            .Select(block => new QuestionEntry(
+                block.Quiz.Id,
+                Highest(topic.Topic.Metadata.Level, block.Level, block.Quiz.Level),
+                AnswerChecker.Runs(block.Quiz)))
             .ToList(),
         topic.Topic.Metadata.Requires,
         topic.Topic.Steps.Where(step => step.Kind == StepKind.Test).Sum(step => step.Blocks.Count));

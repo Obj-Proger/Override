@@ -76,9 +76,10 @@ public sealed class AnswerCheckerTests
     }
 
     [Fact]
-    public void RecallAndCodeAreNotCheckedBySite()
+    public void RecallIsNotCheckedBySiteAndCodeRuns()
     {
         Assert.False(AnswerChecker.IsChecked(new RecallQuiz("q", null, "Explain.", null, null, "Answer.")));
         Assert.True(AnswerChecker.IsChecked(new FindBugQuiz("q", null, "Where?", "a", null, 1)));
+        Assert.True(AnswerChecker.Runs(new CodeQuiz("q", null, "Write.", null, null, "csharp", "", "", "")));
     }
 }

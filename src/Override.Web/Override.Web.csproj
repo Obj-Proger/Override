@@ -4,6 +4,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <!-- Fills the asset placeholders in index.html: fingerprinted framework script and import map. -->
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <!-- No satellite resources: compiler messages stay in English, and the download stays small. -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +16,43 @@
   <ItemGroup>
     <ProjectReference Include="..\Override.Content.Contracts\Override.Content.Contracts.csproj" />
     <ProjectReference Include="..\Override.Learning\Override.Learning.csproj" />
+    <ProjectReference Include="..\Override.Runner\Override.Runner.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Basic.Reference.Assemblies.Net100" />
+  </ItemGroup>
+
+  <!--
+    The compiler and the reference assemblies weigh several megabytes, so they are downloaded only when the
+    reader runs code for the first time.
+  -->
+  <ItemGroup>
+    <BlazorWebAssemblyLazyLoad Include="Microsoft.CodeAnalysis.wasm" />
+    <BlazorWebAssemblyLazyLoad Include="Microsoft.CodeAnalysis.CSharp.wasm" />
+    <BlazorWebAssemblyLazyLoad Include="Basic.Reference.Assemblies.Net100.wasm" />
+    <BlazorWebAssemblyLazyLoad Include="Override.Runner.wasm" />
+  </ItemGroup>
+
+  <!--
+    The reader's code may use any common framework type, but trimming keeps only what the site itself uses.
+    These assemblies are kept whole, so compiled code finds the types it was compiled against.
+  -->
+  <ItemGroup>
+    <TrimmerRootAssembly Include="Microsoft.CodeAnalysis" />
+    <TrimmerRootAssembly Include="Microsoft.CodeAnalysis.CSharp" />
+    <TrimmerRootAssembly Include="Override.Runner" />
+    <TrimmerRootAssembly Include="System.Private.CoreLib" />
+    <TrimmerRootAssembly Include="System.Runtime" />
+    <TrimmerRootAssembly Include="System.Collections" />
+    <TrimmerRootAssembly Include="System.Collections.NonGeneric" />
+    <TrimmerRootAssembly Include="System.Collections.Concurrent" />
+    <TrimmerRootAssembly Include="System.Collections.Immutable" />
+    <TrimmerRootAssembly Include="System.Console" />
+    <TrimmerRootAssembly Include="System.Linq" />
+    <TrimmerRootAssembly Include="System.Memory" />
+    <TrimmerRootAssembly Include="System.Reflection.Metadata" />
+    <TrimmerRootAssembly Include="System.Text.RegularExpressions" />
   </ItemGroup>
 
   <!--

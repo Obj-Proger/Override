@@ -29,8 +29,11 @@ public sealed record TopicEntry(
     IReadOnlyList<string> Requires,
     int TestQuestions);
 
-/// <summary>A question of a topic with the level it is meant for: its own, its block's or the topic's, whichever is higher.</summary>
-public sealed record QuestionEntry(string Id, Level Level);
+/// <summary>
+/// A question of a topic with the level it is meant for: its own, its block's or the topic's, whichever is higher.
+/// Runs is true for tasks checked by running code, which need the compiler to be loaded.
+/// </summary>
+public sealed record QuestionEntry(string Id, Level Level, bool Runs = false);
 
 /// <summary>
 /// A compiled topic, ready to show. Steps are the lesson; Test holds the questions of the topic test, empty when

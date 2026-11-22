@@ -121,7 +121,7 @@
     private static IReadOnlyList<Item> Pick(SectionEntry stack, Level level) =>
         LevelDiagnosis.Spread(
             stack.TopicsIn().Select(topic => (IReadOnlyList<Item>)topic.CheckedQuestions
-                .Where(q => q.Level == level)
+                .Where(q => q.Level == level && !q.Runs)
                 .Select(q => new Item(topic.Id, q.Id))
                 .ToList()),
             QuestionsPerLevel);

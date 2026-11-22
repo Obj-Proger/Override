@@ -8,8 +8,14 @@ namespace Override.Content.Checking;
 /// </summary>
 public static class AnswerChecker
 {
-    /// <summary>Questions that can be checked without running code. The rest are graded by the user or by a runner.</summary>
-    public static bool IsChecked(Quiz quiz) => quiz is not (RecallQuiz or CodeQuiz or SqlQuiz);
+    /// <summary>
+    /// Questions the site grades by itself: by comparing the answer, or by running C# code against its tests.
+    /// Recall questions are graded by the user; SQL tasks are not run yet.
+    /// </summary>
+    public static bool IsChecked(Quiz quiz) => quiz is not (RecallQuiz or SqlQuiz);
+
+    /// <summary>Tasks checked by running code.</summary>
+    public static bool Runs(Quiz quiz) => quiz is CodeQuiz;
 
     /// <summary>Option index counts from 0, as in the content.</summary>
     public static bool Check(ChoiceQuiz quiz, int option) => option == quiz.Answer;

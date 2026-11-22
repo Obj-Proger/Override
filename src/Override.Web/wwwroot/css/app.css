@@ -1500,6 +1500,47 @@ textarea.answer-input {
     tab-size: 4;
 }
 
+/* Code run results */
+
+.run-result {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--err);
+    border-radius: 8px;
+    background: var(--err-soft);
+    font-size: 15px;
+}
+
+.run-result.is-passed {
+    border-color: var(--ok);
+    background: var(--ok-soft);
+}
+
+.run-result.is-neutral {
+    border-color: var(--border-strong);
+    background: var(--bg);
+}
+
+.run-messages {
+    margin: 8px 0 0;
+    padding-left: 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.run-output-title {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.run-output {
+    max-height: 240px;
+    margin: 6px 0 0;
+}
+
 /* Errors of the app itself */
 
 #blazor-error-ui {

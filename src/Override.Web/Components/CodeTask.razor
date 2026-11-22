@@ -1,13 +1,61 @@
 @*
-    A task to write code: the editor with the starter code, reset, and the reference solution on request.
+    A task to write code. C# runs in the browser against the task's tests; the first run downloads the compiler.
+    A passed or failed run is saved like any answer; code that does not compile is not counted.
 *@
+@inject CodeRunService Runner
+@inject ProgressStore Progress
+
 <CodeEditor @ref="_editor" InitialText="@Starter" Language="@Language" />
 
 <div class="question-actions">
+    @if (CanRun)
+    {
+        <button type="button" class="button-check" disabled="@_running" @onclick="RunAsync">
+            @(_running ? (Runner.IsLoaded ? "Проверяем…" : "Загружаем компилятор…") : "Запустить проверки")
+        </button>
+    }
     <button type="button" class="button" @onclick="ResetAsync">Сбросить</button>
     <button type="button" class="button" @onclick="() => _showSolution = !_showSolution">@(_showSolution ? "Скрыть решение" : "Показать решение")</button>
 </div>
-<p class="question-hint">Запуск и проверка кода прямо на странице скоро появятся. Пока можно написать решение и сравнить его с эталоном.</p>
+
+@if (!CanRun)
+{
+    <p class="question-hint">Запуск таких заданий прямо на странице скоро появится. Пока можно написать решение и сравнить его с эталоном.</p>
+}
+else if (_first && _result is null && !_running)
+{
+    <p class="question-hint">Первый запуск загрузит компилятор C#, это несколько мегабайт и несколько секунд.</p>
+}
+
+@if (_result is not null)
+{
+    <div class="run-result @ResultClass" role="status">
+        <strong>@ResultTitle</strong>
+        @if (_result.Messages.Count > 0)
+        {
+            <ul class="run-messages">
+                @foreach (var message in _result.Messages)
+                {
+                    <li>@message</li>
+                }
+            </ul>
+        }
+        @if (!string.IsNullOrEmpty(_result.Output))
+        {
+            <div class="run-output-title">Вывод</div>
+            <pre class="run-output">@_result.Output</pre>
+        }
+        @if (_result.Status == CodeRunStatus.Passed && Quiz.Explain is not null)
+        {
+            <div class="feedback-explain">@((MarkupString)Quiz.Explain)</div>
+        }
+    </div>
+}
+
+@if (_error is not null)
+{
+    <p class="gaps-note" role="alert">@_error</p>
+}
 
 @if (_showSolution)
 {
@@ -20,9 +68,22 @@
 @code {
     private CodeEditor? _editor;
     private bool _showSolution;
+    private bool _running;
+    private bool _first = true;
+    private CodeRunResult? _result;
+    private string? _error;
+
+    [Parameter, EditorRequired]
+    public string TopicId { get; set; } = "";
 
     [Parameter, EditorRequired]
     public Quiz Quiz { get; set; } = default!;
+
+    /// <summary>Called after a counted run, like an answer to any other question.</summary>
+    [Parameter]
+    public EventCallback<AnswerResult> OnAnswered { get; set; }
+
+    private bool CanRun => Quiz is CodeQuiz { Language: "csharp" };
 
     private string Starter => Quiz switch
     {
@@ -42,6 +103,54 @@
         CodeQuiz code => code.Language,
         _ => "sql",
     };
+
+    private string ResultTitle => _result!.Status switch
+    {
+        CodeRunStatus.Passed => "Все проверки пройдены.",
+        CodeRunStatus.Failed => "Проверка не пройдена.",
+        CodeRunStatus.CompileError => "Код не компилируется.",
+        CodeRunStatus.Stopped => "Выполнение остановлено.",
+        _ => "Во время выполнения возникло исключение.",
+    };
+
+    private string ResultClass => _result!.Status switch
+    {
+        CodeRunStatus.Passed => "is-passed",
+        CodeRunStatus.CompileError => "is-neutral",
+        _ => "is-failed",
+    };
+
+    private async Task RunAsync()
+    {
+        if (_editor is null || Quiz is not CodeQuiz task)
+            return;
+
+        _running = true;
+        _error = null;
+
+        try
+        {
+            var code = await _editor.GetTextAsync();
+            _result = await Runner.RunTestsAsync(code, task.Tests);
+            _first = false;
+
+            // Typos are not mistakes in understanding: code that does not compile is not counted.
+            if (_result.Status != CodeRunStatus.CompileError)
+            {
+                var outcome = _result.Status == CodeRunStatus.Passed ? Outcome.Correct : Outcome.Wrong;
+                var first = Progress.Record(TopicId, Quiz.Id, outcome);
+                await OnAnswered.InvokeAsync(new AnswerResult(outcome, first));
+            }
+        }
+        catch (Exception exception)
+        {
+            _error = $"Не удалось запустить код: {exception.Message}";
+        }
+        finally
+        {
+            _running = false;
+        }
+    }
 
     private async Task ResetAsync()
     {
