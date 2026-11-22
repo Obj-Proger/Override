@@ -1,0 +1,196 @@
+@page "/diagnostic"
+@inject ContentClient Content
+@inject ProfileStore Profile
+@inject NavigationManager Navigation
+
+<PageTitle>Диагностика уровня · Override</PageTitle>
+
+<div class="catalog diagnostic">
+    <h1>Диагностика уровня</h1>
+
+    @if (_runs is null)
+    {
+        <p class="loading" role="status">Загрузка…</p>
+    }
+    else if (_runs.Count == 0)
+    {
+        <p class="catalog-lead">Для диагностики пока мало вопросов. Выбери уровень сам: его можно поменять в любой момент.</p>
+    }
+    else if (!_started)
+    {
+        <p class="catalog-lead">
+            Несколько вопросов по каждому стеку, от простых к сложным. Следующий уровень открывается, если на три четверти
+            вопросов текущего ответил верно. Отвечай без подготовки, правильные ответы не показываются.
+        </p>
+        <button type="button" class="button-primary diagnostic-start" @onclick="StartAsync">Начать</button>
+    }
+    else if (_stackIndex < _runs.Count)
+    {
+        var run = _runs[_stackIndex];
+
+        <p class="catalog-lead">@run.Stack.Title · уровень @Labels.Of((Level)_levelIndex) · вопрос @(_position + 1) из @run.Levels[_levelIndex].Count</p>
+        if (_question is not null)
+        {
+            <QuestionCard @key="_question" TopicId="@run.Levels[_levelIndex][_position].TopicId" Question="_question" HideFeedback="true" OnAnswered="OnAnswered" />
+        }
+        <div class="lesson-nav">
+            <button type="button" class="button-primary" disabled="@(_answer is null)" @onclick="NextAsync">Дальше</button>
+        </div>
+    }
+    else
+    {
+        <p class="catalog-lead">Готово. Вот что получилось:</p>
+        <ul class="diagnostic-results">
+            @foreach (var run in _runs)
+            {
+                <li>
+                    <strong>@run.Stack.Title: @Labels.Of((Level)run.Reached)</strong>
+                    <span class="meta">
+                        @for (var i = 0; i < run.Results.Count; i++)
+                        {
+                            var level = (Level)i;
+                            var (correct, total) = run.Results[i];
+                            <span class="diagnostic-score">@Labels.Of(level): @correct из @total</span>
+                        }
+                    </span>
+                </li>
+            }
+        </ul>
+
+        if (Profile.Profile is null)
+        {
+            <label class="chooser-stack diagnostic-track">
+                <span>Направление</span>
+                <select @bind="_track">
+                    @foreach (var track in Enum.GetValues<Track>())
+                    {
+                        <option value="@track">@Labels.Of(track)</option>
+                    }
+                </select>
+            </label>
+        }
+
+        <div class="lesson-nav">
+            <a class="button" href="">Не применять</a>
+            <button type="button" class="button-primary" @onclick="Apply">Применить уровень</button>
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>Questions per level and stack: enough to tell, few enough to finish in minutes.</summary>
+    private const int QuestionsPerLevel = 4;
+
+    private sealed record Item(string TopicId, string QuestionId);
+
+    /// <summary>The diagnostic of one stack: questions by level from Junior up, and the results of the asked levels.</summary>
+    private sealed class StackRun(SectionEntry stack, List<IReadOnlyList<Item>> levels)
+    {
+        public SectionEntry Stack { get; } = stack;
+
+        public List<IReadOnlyList<Item>> Levels { get; } = levels;
+
+        public List<(int Correct, int Total)> Results { get; } = [];
+
+        public int Reached => LevelDiagnosis.Reached(Results);
+    }
+
+    private List<StackRun>? _runs;
+    private bool _started;
+    private int _stackIndex;
+    private int _levelIndex;
+    private int _position;
+    private int _correct;
+    private QuestionBlock? _question;
+    private AnswerResult? _answer;
+    private Track _track = Track.Backend;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var index = await Content.GetIndexAsync();
+        _runs = index.Sections
+            .Select(stack => new StackRun(stack, Enum.GetValues<Level>().Select(level => Pick(stack, level)).ToList()))
+            .Where(run => run.Levels[0].Count > 0)
+            .ToList();
+
+        if (Profile.Profile is { } profile)
+            _track = profile.Track;
+    }
+
+    /// <summary>Questions meant exactly for this level, spread over the stack's topics in program order.</summary>
+    private static IReadOnlyList<Item> Pick(SectionEntry stack, Level level) =>
+        LevelDiagnosis.Spread(
+            stack.TopicsIn().Select(topic => (IReadOnlyList<Item>)topic.CheckedQuestions
+                .Where(q => q.Level == level)
+                .Select(q => new Item(topic.Id, q.Id))
+                .ToList()),
+            QuestionsPerLevel);
+
+    private async Task StartAsync()
+    {
+        _started = true;
+        await LoadQuestionAsync();
+    }
+
+    private void OnAnswered(AnswerResult result)
+    {
+        if (_answer is not null)
+            return;
+
+        _answer = result;
+        if (result.Outcome == Outcome.Correct)
+            _correct++;
+    }
+
+    private async Task NextAsync()
+    {
+        var run = _runs![_stackIndex];
+        _answer = null;
+        _position++;
+
+        if (_position >= run.Levels[_levelIndex].Count)
+        {
+            run.Results.Add((_correct, run.Levels[_levelIndex].Count));
+            var passed = LevelDiagnosis.Passed(_correct, run.Levels[_levelIndex].Count);
+            var hasNext = _levelIndex + 1 < run.Levels.Count && run.Levels[_levelIndex + 1].Count > 0;
+
+            _position = 0;
+            _correct = 0;
+            if (passed && hasNext)
+            {
+                _levelIndex++;
+            }
+            else
+            {
+                _stackIndex++;
+                _levelIndex = 0;
+            }
+        }
+
+        if (_stackIndex < _runs.Count)
+            await LoadQuestionAsync();
+    }
+
+    private async Task LoadQuestionAsync()
+    {
+        var item = _runs![_stackIndex].Levels[_levelIndex][_position];
+        var topic = await Content.GetTopicAsync(item.TopicId);
+        _question = topic.Steps
+            .SelectMany(step => step.Blocks)
+            .OfType<QuestionBlock>()
+            .FirstOrDefault(block => block.Quiz.Id == item.QuestionId);
+    }
+
+    /// <summary>The first stack sets the general level; other stacks get their own level only where it differs.</summary>
+    private void Apply()
+    {
+        var general = (Level)_runs![0].Reached;
+        var stacks = _runs
+            .Where(run => (Level)run.Reached != general)
+            .ToDictionary(run => run.Stack.Path, run => (Level)run.Reached);
+
+        var track = Profile.Profile?.Track ?? _track;
+        Profile.Set(new LearnerProfile(general, track, stacks.Count > 0 ? stacks : null));
+        Navigation.NavigateTo("");
+    }
+}

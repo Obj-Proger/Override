@@ -68,7 +68,7 @@
     <button type="button" class="sidebar-backdrop" aria-label="Закрыть программу" tabindex="-1" @onclick="CloseMenu"></button>
 
     <main class="page">
-        @if (Profile.Profile is null)
+        @if (Profile.Profile is null && _path != DiagnosticPath)
         {
             <div class="catalog">
                 <ProfileChooser Stacks="Stacks" OnSave="SaveProfile" />
@@ -98,6 +98,9 @@
     private bool _profileOpen;
     private int _dueCount;
 
+    /// <summary>The diagnostic opens before the level is chosen: it is a way to choose it.</summary>
+    private const string DiagnosticPath = "diagnostic";
+
     private IReadOnlyList<SectionEntry> Stacks => _index?.Sections ?? [];
 
     protected override async Task OnInitializedAsync()
@@ -124,6 +127,7 @@
         _path = PagePath.Of(Navigation);
         _trail = _index?.Trail(_path) ?? [];
         _menuOpen = false;
+        _profileOpen = false;
         _scrollToTop = true;
         StateHasChanged();
     }

@@ -1410,6 +1410,38 @@ textarea.answer-input {
     text-decoration: none;
 }
 
+/* Diagnostic */
+
+.diagnostic-start {
+    margin-left: 0;
+}
+
+.diagnostic-results {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+}
+
+.diagnostic-results li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--card);
+}
+
+.diagnostic-score + .diagnostic-score::before {
+    content: " · ";
+}
+
+.diagnostic-track {
+    max-width: 420px;
+}
+
 /* Errors of the app itself */
 
 #blazor-error-ui {
