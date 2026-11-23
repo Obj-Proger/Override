@@ -68,8 +68,14 @@ public sealed record HtmlBlock(Level? Level, string Html) : PageBlock(Level);
 /// A question in the text. CodeHtml is the highlighted Quiz.Code, which stays plain for checking answers.
 /// LinesHtml holds highlighted lines for questions that work with single lines: the code lines of find-bug,
 /// and for parsons the lines followed by the distractors. SolutionHtml is the highlighted reference solution
-/// of a code or SQL task.
+/// of a code or SQL task. Variants are other versions of the same question, with the same id: the site
+/// shows them in turn so that answers are not learned by heart.
 /// </summary>
 public sealed record QuestionBlock(
-    Level? Level, Quiz Quiz, string? CodeHtml, IReadOnlyList<string>? LinesHtml, string? SolutionHtml = null)
+    Level? Level,
+    Quiz Quiz,
+    string? CodeHtml,
+    IReadOnlyList<string>? LinesHtml,
+    string? SolutionHtml = null,
+    IReadOnlyList<QuestionBlock>? Variants = null)
     : PageBlock(Level);

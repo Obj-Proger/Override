@@ -41,11 +41,16 @@ internal static class TopicRenderer
             MarkdownBlock markdown => new HtmlBlock(
                 markdown.Level,
                 MarkdownRenderer.Block(FigureInliner.Inline(markdown.Markdown, source.FilePath, markdown.Line, diagnostics))),
-            QuizBlock quiz => new QuestionBlock(
-                quiz.Level, RenderQuiz(quiz.Quiz), RenderCode(quiz.Quiz), RenderLines(quiz.Quiz), RenderSolution(quiz.Quiz)),
+            QuizBlock quiz => RenderQuestion(quiz.Quiz, quiz.Level) with
+            {
+                Variants = quiz.Variants?.Select(variant => RenderQuestion(variant, quiz.Level)).ToList(),
+            },
             _ => throw new InvalidOperationException($"Unknown block type {block.GetType().Name}."),
         };
     }
+
+    private static QuestionBlock RenderQuestion(Quiz quiz, Level? level) =>
+        new(level, RenderQuiz(quiz), RenderCode(quiz), RenderLines(quiz), RenderSolution(quiz));
 
     /// <summary>Code shown with a question: SQL for SQL tasks, the task language for code tasks, otherwise C#.</summary>
     private static string? RenderCode(Quiz quiz)

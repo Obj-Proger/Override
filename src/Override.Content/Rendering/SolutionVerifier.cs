@@ -21,10 +21,12 @@ internal static class SolutionVerifier
     {
         foreach (var topic in topics)
         {
+            // Every variant is a task of its own: its solution must pass and its starter must not.
             var tasks = topic.Topic.Steps
                 .SelectMany(step => step.Blocks)
                 .OfType<QuizBlock>()
-                .Where(block => block.Quiz is CodeQuiz { Language: CSharpLanguage });
+                .SelectMany(block => block.AllVersions.Select(quiz => (block.Line, Quiz: quiz)))
+                .Where(item => item.Quiz is CodeQuiz { Language: CSharpLanguage });
 
             foreach (var block in tasks)
             {

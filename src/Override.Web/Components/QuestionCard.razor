@@ -13,11 +13,10 @@
     @switch (Quiz)
     {
         case ChoiceQuiz choice:
-            <CodeBlock Html="@Question.CodeHtml" />
+            <CodeBlock Html="@Shown.CodeHtml" />
             <ul class="options">
-                @for (var i = 0; i < choice.Options.Count; i++)
+                @foreach (var index in _optionOrder)
                 {
-                    var index = i;
                     <li>
                         <button type="button"
                                 class="option @OptionClass(index, index == choice.Answer, _choice == index)"
@@ -38,11 +37,10 @@
             break;
 
         case MultiQuiz multi:
-            <CodeBlock Html="@Question.CodeHtml" />
+            <CodeBlock Html="@Shown.CodeHtml" />
             <ul class="options">
-                @for (var i = 0; i < multi.Options.Count; i++)
+                @foreach (var index in _optionOrder)
                 {
-                    var index = i;
                     <li>
                         <label class="option @OptionClass(index, multi.Answers.Contains(index), _selected.Contains(index))">
                             <input type="checkbox"
@@ -63,7 +61,7 @@
             break;
 
         case InputQuiz or OutputQuiz or FillQuiz:
-            <CodeBlock Html="@Question.CodeHtml" />
+            <CodeBlock Html="@Shown.CodeHtml" />
             <div class="answer-row">
                 @if (IsMultiline)
                 {
@@ -147,7 +145,7 @@
             break;
 
         case RecallQuiz recall:
-            <CodeBlock Html="@Question.CodeHtml" />
+            <CodeBlock Html="@Shown.CodeHtml" />
             if (!_revealed)
             {
                 <p class="question-hint">Ответь про себя или запиши, потом сравни с ответом.</p>
@@ -176,12 +174,12 @@
             break;
 
         case CodeQuiz or SqlQuiz:
-            <CodeBlock Html="@Question.CodeHtml" />
-            <CodeTask TopicId="@TopicId" Quiz="Quiz" SolutionHtml="@Question.SolutionHtml" OnAnswered="OnAnswered" />
+            <CodeBlock Html="@Shown.CodeHtml" />
+            <CodeTask TopicId="@TopicId" Quiz="Quiz" SolutionHtml="@Shown.SolutionHtml" OnAnswered="OnAnswered" />
             break;
 
         default:
-            <CodeBlock Html="@Question.CodeHtml" />
+            <CodeBlock Html="@Shown.CodeHtml" />
             break;
     }
 
@@ -230,6 +228,13 @@
     [Parameter, EditorRequired]
     public QuestionBlock Question { get; set; } = default!;
 
+    /// <summary>
+    /// Whether the card chooses a version of the question itself. A test turns it off: it picks the versions
+    /// up front, to show the same ones in the results.
+    /// </summary>
+    [Parameter]
+    public bool PickVariant { get; set; } = true;
+
     [Parameter]
     public bool IsSummary { get; set; }
 
@@ -241,13 +246,25 @@
     [Parameter]
     public EventCallback<AnswerResult> OnAnswered { get; set; }
 
-    private Quiz Quiz => Question.Quiz;
+    private QuestionBlock? _source;
+    private QuestionBlock _shown = default!;
+
+    /// <summary>Options in the order shown: shuffled, so that the answer is not remembered by its place.</summary>
+    private List<int> _optionOrder = [];
+
+    /// <summary>The version of the question on screen: the question itself or one of its variants.</summary>
+    private QuestionBlock Shown => _shown;
+
+    private Quiz Quiz => _shown.Quiz;
 
     private string ReportUrl => Feedback.Issue(
         $"Неточность в вопросе {Quiz.Id}",
-        $"Тема: {TopicId}\nВопрос: {Quiz.Id}\nАдрес: {Navigation.Uri}");
+        $"Тема: {TopicId}\nВопрос: {Quiz.Id}\nВариант: {VariantNumber}\nАдрес: {Navigation.Uri}");
 
-    private IReadOnlyList<string> Lines => Question.LinesHtml ?? [];
+    /// <summary>1 for the question as written, 2 and on for its variants in file order.</summary>
+    private int VariantNumber => Question.Variants?.ToList().IndexOf(_shown) + 2 ?? 1;
+
+    private IReadOnlyList<string> Lines => _shown.LinesHtml ?? [];
 
     private bool IsMultiline => Quiz is OutputQuiz output && output.Answers.Any(a => a.Trim().Contains('\n'));
 
@@ -269,10 +286,26 @@
         _ => null,
     };
 
+    /// <summary>A new question gets a version and a fresh order of options; a redraw of the same one keeps them.</summary>
     protected override void OnParametersSet()
     {
-        if (Quiz is ParsonsQuiz && _pool.Count == 0)
-            _pool = Shuffled(Lines.Count);
+        if (ReferenceEquals(_source, Question))
+            return;
+
+        _source = Question;
+        _shown = PickVariant ? Progress.PickVariant(TopicId, Question) : Question;
+        Reset();
+        _revealed = false;
+        _assessment = null;
+
+        var options = Quiz switch
+        {
+            ChoiceQuiz choice => choice.Options.Count,
+            MultiQuiz multi => multi.Options.Count,
+            _ => 0,
+        };
+        _optionOrder = Shuffled(options, allowSame: true);
+        _pool = Quiz is ParsonsQuiz ? Shuffled(Lines.Count) : [];
     }
 
     private void Toggle(int option)
@@ -363,8 +396,11 @@
         return isPicked ? "is-mistake" : "is-dimmed";
     }
 
-    /// <summary>A random order that differs from the given one, so the task is never solved in advance.</summary>
-    private static List<int> Shuffled(int count)
+    /// <summary>
+    /// A random order. For parsons it must differ from the right one, or the task would be solved in advance;
+    /// options may stay in place by chance.
+    /// </summary>
+    private static List<int> Shuffled(int count, bool allowSame = false)
     {
         var items = Enumerable.Range(0, count).ToList();
         if (count < 2)
@@ -374,7 +410,7 @@
         {
             items = [.. items.OrderBy(_ => Random.Shared.Next())];
         }
-        while (items.SequenceEqual(Enumerable.Range(0, count)));
+        while (!allowSame && items.SequenceEqual(Enumerable.Range(0, count)));
 
         return items;
     }

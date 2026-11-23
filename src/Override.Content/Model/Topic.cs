@@ -27,5 +27,12 @@ public abstract record Block(Level? Level, int Line);
 /// <summary>Markdown text, rendered as is.</summary>
 public sealed record MarkdownBlock(string Markdown, Level? Level, int Line) : Block(Level, Line);
 
-/// <summary>A question placed in the text.</summary>
-public sealed record QuizBlock(Quiz Quiz, Level? Level, int Line) : Block(Level, Line);
+/// <summary>A question placed in the text, with other versions of it that the site shows in turn.</summary>
+public sealed record QuizBlock(Quiz Quiz, Level? Level, int Line, IReadOnlyList<Quiz>? Variants = null) : Block(Level, Line)
+{
+    /// <summary>The question and its variants.</summary>
+    public IEnumerable<Quiz> AllVersions => Variants is null ? new[] { Quiz } : Variants.Prepend(Quiz);
+}
+
+/// <summary>A question read from YAML together with its variants.</summary>
+public sealed record QuizWithVariants(Quiz Quiz, IReadOnlyList<Quiz> Variants);

@@ -24,6 +24,9 @@ public sealed class ProgressData
 
     /// <summary>Results of topic tests by topic id, oldest first.</summary>
     public Dictionary<string, List<TestResult>> Tests { get; set; } = [];
+
+    /// <summary>The version of each question shown last, by question key: 0 is the question, 1 and on its variants.</summary>
+    public Dictionary<string, int> Variants { get; set; } = [];
 }
 
 [JsonSourceGenerationOptions(

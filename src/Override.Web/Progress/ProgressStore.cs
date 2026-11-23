@@ -91,6 +91,30 @@ public sealed class ProgressStore
         Save();
     }
 
+    /// <summary>
+    /// Chooses the version of a question to show. The first time it is the question itself, as the author wrote it;
+    /// later a random version other than the one shown last, so that the answer cannot be learned by heart.
+    /// </summary>
+    public QuestionBlock PickVariant(string topicId, QuestionBlock question)
+    {
+        if (question.Variants is not { Count: > 0 } variants)
+            return question;
+
+        var key = Key(topicId, question.Quiz.Id);
+        var count = variants.Count + 1;
+        var index = 0;
+        if (_data.Variants.TryGetValue(key, out var last) && last >= 0 && last < count)
+        {
+            index = Random.Shared.Next(count - 1);
+            if (index >= last)
+                index++;
+        }
+
+        _data.Variants[key] = index;
+        SaveQuietly();
+        return index == 0 ? question : variants[index - 1];
+    }
+
     public void Visit(string topicId, int step)
     {
         var furthest = _data.Topics.TryGetValue(topicId, out var visit) ? Math.Max(visit.FurthestStep, step) : step;
@@ -212,7 +236,11 @@ public sealed class ProgressStore
 
     private void Save()
     {
-        Storage.Invoke<bool>("overrideStorage.set", StorageKey, JsonSerializer.Serialize(_data, ProgressJsonContext.Default.ProgressData));
+        SaveQuietly();
         Changed?.Invoke();
     }
+
+    /// <summary>Saves without notifying: for data that changes nothing on screen, such as the version shown.</summary>
+    private void SaveQuietly() =>
+        Storage.Invoke<bool>("overrideStorage.set", StorageKey, JsonSerializer.Serialize(_data, ProgressJsonContext.Default.ProgressData));
 }

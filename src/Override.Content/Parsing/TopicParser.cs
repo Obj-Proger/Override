@@ -198,9 +198,9 @@ public static class TopicParser
                     {
                         if (isQuiz)
                         {
-                            var quiz = QuizReader.Read(string.Join('\n', quizLines), file, fenceLine + 1, diagnostics);
-                            if (quiz is not null)
-                                _blocks.Add(new QuizBlock(quiz, _level, fenceLine));
+                            var read = QuizReader.ReadWithVariants(string.Join('\n', quizLines), file, fenceLine + 1, diagnostics);
+                            if (read is not null)
+                                _blocks.Add(new QuizBlock(read.Quiz, _level, fenceLine, read.Variants.Count > 0 ? read.Variants : null));
                         }
                         else
                         {

@@ -24,15 +24,79 @@ internal static class QuizReader
 
     private static readonly string[] _languages = ["csharp"];
 
-    public static Quiz? Read(string yaml, string file, int firstLine, ICollection<ContentDiagnostic> diagnostics)
+    public static Quiz? Read(string yaml, string file, int firstLine, ICollection<ContentDiagnostic> diagnostics) =>
+        ReadWithVariants(yaml, file, firstLine, diagnostics)?.Quiz;
+
+    /// <summary>
+    /// Reads a question and its variants. A variant is the same question with other data: it repeats only the
+    /// fields that differ and takes the rest from the question, so the site can show a different version each time.
+    /// </summary>
+    public static QuizWithVariants? ReadWithVariants(
+        string yaml, string file, int firstLine, ICollection<ContentDiagnostic> diagnostics)
     {
         var d = Yaml.Read<QuizDocument>(yaml, file, firstLine, diagnostics);
         if (d is null)
             return null;
 
         var errorsBefore = diagnostics.Count;
-        var label = string.IsNullOrWhiteSpace(d.Id) ? "Question" : $"Question '{d.Id}'";
-        void Error(string message) => diagnostics.Add(new(file, firstLine, $"{label}: {message}"));
+        var quiz = Build(d, file, firstLine, diagnostics, label: null);
+        var variants = new List<Quiz>();
+        var documents = d.Variants ?? [];
+
+        if (quiz is RecallQuiz && documents.Count > 0)
+            diagnostics.Add(new(file, firstLine, $"Question '{d.Id}': a recall question has no variants."));
+
+        for (var i = 0; i < documents.Count; i++)
+        {
+            var variant = documents[i];
+            if (variant.Id is not null || variant.Type is not null || variant.Level is not null
+                || variant.Lang is not null || variant.Variants is not null)
+            {
+                diagnostics.Add(new(
+                    file,
+                    firstLine,
+                    $"Question '{d.Id}', variant {i + 1}: 'id', 'type', 'level' and 'lang' come from the question, and a variant has no variants."));
+                continue;
+            }
+
+            if (Build(Merge(d, variant), file, firstLine, diagnostics, $"variant {i + 1}") is { } built)
+                variants.Add(built);
+        }
+
+        return quiz is not null && diagnostics.Count == errorsBefore ? new QuizWithVariants(quiz, variants) : null;
+    }
+
+    /// <summary>The question with the fields the variant sets replaced.</summary>
+    private static QuizDocument Merge(QuizDocument question, QuizDocument variant) => new()
+    {
+        Id = question.Id,
+        Type = question.Type,
+        Level = question.Level,
+        Lang = question.Lang,
+        Prompt = variant.Prompt ?? question.Prompt,
+        Code = variant.Code ?? question.Code,
+        Explain = variant.Explain ?? question.Explain,
+        Options = variant.Options ?? question.Options,
+        Answer = variant.Answer ?? question.Answer,
+        CaseSensitive = variant.CaseSensitive ?? question.CaseSensitive,
+        Lines = variant.Lines ?? question.Lines,
+        Distractors = variant.Distractors ?? question.Distractors,
+        Starter = variant.Starter ?? question.Starter,
+        Tests = variant.Tests ?? question.Tests,
+        Solution = variant.Solution ?? question.Solution,
+        Setup = variant.Setup ?? question.Setup,
+        Ordered = variant.Ordered ?? question.Ordered,
+    };
+
+    private static Quiz? Build(
+        QuizDocument d, string file, int firstLine, ICollection<ContentDiagnostic> diagnostics, string? label)
+    {
+        var errorsBefore = diagnostics.Count;
+        var name = string.IsNullOrWhiteSpace(d.Id) ? "Question" : $"Question '{d.Id}'";
+        if (label is not null)
+            name += $", {label}";
+
+        void Error(string message) => diagnostics.Add(new(file, firstLine, $"{name}: {message}"));
 
         if (string.IsNullOrWhiteSpace(d.Id) || !Values.QuizId().IsMatch(d.Id))
             Error("'id' is required and must look like 'boxing-copy'.");
@@ -308,5 +372,7 @@ internal static class QuizReader
         public string? Setup { get; set; }
 
         public bool? Ordered { get; set; }
+
+        public List<QuizDocument>? Variants { get; set; }
     }
 }

@@ -24,7 +24,7 @@
             break;
 
         case Stage.Running:
-            var question = Topic.Test[_position];
+            var question = _questions[_position];
             <div class="test-bar">
                 <span>Вопрос @(_position + 1) из @Topic.Test.Count</span>
                 @if (_deadline is { } deadline)
@@ -34,7 +34,7 @@
                     </span>
                 }
             </div>
-            <QuestionCard @key="question" TopicId="@Topic.Id" Question="question" HideFeedback="true" OnAnswered="OnAnswered" />
+            <QuestionCard @key="question" TopicId="@Topic.Id" Question="question" PickVariant="false" HideFeedback="true" OnAnswered="OnAnswered" />
             <div class="lesson-nav">
                 @if (!_answers.ContainsKey(_position))
                 {
@@ -58,7 +58,7 @@
             <ol class="test-review">
                 @for (var i = 0; i < Topic.Test.Count; i++)
                 {
-                    var item = Topic.Test[i];
+                    var item = _questions[i];
                     var outcome = _answers.TryGetValue(i, out var answer) ? answer.Outcome : (Outcome?)null;
                     <li class="@(outcome == Outcome.Correct ? "is-right" : "is-mistake")">
                         <div class="test-review-status">@StatusText(outcome)</div>
@@ -91,6 +91,9 @@
     }
 
     private readonly Dictionary<int, AnswerResult> _answers = [];
+
+    /// <summary>The versions of the questions in this attempt; the results below show the same ones.</summary>
+    private List<QuestionBlock> _questions = [];
     private Stage _stage;
     private int _position;
     private DateTimeOffset _started;
@@ -104,6 +107,7 @@
     private void Start()
     {
         _answers.Clear();
+        _questions = Topic.Test.Select(question => Progress.PickVariant(Topic.Id, question)).ToList();
         _position = 0;
         _result = null;
         _started = DateTimeOffset.Now;
