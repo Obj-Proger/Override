@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" role="img" aria-labelledby="t d">
+  <title id="t">Путь кода C# до процессора</title>
+  <desc id="d">При сборке компилятор Roslyn превращает файл Program.cs в сборку Hello.dll, в которой лежат IL-код и метаданные. При запуске среда CLR загружает сборку, и JIT-компилятор переводит каждый метод в машинный код при его первом вызове. Машинный код выполняет процессор. Рядом с JIT в CLR работают сборщик мусора и проверка типов.</desc>
+  <style>
+    .panel{fill:var(--fig-panel,#F3F2F7)}
+    .cell{fill:var(--fig-cell,#FFFFFF);stroke:var(--fig-line,#C9C9D1);stroke-width:1.5}
+    .hl{fill:var(--fig-accent-soft,#ECE8FF);stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .t{fill:var(--fig-text,#26262C);font:500 15px Inter,system-ui,sans-serif}
+    .m{fill:var(--fig-muted,#5C5C66);font:13px Inter,system-ui,sans-serif}
+    .h{fill:var(--fig-text,#26262C);font:600 14px Inter,system-ui,sans-serif}
+    .code{fill:var(--fig-text,#26262C);font:600 15px 'JetBrains Mono',Consolas,monospace}
+    .arrow{fill:none;stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .dot{fill:var(--fig-accent,#5B3FD9)}
+  </style>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="dot"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="26" class="h">1. Сборка: dotnet build, один раз</text>
+  <rect x="20" y="38" width="680" height="96" rx="12" class="panel"/>
+
+  <rect x="40" y="58" width="170" height="56" rx="8" class="cell"/>
+  <text x="125" y="82" class="code" text-anchor="middle">Program.cs</text>
+  <text x="125" y="102" class="m" text-anchor="middle">исходный код C#</text>
+
+  <path d="M214 86H292" class="arrow" marker-end="url(#ah)"/>
+  <text x="253" y="76" class="m" text-anchor="middle">Roslyn</text>
+
+  <rect x="300" y="58" width="220" height="56" rx="8" class="hl"/>
+  <text x="410" y="82" class="code" text-anchor="middle">Hello.dll</text>
+  <text x="410" y="102" class="m" text-anchor="middle">IL-код + метаданные</text>
+
+  <text x="540" y="82" class="m">одинаков для Windows,</text>
+  <text x="540" y="100" class="m">Linux и macOS</text>
+
+  <text x="20" y="170" class="h">2. Выполнение: при каждом запуске программы</text>
+  <rect x="20" y="182" width="680" height="104" rx="12" class="panel"/>
+
+  <rect x="40" y="200" width="420" height="70" rx="8" class="cell"/>
+  <text x="56" y="222" class="h">CLR — среда выполнения</text>
+  <rect x="56" y="232" width="150" height="28" rx="6" class="hl"/>
+  <text x="131" y="251" class="t" text-anchor="middle">JIT: IL → код</text>
+  <text x="220" y="251" class="m">+ сборщик мусора, проверка типов</text>
+
+  <path d="M410 118V196" class="arrow" marker-end="url(#ah)"/>
+  <text x="418" y="160" class="m">загрузка сборки</text>
+
+  <path d="M464 235H530" class="arrow" marker-end="url(#ah)"/>
+  <rect x="538" y="200" width="146" height="70" rx="8" class="cell"/>
+  <text x="611" y="228" class="t" text-anchor="middle">машинный код</text>
+  <text x="611" y="250" class="m" text-anchor="middle">его выполняет</text>
+  <text x="611" y="266" class="m" text-anchor="middle">процессор</text>
+</svg>
