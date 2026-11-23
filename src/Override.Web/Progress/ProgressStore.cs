@@ -23,6 +23,9 @@ public sealed class ProgressStore
 {
     private const string StorageKey = "override.progress";
 
+    /// <summary>The share of right answers that passes a topic test.</summary>
+    public const double TestPassShare = 0.75;
+
     /// <summary>Older attempts are dropped: the recent ones tell what the user knows now.</summary>
     private const int MaxAttemptsPerQuestion = 20;
 
@@ -149,6 +152,9 @@ public sealed class ProgressStore
             ? results.OrderByDescending(r => r.Share).ThenByDescending(r => r.At).FirstOrDefault()
             : null;
 
+    /// <summary>Whether the topic test was ever passed.</summary>
+    public bool PassedTest(string topicId) => BestTest(topicId) is { } best && best.Share >= TestPassShare;
+
     /// <summary>Whether this question was ever answered right at the first attempt.</summary>
     public bool IsKnown(string topicId, string questionId) =>
         AttemptsOf(topicId, questionId).Any(a => a.First && a.Outcome == Outcome.Correct);
@@ -164,9 +170,11 @@ public sealed class ProgressStore
         var questions = QuestionsFor(topic);
         var visited = _data.Topics.TryGetValue(topic.Id, out var visit);
 
+        // A passed test proves the topic: it has new questions, answered without hints.
         // A passed quick check counts until a later answer shows a gap.
         // A topic without checked questions at this level is done once its last step was opened.
-        var done = (PassedQuickCheck(topic.Id) && !HasGaps(topic))
+        var done = PassedTest(topic.Id)
+            || (PassedQuickCheck(topic.Id) && !HasGaps(topic))
             || (questions.Count > 0
                 ? questions.All(q => IsKnown(topic.Id, q.Id))
                 : visited && visit!.FurthestStep >= topic.Steps - 1);

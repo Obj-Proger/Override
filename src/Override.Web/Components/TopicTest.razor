@@ -47,11 +47,12 @@
             break;
 
         case Stage.Finished:
-            <div class="quick-result @(_result!.Share >= PassShare ? "is-passed" : null)">
+            var passed = _result!.Share >= ProgressStore.TestPassShare;
+            <div class="quick-result @(passed ? "is-passed" : null)">
                 <strong>@_result.Correct из @_result.Total · @Labels.Percent(_result.Share)</strong>
                 <p>
                     @(_result.TimedOut ? "Время вышло. " : null)Затрачено @Clock(TimeSpan.FromSeconds(_result.Seconds)).
-                    @(_result.Share >= PassShare ? "Тема усвоена." : "Стоит вернуться к теме и разобрать ошибки ниже.")
+                    @(passed ? "Тема усвоена." : "Стоит вернуться к теме и разобрать ошибки ниже.")
                 </p>
             </div>
 
@@ -73,7 +74,11 @@
 
             <div class="lesson-nav">
                 <a class="button" href="@Topic.Path">К теме</a>
-                <button type="button" class="button-primary" @onclick="Restart">Пройти ещё раз</button>
+                <button type="button" class="@(passed && NextTopic is not null ? "button" : "button-primary")" @onclick="Restart">Пройти ещё раз</button>
+                @if (NextTopic is not null)
+                {
+                    <a class="@(passed ? "button-primary" : "button")" href="@NextTopic.Path">Следующая тема: @NextTopic.Title</a>
+                }
             </div>
             break;
     }
@@ -81,7 +86,6 @@
 
 @code {
     /// <summary>From this share of right answers a test counts as passed.</summary>
-    private const double PassShare = 0.8;
 
     private enum Stage
     {
@@ -103,6 +107,10 @@
 
     [Parameter, EditorRequired]
     public TopicPage Topic { get; set; } = default!;
+
+    /// <summary>The topic after this one in the program, offered when the test is over.</summary>
+    [Parameter]
+    public TopicEntry? NextTopic { get; set; }
 
     private void Start()
     {

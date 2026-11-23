@@ -9,7 +9,7 @@ else if (_topic is not null)
 {
     if (Mode == "test" && _topic.Test.Count > 0)
     {
-        <TopicTest Topic="_topic" />
+        <TopicTest Topic="_topic" NextTopic="_index.NextTopic(_topic.Id)" />
     }
     else
     {
