@@ -62,9 +62,9 @@ object o = a;
 На одном значении это незаметно. В цикле — уже да:
 
 ```csharp
-var list = new ArrayList();             // хранит object
+var list = new ArrayList();  // хранит object
 for (int i = 0; i < 1_000_000; i++)
-    list.Add(i);                        // Add(object) → каждый i упаковывается
+    list.Add(i);             // Add(object) → каждый i упаковывается
 ```
 
 Миллион обёрток по 24 байта — около 24 МБ в куче только на коробки, и всё это сборщик мусора потом обходит и чистит. Обычный массив `int[1_000_000]` занимает 4 МБ одним блоком. Как хранить числа в коллекции без упаковки, разбирается в теме Generics.
@@ -72,9 +72,9 @@ for (int i = 0; i < 1_000_000; i++)
 **Правило:** упаковка происходит, когда значение значимого типа попадает туда, где ожидается ссылка:
 
 ```csharp
-object o = 5;               // переменная типа object
-IComparable c = 5;          // переменная интерфейсного типа: int реализует IComparable
-list.Add(5);                // параметр типа object (ArrayList.Add(object))
+object o = 5;       // переменная типа object
+IComparable c = 5;  // переменная интерфейсного типа: int реализует IComparable
+list.Add(5);        // параметр типа object (ArrayList.Add(object))
 ```
 
 ```quiz
@@ -117,9 +117,9 @@ int a = (int)o;
 ```csharp
 object o = 123;
 
-int a = (int)o;           // ок
-long b = (long)o;         // ошибка во время выполнения: в обёртке int, а не long
-long c = (long)(int)o;    // ок: распаковали int, потом обычным приведением сделали long
+int a = (int)o;         // ок
+long b = (long)o;       // ошибка во время выполнения: в обёртке int, а не long
+long c = (long)(int)o;  // ок: распаковали int, потом обычным приведением сделали long
 ```
 
 Почему компилятор не ловит `(long)o` заранее: у `o` тип `object`, в нём может оказаться что угодно. Что лежит внутри, известно только во время выполнения. Ошибка, которую бросит программа, называется `InvalidCastException`.
@@ -173,11 +173,11 @@ struct Counter : ICounter
 }
 
 var counter = new Counter();
-ICounter boxed = counter;                     // 1
-boxed.Increment();                            // 2
+ICounter boxed = counter;  // 1
+boxed.Increment();         // 2
 
-Console.WriteLine(counter.Value);             // 3 → 0
-Console.WriteLine(((Counter)boxed).Value);    // 4 → 1
+Console.WriteLine(counter.Value);           // 3 → 0
+Console.WriteLine(((Counter)boxed).Value);  // 4 → 1
 ```
 
 1. `Counter` — структура, `ICounter` — интерфейс. Присваивание упаковывает `counter`: в куче появляется копия.
@@ -193,6 +193,19 @@ Console.WriteLine(((Counter)boxed).Value);    // 4 → 1
 id: struct-interface-copy
 type: choice
 prompt: Почему `counter.Value` остался равен 0?
+code: |
+  interface ICounter { void Increment(); }
+
+  struct Counter : ICounter
+  {
+      public int Value;
+      public void Increment() => Value++;
+  }
+
+  var counter = new Counter();
+  ICounter boxed = counter;
+  boxed.Increment();
+  Console.WriteLine(counter.Value);  // 0
 options:
   - "`Increment` не вызвался: через интерфейс метод структуры недоступен"
   - "При присваивании в `ICounter` создалась копия, и изменилась она"
@@ -248,7 +261,6 @@ starter: |
   {
       public static long Sum(ArrayList numbers)
       {
-          throw new NotImplementedException();
       }
   }
 tests: |
@@ -291,8 +303,8 @@ explain: |
 struct Point { public int X, Y; }
 
 var p = new Point();
-p.GetType();     // boxing
-p.ToString();    // boxing: ToString не переопределён
+p.GetType();   // boxing
+p.ToString();  // boxing: ToString не переопределён
 ```
 
 ```quiz
@@ -317,8 +329,8 @@ explain: |
 
 ```csharp
 object o = 1;
-var day = (DayOfWeek)o;      // ок: у DayOfWeek базовый тип int
-Console.WriteLine(day);      // Monday
+var day = (DayOfWeek)o;  // ок: у DayOfWeek базовый тип int
+Console.WriteLine(day);  // Monday
 ```
 
 **Интерполяция строк.** До C# 10 `$"{x}"` превращался в вызов `string.Format(string, object)`, и `int` упаковывался. С C# 10 и .NET 6 компилятор собирает строку через `DefaultInterpolatedStringHandler`, у которого есть метод под любой тип без приведения к `object`, и упаковки нет.
@@ -329,7 +341,9 @@ Console.WriteLine(day);      // Monday
 id: enum-unboxing
 type: output
 level: senior
-prompt: Что выведет код?
+prompt: |
+  Что выведет код? `DayOfWeek` — перечисление дней недели с базовым типом `int`:
+  `Sunday = 0`, `Monday = 1`, `Tuesday = 2` и так далее до `Saturday = 6`.
 code: |
   object o = 1;
   var day = (DayOfWeek)o;
