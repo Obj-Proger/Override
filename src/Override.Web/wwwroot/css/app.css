@@ -1035,6 +1035,17 @@ textarea.answer-input {
     cursor: default;
 }
 
+.code-line.is-picked {
+    border: 2px solid var(--accent);
+    background: var(--accent-soft);
+}
+
+.self-check .button.is-picked {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--strong);
+}
+
 .code-line.is-right {
     border: 2px solid var(--ok);
 }

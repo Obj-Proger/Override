@@ -81,6 +81,16 @@ public sealed class ProgressStore
         return first;
     }
 
+    /// <summary>Changes the outcome of the last answer, keeping its time and whether it was first.</summary>
+    public void Amend(string topicId, string questionId, Outcome outcome)
+    {
+        if (!_data.Questions.TryGetValue(Key(topicId, questionId), out var attempts) || attempts.Count == 0)
+            return;
+
+        attempts[^1] = attempts[^1] with { Outcome = outcome };
+        Save();
+    }
+
     public void Visit(string topicId, int step)
     {
         var furthest = _data.Topics.TryGetValue(topicId, out var visit) ? Math.Max(visit.FurthestStep, step) : step;

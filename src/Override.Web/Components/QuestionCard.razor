@@ -1,5 +1,6 @@
 @*
     A question in the text. The answer and the explanation stay hidden until the user answers.
+    An answer is picked first and checked by a button, so a slip of the finger can be undone.
     Every check is saved; whether it was a first attempt is decided by the progress store.
 *@
 @inject ProgressStore Progress
@@ -21,12 +22,19 @@
                         <button type="button"
                                 class="option @OptionClass(index, index == choice.Answer, _choice == index)"
                                 disabled="@_answered"
-                                @onclick="() => AnswerChoice(choice, index)">
+                                aria-pressed="@(_choice == index ? "true" : "false")"
+                                @onclick="() => _choice = index">
                             @((MarkupString)choice.Options[index])
                         </button>
                     </li>
                 }
             </ul>
+            if (!_answered)
+            {
+                <div class="question-actions">
+                    <button type="button" class="button-check" disabled="@(_choice is null)" @onclick="() => Check(AnswerChecker.Check(choice, _choice!.Value))">@CheckLabel</button>
+                </div>
+            }
             break;
 
         case MultiQuiz multi:
@@ -49,7 +57,7 @@
             if (!_answered)
             {
                 <div class="question-actions">
-                    <button type="button" class="button-check" disabled="@(_selected.Count == 0)" @onclick="() => Check(AnswerChecker.Check(multi, _selected))">Проверить</button>
+                    <button type="button" class="button-check" disabled="@(_selected.Count == 0)" @onclick="() => Check(AnswerChecker.Check(multi, _selected))">@CheckLabel</button>
                 </div>
             }
             break;
@@ -68,7 +76,7 @@
                 }
                 @if (!_answered)
                 {
-                    <button type="button" class="button-check" disabled="@string.IsNullOrWhiteSpace(_text)" @onclick="CheckText">Проверить</button>
+                    <button type="button" class="button-check" disabled="@string.IsNullOrWhiteSpace(_text)" @onclick="CheckText">@CheckLabel</button>
                 }
             </div>
             break;
@@ -83,13 +91,20 @@
                                 class="code-line @OptionClass(line, line == findBug.Line, _line == line)"
                                 disabled="@_answered"
                                 aria-label="@($"Строка {line}")"
-                                @onclick="() => AnswerLine(findBug, line)">
+                                aria-pressed="@(_line == line ? "true" : "false")"
+                                @onclick="() => _line = line">
                             <span class="line-number" aria-hidden="true">@line</span>
                             <code>@((MarkupString)Lines[i])</code>
                         </button>
                     </li>
                 }
             </ol>
+            if (!_answered)
+            {
+                <div class="question-actions">
+                    <button type="button" class="button-check" disabled="@(_line is null)" @onclick="() => Check(AnswerChecker.Check(findBug, _line!.Value))">@CheckLabel</button>
+                </div>
+            }
             break;
 
         case ParsonsQuiz parsons:
@@ -125,7 +140,7 @@
                         }
                     </ul>
                     <div class="question-actions">
-                        <button type="button" class="button-check" disabled="@(_order.Count == 0)" @onclick="() => CheckParsons(parsons)">Проверить</button>
+                        <button type="button" class="button-check" disabled="@(_order.Count == 0)" @onclick="() => CheckParsons(parsons)">@CheckLabel</button>
                     </div>
                 }
             </div>
@@ -147,15 +162,13 @@
                     <div class="reference-title">@(IsSummary ? "Кратко" : "Ответ")</div>
                     @((MarkupString)recall.Answer)
                 </div>
-                if (_assessment is null)
-                {
-                    <div class="question-actions self-check" role="group" aria-label="Насколько вспомнил">
-                        <button type="button" class="button" @onclick="() => Assess(Outcome.Forgot)">Не вспомнил</button>
-                        <button type="button" class="button" @onclick="() => Assess(Outcome.Partial)">Частично</button>
-                        <button type="button" class="button" @onclick="() => Assess(Outcome.Recalled)">Вспомнил</button>
-                    </div>
-                }
-                else if (_assessment != Outcome.Recalled)
+                @* The buttons stay: a wrong press is corrected by pressing another one. *@
+                <div class="question-actions self-check" role="group" aria-label="Насколько вспомнил">
+                    <button type="button" class="button @AssessClass(Outcome.Forgot)" aria-pressed="@AssessPressed(Outcome.Forgot)" @onclick="() => Assess(Outcome.Forgot)">Не вспомнил</button>
+                    <button type="button" class="button @AssessClass(Outcome.Partial)" aria-pressed="@AssessPressed(Outcome.Partial)" @onclick="() => Assess(Outcome.Partial)">Частично</button>
+                    <button type="button" class="button @AssessClass(Outcome.Recalled)" aria-pressed="@AssessPressed(Outcome.Recalled)" @onclick="() => Assess(Outcome.Recalled)">Вспомнил</button>
+                </div>
+                if (_assessment is not null && _assessment != Outcome.Recalled)
                 {
                     <p class="question-hint">Тема вернётся в повторение раньше.</p>
                 }
@@ -238,6 +251,13 @@
 
     private bool IsMultiline => Quiz is OutputQuiz output && output.Answers.Any(a => a.Trim().Contains('\n'));
 
+    /// <summary>In a test the answer is only taken, not checked.</summary>
+    private string CheckLabel => HideFeedback ? "Ответить" : "Проверить";
+
+    private string? AssessClass(Outcome outcome) => _assessment == outcome ? "is-picked" : null;
+
+    private string AssessPressed(Outcome outcome) => _assessment == outcome ? "true" : "false";
+
     private string StateClass => !_answered || HideFeedback ? "" : _correct ? "is-correct" : "is-wrong";
 
     /// <summary>The expected typed answer, shown after a wrong attempt. Other question types show it by marking.</summary>
@@ -253,18 +273,6 @@
     {
         if (Quiz is ParsonsQuiz && _pool.Count == 0)
             _pool = Shuffled(Lines.Count);
-    }
-
-    private void AnswerChoice(ChoiceQuiz quiz, int option)
-    {
-        _choice = option;
-        Check(AnswerChecker.Check(quiz, option));
-    }
-
-    private void AnswerLine(FindBugQuiz quiz, int line)
-    {
-        _line = line;
-        Check(AnswerChecker.Check(quiz, line));
     }
 
     private void Toggle(int option)
@@ -311,9 +319,22 @@
         _ = OnAnswered.InvokeAsync(new AnswerResult(outcome, first));
     }
 
-    /// <summary>"Recalled" is saved but never counts as knowledge: the user's own estimate can be too kind.</summary>
+    /// <summary>
+    /// "Recalled" is saved but never counts as knowledge: the user's own estimate can be too kind.
+    /// A second press changes the saved estimate instead of adding another attempt.
+    /// </summary>
     private void Assess(Outcome outcome)
     {
+        if (_assessment == outcome)
+            return;
+
+        if (_assessment is not null)
+        {
+            _assessment = outcome;
+            Progress.Amend(TopicId, Quiz.Id, outcome);
+            return;
+        }
+
         _assessment = outcome;
         var first = Progress.Record(TopicId, Quiz.Id, outcome);
         _ = OnAnswered.InvokeAsync(new AnswerResult(outcome, first));
