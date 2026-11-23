@@ -220,8 +220,8 @@ function createKeyBar(view, language) {
     for (const key of keys[language] ?? keys.csharp) {
         const button = document.createElement("button");
         button.type = "button";
-        button.textContent = key === "tab" ? "⇥" : key;
-        button.setAttribute("aria-label", key === "tab" ? "Отступ" : key === "←" ? "Влево" : key === "→" ? "Вправо" : key);
+        button.textContent = key === "tab" ? "Tab" : key;
+        button.setAttribute("aria-label", key === "tab" ? "Отступ (Tab)" : key === "←" ? "Влево" : key === "→" ? "Вправо" : key);
         button.addEventListener("pointerdown", (event) => event.preventDefault());
         button.addEventListener("click", () => {
             press(view, key);
