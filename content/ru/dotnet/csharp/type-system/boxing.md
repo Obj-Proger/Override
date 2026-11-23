@@ -25,6 +25,15 @@ answer: "123"
 explain: |
   `object o = a` кладёт в `o` не саму переменную `a`, а **копию** её значения в отдельном объекте.
   Поэтому `a = 456` на `o` не влияет. Почему так — ниже.
+variants:
+  - code: |
+      int a = 5;
+      object o = a;
+      a++;
+      Console.WriteLine(o);
+    answer: "5"
+    explain: |
+      `object o = a` кладёт в `o` копию значения в отдельном объекте. `a++` меняет только переменную `a`, обёртка хранит прежние 5.
 ```
 
 ::::
@@ -140,6 +149,13 @@ answer: 2
 explain: |
   Компилятор пропустит код: `o` объявлен как `object`, и приведение к `long` теоретически возможно.
   Во время выполнения проверка увидит в обёртке `int` вместо `long`, и программа упадёт.
+variants:
+  - code: |
+      object o = 1.5;
+      float f = (float)o;
+      Console.WriteLine(f);
+    explain: |
+      `1.5` — литерал типа `double`, в обёртке лежит `double`. Распаковка в `float` не преобразует тип, проверка не пройдёт, и программа упадёт. Правильно: `(float)(double)o`.
 ```
 
 ```quiz
@@ -281,6 +297,38 @@ solution: |
 explain: |
   Каждый элемент распаковывается в `int` — ровно тот тип, что лежит в обёртке — и прибавляется к `long`.
   `(long)item` упал бы на первом же элементе. А сумма в `int` переполнилась бы на последнем тесте.
+variants:
+  - prompt: |
+      В `ArrayList` лежат упакованные числа `int`. Верните сумму только положительных из них, типа `long`.
+      Сумма может не поместиться в `int`.
+    starter: |
+      public static class Calc
+      {
+          public static long SumPositive(ArrayList numbers)
+          {
+          }
+      }
+    tests: |
+      Assert.Equal(4L, Calc.SumPositive(new ArrayList { 1, -2, 3 }));
+      Assert.Equal(0L, Calc.SumPositive(new ArrayList()));
+      Assert.Equal(4_294_967_294L, Calc.SumPositive(new ArrayList { int.MaxValue, -5, int.MaxValue }));
+    solution: |
+      public static class Calc
+      {
+          public static long SumPositive(ArrayList numbers)
+          {
+              long sum = 0;
+              foreach (object item in numbers)
+              {
+                  int value = (int)item;
+                  if (value > 0)
+                      sum += value;
+              }
+              return sum;
+          }
+      }
+    explain: |
+      Каждый элемент распаковывается в `int` — ровно тот тип, что лежит в обёртке. Распаковать один раз в переменную удобнее, чем приводить при каждом сравнении.
 ```
 
 ::::
@@ -399,6 +447,15 @@ code: |
 answer: "7"
 explain: |
   Распаковка копирует значение из обёртки в `a`. `a++` меняет копию, обёртка по-прежнему хранит 7.
+variants:
+  - code: |
+      object o = 10;
+      int a = (int)o;
+      a = a * 2;
+      Console.WriteLine(o);
+    answer: "10"
+    explain: |
+      Распаковка копирует значение из обёртки в `a`. Умножение меняет копию, обёртка по-прежнему хранит 10.
 ```
 
 ```quiz
@@ -430,6 +487,12 @@ options:
 answer: 2
 explain: |
   В обёртке лежит `short`, а распаковка разрешает только ровно тот тип, что был упакован. Правильно: `(int)(short)o`.
+variants:
+  - code: |
+      object o = 5L;
+      int i = (int)o;
+    explain: |
+      `5L` — литерал типа `long`, в обёртке лежит `long`. Распаковка разрешает только ровно упакованный тип. Правильно: `(int)(long)o`.
 ```
 
 ::::
