@@ -42,6 +42,10 @@
     --c-method: #74531f;
     --c-local: #1f377f;
     --c-pre: #808080;
+    --c-xml-delim: #0000ff;
+    --c-xml-name: #a31515;
+    --c-xml-attr: #ff0000;
+    --c-xml-val: #0000ff;
 
     --font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
@@ -89,6 +93,10 @@
     --c-method: #dcdcaa;
     --c-local: #9cdcfe;
     --c-pre: #9b9b9b;
+    --c-xml-delim: #808080;
+    --c-xml-name: #569cd6;
+    --c-xml-attr: #9cdcfe;
+    --c-xml-val: #ce9178;
 }
 
 /* Figures take their colors from the theme; the SVG files keep light fallbacks. */
@@ -702,6 +710,10 @@ pre {
 .c-method { color: var(--c-method); }
 .c-local { color: var(--c-local); }
 .c-pre { color: var(--c-pre); }
+.c-xml-delim { color: var(--c-xml-delim); }
+.c-xml-name { color: var(--c-xml-name); }
+.c-xml-attr { color: var(--c-xml-attr); }
+.c-xml-val { color: var(--c-xml-val); }
 
 table {
     width: 100%;

@@ -42,6 +42,36 @@ public sealed class CodeHighlighterTests
     }
 
     [Fact]
+    public void ColorsEscapeSequences()
+    {
+        var html = CodeHighlighter.Highlight("char c = '\\n';\nstring s = \"a\\tb\";\nstring v = @\"a\\tb\";", "csharp");
+
+        Assert.Contains("<span class=\"c-str\">'</span><span class=\"c-str-esc\">\\n</span><span class=\"c-str\">'</span>", html, StringComparison.Ordinal);
+        Assert.Contains("<span class=\"c-str\">\"a</span><span class=\"c-str-esc\">\\t</span>", html, StringComparison.Ordinal);
+        Assert.Contains("@\"a\\tb\"", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ColorsXml()
+    {
+        var html = CodeHighlighter.Highlight("<Project Sdk=\"Microsoft.NET.Sdk\">\n  <!-- note -->\n</Project>", "xml");
+
+        Assert.Contains("<span class=\"c-xml-delim\">&lt;</span><span class=\"c-xml-name\">Project</span>", html, StringComparison.Ordinal);
+        Assert.Contains("<span class=\"c-xml-attr\">Sdk</span><span class=\"c-xml-delim\">=</span><span class=\"c-xml-val\">\"Microsoft.NET.Sdk\"</span>", html, StringComparison.Ordinal);
+        Assert.Contains("<span class=\"c-cmt\">&lt;!-- note --&gt;</span>", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ColorsShellCommands()
+    {
+        var html = CodeHighlighter.Highlight("dotnet new console -n Hello  # create", "shell");
+
+        Assert.Equal(
+            "<span class=\"c-method\">dotnet</span> new console <span class=\"c-kw\">-n</span> Hello  <span class=\"c-cmt\"># create</span>",
+            html);
+    }
+
+    [Fact]
     public void ColorsSql()
     {
         var html = CodeHighlighter.Highlight("SELECT name FROM users WHERE id = 1 AND note = 'it''s' -- first", "sql");
@@ -64,7 +94,7 @@ public sealed class CodeHighlighterTests
     [Fact]
     public void OtherLanguagesArePlainText()
     {
-        Assert.Equal("dotnet build &amp;&amp; echo &lt;ok&gt;", CodeHighlighter.Highlight("dotnet build && echo <ok>", "shell"));
+        Assert.Equal("dotnet build &amp;&amp; echo &lt;ok&gt;", CodeHighlighter.Highlight("dotnet build && echo <ok>", "text"));
     }
 
     [Fact]

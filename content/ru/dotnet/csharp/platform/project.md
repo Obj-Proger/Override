@@ -41,7 +41,7 @@ variants:
 
 Программа на C# живёт в **проекте**. Создадим его:
 
-```text
+```shell
 dotnet new console -n Hello
 ```
 

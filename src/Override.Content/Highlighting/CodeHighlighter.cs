@@ -2,12 +2,14 @@ namespace Override.Content.Highlighting;
 
 /// <summary>
 /// Turns code into highlighted HTML at build time, so the site shows colored code without any script.
-/// C# and SQL are colored; other languages are shown as plain text.
+/// C#, SQL, XML and terminal commands are colored; other languages are shown as plain text.
 /// </summary>
 public static class CodeHighlighter
 {
     public const string CSharp = "csharp";
     public const string Sql = "sql";
+    public const string Xml = "xml";
+    public const string Shell = "shell";
 
     /// <summary>A complete &lt;pre&gt; block. Language is the info string of a fence, e.g. csharp or sql.</summary>
     public static string Block(string code, string? language)
@@ -22,6 +24,8 @@ public static class CodeHighlighter
     {
         CSharp => CSharpHighlighter.Highlight(code),
         Sql => SqlHighlighter.Highlight(code),
+        Xml => XmlHighlighter.Highlight(code),
+        Shell => ShellHighlighter.Highlight(code),
         _ => Html.Encode(code),
     };
 
@@ -33,6 +37,8 @@ public static class CodeHighlighter
             null or "" => null,
             "csharp" or "cs" or "c#" => CSharp,
             "sql" or "postgresql" or "pgsql" => Sql,
+            "xml" or "csproj" or "props" => Xml,
+            "shell" or "sh" or "bash" or "console" or "powershell" or "pwsh" => Shell,
             _ => name,
         };
     }

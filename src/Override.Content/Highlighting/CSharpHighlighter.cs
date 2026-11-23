@@ -1,6 +1,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Classification;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Override.Content.Highlighting;
@@ -9,7 +11,7 @@ namespace Override.Content.Highlighting;
 /// Colors C# the way Visual Studio does: Roslyn classifies every token with full semantics,
 /// so a class, a struct, a method and a local variable get different colors.
 /// </summary>
-internal static class CSharpHighlighter
+internal static partial class CSharpHighlighter
 {
     /// <summary>Snippets are written like in a modern project, where these namespaces are imported implicitly.</summary>
     private const string GlobalUsings = """
@@ -55,8 +57,49 @@ internal static class CSharpHighlighter
             }
         }
 
+        MarkEscapes(document, classes, priorities);
         return TokenRuns.ToHtml(code, classes);
     }
+
+    [GeneratedRegex("\\\\(?:u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8}|x[0-9A-Fa-f]{1,4}|.)")]
+    private static partial Regex Escape();
+
+    /// <summary>
+    /// Escape sequences such as \n get their own color, as in Visual Studio. Roslyn does not mark them in every
+    /// literal, so they are found in the tokens directly: characters, regular strings and regular interpolated strings.
+    /// Verbatim and raw strings have no escapes.
+    /// </summary>
+    private static void MarkEscapes(Document document, string?[] classes, int[] priorities)
+    {
+        var root = document.GetSyntaxRootAsync().GetAwaiter().GetResult();
+        if (root is null)
+            return;
+
+        foreach (var token in root.DescendantTokens())
+        {
+            if (!CanHaveEscapes(token))
+                continue;
+
+            foreach (Match match in Escape().Matches(token.Text))
+            {
+                for (var i = token.SpanStart + match.Index; i < token.SpanStart + match.Index + match.Length && i < classes.Length; i++)
+                {
+                    classes[i] = "str-esc";
+                    priorities[i] = 3;
+                }
+            }
+        }
+    }
+
+    private static bool CanHaveEscapes(SyntaxToken token) => token.Kind() switch
+    {
+        SyntaxKind.CharacterLiteralToken => true,
+        SyntaxKind.StringLiteralToken or SyntaxKind.Utf8StringLiteralToken => token.Text.StartsWith('"'),
+        SyntaxKind.InterpolatedStringTextToken =>
+            token.Parent?.Parent is InterpolatedStringExpressionSyntax expression
+            && expression.StringStartToken.IsKind(SyntaxKind.InterpolatedStringStartToken),
+        _ => false,
+    };
 
     /// <summary>
     /// CSS class for a Roslyn classification. A plain keyword has the lowest priority, so that a more
