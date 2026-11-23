@@ -131,6 +131,32 @@ public sealed class TopicParserTests
     public void ReportsTestMinutesWithoutTest() =>
         AssertError(Samples.ValidTopic.Replace("order: 1", "order: 1\ntestMinutes: 5", StringComparison.Ordinal), "no ::::test step");
 
+    [Fact]
+    public void ReadsTestQuestionParts()
+    {
+        var result = Parse(Samples.ValidTopic + Samples.TestStep.Replace("id: t-one", "id: t-one\npart: First part", StringComparison.Ordinal));
+
+        Assert.True(result.Succeeded, string.Join("\n", result.Diagnostics));
+        Assert.Equal("First part", Assert.IsType<QuizBlock>(result.Topic!.Steps[^1].Blocks[0]).Part);
+        Assert.Equal(2, result.Topic!.TestSize);
+    }
+
+    [Fact]
+    public void ReportsUnknownTestPart() =>
+        AssertError(
+            Samples.ValidTopic + Samples.TestStep.Replace("id: t-one", "id: t-one\npart: Missing", StringComparison.Ordinal),
+            "no '::::part Missing' step");
+
+    [Fact]
+    public void ReportsPartOutsideTest() =>
+        AssertError(Samples.ValidTopic.Replace("id: q-input", "id: q-input\npart: First part", StringComparison.Ordinal), "only in the test step");
+
+    [Fact]
+    public void ReportsTestSizeAboveThePool() =>
+        AssertError(
+            Samples.ValidTopic.Replace("order: 1", "order: 1\ntestSize: 5", StringComparison.Ordinal) + Samples.TestStep,
+            "'testSize' is 5");
+
     private static ParseResult Parse(string text) => TopicParser.Parse("sample.md", text);
 
     private static void AssertError(string text, string expected)

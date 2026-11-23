@@ -50,12 +50,12 @@ internal static class QuizReader
         {
             var variant = documents[i];
             if (variant.Id is not null || variant.Type is not null || variant.Level is not null
-                || variant.Lang is not null || variant.Variants is not null)
+                || variant.Lang is not null || variant.Part is not null || variant.Variants is not null)
             {
                 diagnostics.Add(new(
                     file,
                     firstLine,
-                    $"Question '{d.Id}', variant {i + 1}: 'id', 'type', 'level' and 'lang' come from the question, and a variant has no variants."));
+                    $"Question '{d.Id}', variant {i + 1}: 'id', 'type', 'level', 'lang' and 'part' come from the question, and a variant has no variants."));
                 continue;
             }
 
@@ -63,7 +63,8 @@ internal static class QuizReader
                 variants.Add(built);
         }
 
-        return quiz is not null && diagnostics.Count == errorsBefore ? new QuizWithVariants(quiz, variants) : null;
+        var part = string.IsNullOrWhiteSpace(d.Part) ? null : d.Part.Trim();
+        return quiz is not null && diagnostics.Count == errorsBefore ? new QuizWithVariants(quiz, variants, part) : null;
     }
 
     /// <summary>The question with the fields the variant sets replaced.</summary>
@@ -374,5 +375,7 @@ internal static class QuizReader
         public bool? Ordered { get; set; }
 
         public List<QuizDocument>? Variants { get; set; }
+
+        public string? Part { get; set; }
     }
 }

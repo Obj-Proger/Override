@@ -7,6 +7,7 @@ internal static class FrontMatterReader
 {
     private const int MaxMinutes = 240;
     private const int MaxTestMinutes = 60;
+    private const int MaxTestSize = 30;
 
     public static TopicMetadata? Read(string yaml, string file, int firstLine, ICollection<ContentDiagnostic> diagnostics)
     {
@@ -69,6 +70,9 @@ internal static class FrontMatterReader
         if (document.TestMinutes is { } testMinutes && testMinutes is < 1 or > MaxTestMinutes)
             Error($"'testMinutes' must be from 1 to {MaxTestMinutes}.");
 
+        if (document.TestSize is { } testSize && testSize is < 2 or > MaxTestSize)
+            Error($"'testSize' must be from 2 to {MaxTestSize}.");
+
         if (diagnostics.Count != errorsBefore)
             return null;
 
@@ -81,7 +85,8 @@ internal static class FrontMatterReader
             document.Order!.Value,
             requires,
             quickCheck,
-            document.TestMinutes);
+            document.TestMinutes,
+            document.TestSize);
     }
 
     /// <summary>The front matter as written in YAML.</summary>
@@ -104,5 +109,7 @@ internal static class FrontMatterReader
         public List<string>? QuickCheck { get; set; }
 
         public int? TestMinutes { get; set; }
+
+        public int? TestSize { get; set; }
     }
 }

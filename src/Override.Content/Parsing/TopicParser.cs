@@ -85,6 +85,8 @@ public static class TopicParser
         if (tests.Count > 1 || (tests.Count == 1 && steps[^1].Kind != StepKind.Test))
             Error(tests.Count > 0 ? tests[^1].Line : 1, "A topic can have one ::::test step, after the summary.");
 
+        var partTitles = steps.Where(s => s.Kind == StepKind.Part).Select(s => s.Title).ToHashSet();
+
         foreach (var test in tests)
         {
             if (test.Blocks.Count < MinTestQuestions)
@@ -96,11 +98,26 @@ public static class TopicParser
                     Error(block.Line, "The test step contains only questions, without text or level blocks.");
                 else if (!_quickCheckTypes.Contains(testQuiz.Quiz.GetType()))
                     Error(block.Line, $"Question '{testQuiz.Quiz.Id}' cannot be in the test: it is not graded automatically.");
+                else if (testQuiz.Part is { } part && !partTitles.Contains(part))
+                    Error(block.Line, $"Question '{testQuiz.Quiz.Id}': there is no '::::part {part}' step in this topic.");
             }
+
+            var atTopicLevel = test.Blocks.OfType<QuizBlock>().Count(b => b.Quiz.Level is null || b.Quiz.Level == metadata.Level);
+            if (metadata.TestSize is { } size && atTopicLevel < size)
+                Error(test.Line, $"'testSize' is {size}, but the test has only {atTopicLevel} questions of the topic level.");
+        }
+
+        foreach (var block in steps.Where(s => s.Kind != StepKind.Test).SelectMany(s => s.Blocks).OfType<QuizBlock>())
+        {
+            if (block.Part is not null)
+                Error(block.Line, $"Question '{block.Quiz.Id}': 'part' is used only in the test step.");
         }
 
         if (metadata.TestMinutes is not null && tests.Count == 0)
             Error(2, "'testMinutes' is set, but the topic has no ::::test step.");
+
+        if (metadata.TestSize is not null && tests.Count == 0)
+            Error(2, "'testSize' is set, but the topic has no ::::test step.");
 
         var testIds = tests.SelectMany(t => t.Blocks).OfType<QuizBlock>().Select(b => b.Quiz.Id).ToHashSet();
 
@@ -200,7 +217,8 @@ public static class TopicParser
                         {
                             var read = QuizReader.ReadWithVariants(string.Join('\n', quizLines), file, fenceLine + 1, diagnostics);
                             if (read is not null)
-                                _blocks.Add(new QuizBlock(read.Quiz, _level, fenceLine, read.Variants.Count > 0 ? read.Variants : null));
+                                _blocks.Add(new QuizBlock(
+                                    read.Quiz, _level, fenceLine, read.Variants.Count > 0 ? read.Variants : null, read.Part));
                         }
                         else
                         {

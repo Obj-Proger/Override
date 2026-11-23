@@ -15,7 +15,8 @@ public sealed record SectionEntry(
 /// <summary>
 /// A topic in the table of contents. Path is its address on the site. Steps is the number of lesson steps;
 /// CheckedQuestions are the questions the site checks by itself, which decide whether the topic is done.
-/// Requires are the ids of the topics to know first. TestQuestions is the size of the topic test, 0 without one.
+/// Requires are the ids of the topics to know first. TestQuestions is the number of questions in one test attempt,
+/// 0 without a test.
 /// </summary>
 public sealed record TopicEntry(
     string Id,
@@ -36,8 +37,9 @@ public sealed record TopicEntry(
 public sealed record QuestionEntry(string Id, Level Level, bool Runs = false);
 
 /// <summary>
-/// A compiled topic, ready to show. Steps are the lesson; Test holds the questions of the topic test, empty when
-/// there is none, and TestMinutes its time limit, null for a test without a timer.
+/// A compiled topic, ready to show. Steps are the lesson; Test is the pool of test questions, empty when there is
+/// no test. Each attempt takes TestSize of them, at least one per lesson part when it can. TestMinutes is the
+/// time limit, null for a test without a timer.
 /// </summary>
 public sealed record TopicPage(
     string Id,
@@ -50,7 +52,8 @@ public sealed record TopicPage(
     IReadOnlyList<string> QuickCheck,
     IReadOnlyList<PageStep> Steps,
     IReadOnlyList<QuestionBlock> Test,
-    int? TestMinutes);
+    int? TestMinutes,
+    int TestSize = 0);
 
 /// <summary>A lesson step of a compiled topic.</summary>
 public sealed record PageStep(StepKind Kind, string? Title, IReadOnlyList<PageBlock> Blocks);
@@ -69,7 +72,8 @@ public sealed record HtmlBlock(Level? Level, string Html) : PageBlock(Level);
 /// LinesHtml holds highlighted lines for questions that work with single lines: the code lines of find-bug,
 /// and for parsons the lines followed by the distractors. SolutionHtml is the highlighted reference solution
 /// of a code or SQL task. Variants are other versions of the same question, with the same id: the site
-/// shows them in turn so that answers are not learned by heart.
+/// shows them in turn so that answers are not learned by heart. Part is set for test questions: the title of the
+/// lesson part the question checks.
 /// </summary>
 public sealed record QuestionBlock(
     Level? Level,
@@ -77,5 +81,6 @@ public sealed record QuestionBlock(
     string? CodeHtml,
     IReadOnlyList<string>? LinesHtml,
     string? SolutionHtml = null,
-    IReadOnlyList<QuestionBlock>? Variants = null)
+    IReadOnlyList<QuestionBlock>? Variants = null,
+    string? Part = null)
     : PageBlock(Level);

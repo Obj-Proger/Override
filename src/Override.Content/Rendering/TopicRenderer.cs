@@ -34,7 +34,8 @@ internal static class TopicRenderer
             metadata.QuickCheck,
             steps,
             test,
-            metadata.TestMinutes);
+            metadata.TestMinutes,
+            test.Count == 0 ? 0 : source.Topic.TestSize);
 
         PageBlock RenderBlock(Block block) => block switch
         {
@@ -44,6 +45,7 @@ internal static class TopicRenderer
             QuizBlock quiz => RenderQuestion(quiz.Quiz, quiz.Level) with
             {
                 Variants = quiz.Variants?.Select(variant => RenderQuestion(variant, quiz.Level)).ToList(),
+                Part = quiz.Part,
             },
             _ => throw new InvalidOperationException($"Unknown block type {block.GetType().Name}."),
         };

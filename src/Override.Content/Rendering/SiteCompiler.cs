@@ -85,7 +85,7 @@ public static class SiteCompiler
                 AnswerChecker.Runs(block.Quiz)))
             .ToList(),
         topic.Topic.Metadata.Requires,
-        topic.Topic.Steps.Where(step => step.Kind == StepKind.Test).Sum(step => step.Blocks.Count));
+        topic.Topic.TestPool.Count == 0 ? 0 : topic.Topic.TestSize);
 
     private static Level Highest(Level topic, Level? block, Level? question) =>
         (Level)Math.Max((int)topic, Math.Max((int)(block ?? topic), (int)(question ?? topic)));

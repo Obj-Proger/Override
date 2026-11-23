@@ -58,9 +58,11 @@
                 .SelectMany(step => step.Blocks.OfType<QuestionBlock>().Select(block => (Step: step, Block: block)))
                 .FirstOrDefault(pair => pair.Block.Quiz.Id == due.QuestionId);
 
-            // A question removed from the content since it was answered is skipped.
+            // Test questions are reviewed too. A question removed from the content since it was answered is skipped.
             if (found.Block is not null)
                 items.Add(new ReviewItem(topic, found.Block, found.Step.Kind == StepKind.Summary));
+            else if (topic.Test.FirstOrDefault(question => question.Quiz.Id == due.QuestionId) is { } testQuestion)
+                items.Add(new ReviewItem(topic, testQuestion, false));
         }
 
         _items = items;

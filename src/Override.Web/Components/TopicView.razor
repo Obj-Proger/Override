@@ -176,7 +176,7 @@
                 <section class="panel-card">
                     <div class="panel-title">Тест по теме</div>
                     <div class="panel-facts">
-                        <span>@Labels.Questions(Topic.Test.Count) · @(Topic.TestMinutes is { } minutes ? Labels.MinutesLong(minutes) : "без таймера")</span>
+                        <span>@Labels.Questions(Topic.TestSize) · @(Topic.TestMinutes is { } minutes ? Labels.MinutesLong(minutes) : "без таймера")</span>
                         <span>@(best is null ? "Ещё не пройден" : $"Лучший результат: {Labels.Percent(best.Share)}, {Labels.WhenPast(best.At, DateTimeOffset.Now)}")</span>
                     </div>
                     <a class="panel-button panel-link" href="@TestHref">Пройти тест</a>
