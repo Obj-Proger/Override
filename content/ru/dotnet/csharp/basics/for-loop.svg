@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" role="img" aria-labelledby="t d">
+  <title id="t">Порядок выполнения цикла for</title>
+  <desc id="d">Цикл for (int i = 0; i &lt; 3; i++). Сначала один раз выполняется инициализация int i = 0. Затем проверяется условие i &lt; 3. Если оно истинно, выполняется тело цикла, затем шаг i++, и снова проверяется условие. Если условие ложно, цикл завершается.</desc>
+  <style>
+    .panel{fill:var(--fig-panel,#F3F2F7)}
+    .cell{fill:var(--fig-cell,#FFFFFF);stroke:var(--fig-line,#C9C9D1);stroke-width:1.5}
+    .hl{fill:var(--fig-accent-soft,#ECE8FF);stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .ok{fill:var(--fig-ok-soft,#E3F4E8);stroke:var(--fig-ok,#2E8B57);stroke-width:1.5}
+    .m{fill:var(--fig-muted,#5C5C66);font:13px Inter,system-ui,sans-serif}
+    .h{fill:var(--fig-text,#26262C);font:600 14px Inter,system-ui,sans-serif}
+    .code{fill:var(--fig-text,#26262C);font:500 15px 'JetBrains Mono',Consolas,monospace}
+    .arrow{fill:none;stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .dot{fill:var(--fig-accent,#5B3FD9)}
+  </style>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="dot"/>
+    </marker>
+  </defs>
+
+  <rect x="20" y="20" width="680" height="266" rx="12" class="panel"/>
+  <text x="40" y="48" class="code">for (int i = 0; i &lt; 3; i++) { тело }</text>
+
+  <rect x="40" y="74" width="150" height="50" rx="8" class="cell"/>
+  <text x="115" y="96" class="code" text-anchor="middle">int i = 0</text>
+  <text x="115" y="114" class="m" text-anchor="middle">1 раз</text>
+
+  <path d="M194 99H252" class="arrow" marker-end="url(#ah)"/>
+
+  <rect x="260" y="74" width="150" height="50" rx="8" class="hl"/>
+  <text x="335" y="96" class="code" text-anchor="middle">i &lt; 3 ?</text>
+  <text x="335" y="114" class="m" text-anchor="middle">условие</text>
+
+  <path d="M414 99H492" class="arrow" marker-end="url(#ah)"/>
+  <text x="453" y="90" class="m" text-anchor="middle">да</text>
+
+  <rect x="500" y="74" width="180" height="50" rx="8" class="cell"/>
+  <text x="590" y="104" class="h" text-anchor="middle">тело цикла</text>
+
+  <path d="M590 128V182" class="arrow" marker-end="url(#ah)"/>
+
+  <rect x="515" y="190" width="150" height="50" rx="8" class="cell"/>
+  <text x="590" y="212" class="code" text-anchor="middle">i++</text>
+  <text x="590" y="230" class="m" text-anchor="middle">шаг</text>
+
+  <path d="M511 215H335V132" class="arrow" marker-end="url(#ah)"/>
+  <text x="423" y="206" class="m" text-anchor="middle">снова проверить</text>
+
+  <path d="M256 112C220 150 180 190 156 204" class="arrow" marker-end="url(#ah)"/>
+  <text x="250" y="160" class="m">нет</text>
+
+  <rect x="40" y="200" width="150" height="50" rx="8" class="ok"/>
+  <text x="115" y="230" class="h" text-anchor="middle">выход из цикла</text>
+
+  <text x="40" y="274" class="m">Тело выполнится для i = 0, 1, 2. После i++ до 3 условие ложно, и цикл заканчивается.</text>
+</svg>

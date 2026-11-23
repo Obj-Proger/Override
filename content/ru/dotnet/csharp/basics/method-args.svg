@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" role="img" aria-labelledby="t d">
+  <title id="t">Передача аргумента по значению и по ссылке</title>
+  <desc id="d">Слева передача по значению: в кадре вызывающего кода x равен 5, в кадре метода AddOne лежит отдельная копия value, которая стала 6; x остался 5. Справа передача с ref: в кадре метода лежит не число, а ссылка на переменную x вызывающего кода, поэтому x стал 6.</desc>
+  <style>
+    .panel{fill:var(--fig-panel,#F3F2F7)}
+    .cell{fill:var(--fig-cell,#FFFFFF);stroke:var(--fig-line,#C9C9D1);stroke-width:1.5}
+    .hl{fill:var(--fig-accent-soft,#ECE8FF);stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .t{fill:var(--fig-text,#26262C);font:500 15px Inter,system-ui,sans-serif}
+    .m{fill:var(--fig-muted,#5C5C66);font:13px Inter,system-ui,sans-serif}
+    .h{fill:var(--fig-text,#26262C);font:600 14px Inter,system-ui,sans-serif}
+    .code{fill:var(--fig-text,#26262C);font:500 14px 'JetBrains Mono',Consolas,monospace}
+    .big{fill:var(--fig-text,#26262C);font:600 20px 'JetBrains Mono',Consolas,monospace}
+    .acc{fill:var(--fig-accent,#5B3FD9);font:700 20px 'JetBrains Mono',Consolas,monospace}
+    .arrow{fill:none;stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .dot{fill:var(--fig-accent,#5B3FD9)}
+  </style>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="dot"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="26" class="h">По значению: AddOne(x)</text>
+  <rect x="20" y="38" width="330" height="250" rx="12" class="panel"/>
+
+  <text x="40" y="66" class="m">кадр вызывающего кода</text>
+  <rect x="40" y="74" width="290" height="56" rx="8" class="cell"/>
+  <text x="56" y="108" class="code">int x</text>
+  <text x="300" y="110" class="big" text-anchor="end">5</text>
+
+  <text x="40" y="164" class="m">кадр метода AddOne — своя копия</text>
+  <rect x="40" y="172" width="290" height="56" rx="8" class="hl"/>
+  <text x="56" y="206" class="code">int value</text>
+  <text x="300" y="208" class="acc" text-anchor="end">5 → 6</text>
+
+  <text x="40" y="262" class="m">value++ меняет копию, x остаётся 5</text>
+
+  <text x="370" y="26" class="h">По ссылке: AddOne(ref x)</text>
+  <rect x="370" y="38" width="330" height="250" rx="12" class="panel"/>
+
+  <text x="390" y="66" class="m">кадр вызывающего кода</text>
+  <rect x="390" y="74" width="290" height="56" rx="8" class="hl"/>
+  <text x="406" y="108" class="code">int x</text>
+  <text x="650" y="110" class="acc" text-anchor="end">5 → 6</text>
+
+  <text x="390" y="164" class="m">кадр метода AddOne — ссылка на x</text>
+  <rect x="390" y="172" width="290" height="56" rx="8" class="cell"/>
+  <text x="406" y="206" class="code">ref int value</text>
+  <circle cx="650" cy="200" r="6" class="dot"/>
+  <path d="M650 192V136" class="arrow" marker-end="url(#ah)"/>
+
+  <text x="390" y="262" class="m">value++ меняет саму переменную x</text>
+</svg>
