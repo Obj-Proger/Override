@@ -7,7 +7,7 @@ minutes: 25
 order: 1
 requires: [csharp.platform.project]
 quickCheck: [double-sum, unassigned, money-type, char-plus]
-testMinutes: 4
+testMinutes: 6
 ---
 
 ::::warmup
@@ -513,6 +513,7 @@ answer: |
 ```quiz
 id: test-decimal-sum
 type: output
+part: "Дробные числа"
 prompt: Что выведет код?
 code: |
   decimal a = 0.1m;
@@ -533,6 +534,7 @@ variants:
 ```quiz
 id: test-float-var
 type: choice
+part: "var, const и значения по умолчанию"
 prompt: Какой тип у переменной `var v = 3.0f;`?
 options:
   - "int"
@@ -556,6 +558,7 @@ variants:
 ```quiz
 id: test-default-bool
 type: input
+part: "var, const и значения по умолчанию"
 prompt: Чему равно `default(bool)`?
 answer: "false"
 explain: |
@@ -570,6 +573,7 @@ variants:
 ```quiz
 id: test-overflow
 type: choice
+part: "Целые числа"
 prompt: Что выведет код?
 code: |
   int a = 50_000;
@@ -593,6 +597,172 @@ variants:
     answer: 0
     explain: |
       `a * b` считается в `int`, но 1,6 млрд в `int` помещается (предел — 2,1 млрд). Переполнения нет, результат верный.
+```
+
+
+```quiz
+id: test-static-typing
+type: choice
+part: "Переменные"
+prompt: Что значит, что C# — язык со статической типизацией?
+options:
+  - "Тип переменной известен при компиляции и не меняется"
+  - "Все переменные объявляются как static"
+  - "Типы проверяются только во время выполнения"
+  - "Переменные нельзя менять после объявления"
+answer: 0
+explain: |
+  Компилятор знает тип каждой переменной и не даст положить в `int` строку. Значение переменной менять можно, тип — нет.
+```
+
+```quiz
+id: test-scope
+type: find-bug
+part: "Переменные"
+prompt: Код не компилируется. В какой строке ошибка?
+code: |
+  int count = 5;
+  if (count > 0)
+  {
+      int doubled = count * 2;
+  }
+  Console.WriteLine(doubled);
+answer: 6
+explain: |
+  `doubled` объявлена внутри блока `if` и существует только в нём. За закрывающей скобкой этого имени уже нет.
+```
+
+```quiz
+id: test-int-range
+type: choice
+part: "Целые числа"
+prompt: Какое примерно наибольшее значение помещается в `int`?
+options:
+  - "Около 2,1 миллиарда"
+  - "Около 32 тысяч"
+  - "Около 9·10¹⁸"
+  - "255"
+answer: 0
+explain: |
+  `int` — 4 байта со знаком: от −2 147 483 648 до 2 147 483 647. 32 тысячи — предел `short`, 9·10¹⁸ — `long`, 255 — `byte`.
+```
+
+```quiz
+id: test-long-literal
+type: choice
+part: "Целые числа"
+prompt: Какой литерал имеет тип `long`?
+options:
+  - "10L"
+  - "10"
+  - "10.0"
+  - "10m"
+answer: 0
+explain: |
+  Суффикс `L` делает литерал `long`. `10` — `int`, `10.0` — `double`, `10m` — `decimal`.
+```
+
+```quiz
+id: test-float-literal
+type: find-bug
+part: "Дробные числа"
+prompt: Код не компилируется. В какой строке ошибка?
+code: |
+  int total = 3;
+  float ratio = 0.75;
+  Console.WriteLine(total * ratio);
+answer: 2
+explain: |
+  `0.75` без суффикса — `double`, а `double` в `float` неявно не превращается: можно потерять точность. Нужно `0.75f`.
+```
+
+```quiz
+id: test-double-precision
+type: choice
+part: "Дробные числа"
+prompt: Почему число 0.1 в `double` хранится неточно?
+options:
+  - "double хранит число в двоичном виде, а 0.1 в двоичной системе — бесконечная дробь"
+  - "double хранит только 7 значащих цифр"
+  - "Это ошибка .NET, исправленная в новых версиях"
+  - "Неточно хранятся все числа меньше единицы"
+answer: 0
+explain: |
+  Как 1/3 нельзя точно записать десятичной дробью, так 0.1 нельзя точно записать двоичной. В переменной оказывается ближайшее представимое число. 0.5 и 0.25, например, хранятся точно.
+```
+
+```quiz
+id: test-char-diff
+type: output
+part: "char, bool и псевдонимы типов"
+prompt: Что выведет код?
+code: |
+  Console.WriteLine('D' - 'A');
+answer: "3"
+explain: |
+  В арифметике `char` превращается в число — код символа. Коды латинских букв идут подряд, поэтому `'D' - 'A'` равно 3.
+```
+
+```quiz
+id: test-bool-check
+type: choice
+part: "char, bool и псевдонимы типов"
+prompt: Как в C# проверить, что число `count` не равно нулю?
+options:
+  - "if (count != 0)"
+  - "if (count)"
+  - "if (!count)"
+  - "if (count == true)"
+answer: 0
+explain: |
+  Число в C# не превращается в `bool`, поэтому условие пишут явным сравнением. Остальные варианты не компилируются.
+```
+
+```quiz
+id: test-var-null
+type: choice
+part: "var, const и значения по умолчанию"
+prompt: Почему строка `var value = null;` не компилируется?
+options:
+  - "По null нельзя понять тип переменной"
+  - "null запрещён в C#"
+  - "var работает только с числами"
+  - "Вместо var нужно писать const"
+answer: 0
+explain: |
+  `var` выводит тип из значения справа. У `null` своего типа нет, и компилятору не из чего вывести тип. Нужно указать тип явно: `string? value = null;`.
+```
+
+```quiz
+id: test-nan-check
+type: choice
+part: "Дробные числа"
+level: middle
+prompt: Как правильно проверить, что `double x` — это NaN?
+options:
+  - "double.IsNaN(x)"
+  - "x == double.NaN"
+  - "x == null"
+  - "x < 0"
+answer: 0
+explain: |
+  По стандарту IEEE 754 NaN не равен ничему, даже самому себе, поэтому `x == double.NaN` всегда `false`.
+```
+
+```quiz
+id: test-decimal-cost
+type: choice
+part: "Дробные числа"
+level: middle
+prompt: Почему для массовых вычислений обычно берут `double`, а не `decimal`?
+options:
+  - "Арифметика decimal выполняется программно: она в разы медленнее и тип занимает 16 байт"
+  - "decimal не умеет хранить дроби"
+  - "decimal хранит меньше значащих цифр"
+  - "decimal нельзя использовать в циклах"
+answer: 0
+explain: |
+  `double` процессор считает аппаратно. `decimal` точнее для десятичных дробей, но медленнее, поэтому его берут для денег, а не для физики или статистики.
 ```
 
 ::::

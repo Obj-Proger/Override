@@ -7,7 +7,7 @@ minutes: 25
 order: 3
 requires: [csharp.basics.operators]
 quickCheck: [for-step, if-assign, switch-break, do-while]
-testMinutes: 4
+testMinutes: 6
 ---
 
 ::::warmup
@@ -469,6 +469,7 @@ answer: |
 ```quiz
 id: test-while-count
 type: output
+part: "Циклы"
 prompt: Что выведет код?
 code: |
   int n = 1;
@@ -500,6 +501,7 @@ variants:
 ```quiz
 id: test-switch-fallthrough
 type: choice
+part: "switch"
 prompt: Что верно для оператора `switch` в C#?
 options:
   - "Без break выполнение переходит в следующую ветку, как в C"
@@ -514,6 +516,7 @@ explain: |
 ```quiz
 id: test-continue
 type: output
+part: "Циклы"
 prompt: Что выведет код? `Console.Write` печатает без перевода строки.
 code: |
   for (int i = 1; i <= 6; i++)
@@ -541,6 +544,7 @@ variants:
 ```quiz
 id: test-loop-at-least-once
 type: choice
+part: "Циклы"
 prompt: Какой цикл гарантированно выполнит тело хотя бы один раз?
 options:
   - "while"
@@ -550,6 +554,197 @@ options:
 answer: 2
 explain: |
   `do while` проверяет условие после тела. Остальные проверяют до тела и могут не выполнить его ни разу.
+```
+
+
+```quiz
+id: test-else-if
+type: output
+part: "if и else"
+prompt: Что выведет код?
+code: |
+  int score = 85;
+  if (score >= 90)
+      Console.WriteLine("A");
+  else if (score >= 80)
+      Console.WriteLine("B");
+  else if (score >= 70)
+      Console.WriteLine("C");
+  else
+      Console.WriteLine("D");
+answer: B
+explain: |
+  Условия проверяются по очереди до первого истинного. 85 не больше 90, но не меньше 80 — выполняется вторая ветка, остальные уже не проверяются.
+variants:
+  - code: |
+      int score = 65;
+      if (score >= 90)
+          Console.WriteLine("A");
+      else if (score >= 80)
+          Console.WriteLine("B");
+      else if (score >= 70)
+          Console.WriteLine("C");
+      else
+          Console.WriteLine("D");
+    answer: D
+    explain: |
+      Ни одно условие не истинно: 65 меньше 90, 80 и 70. Выполняется ветка `else`.
+```
+
+```quiz
+id: test-no-braces
+type: output
+part: "if и else"
+prompt: Что выведет код? `Console.Write` печатает без перевода строки.
+code: |
+  int count = 0;
+  if (count > 0)
+      Console.Write("есть ");
+      Console.Write("конец");
+answer: конец
+explain: |
+  Без фигурных скобок к `if` относится только первая строка. Вторая выполняется всегда, несмотря на отступ.
+```
+
+```quiz
+id: test-if-condition
+type: choice
+part: "if и else"
+prompt: Какое условие скомпилируется, если `n` — переменная типа `int`?
+options:
+  - "if (n != 0)"
+  - "if (n)"
+  - "if (n = 1)"
+  - "if (\"true\")"
+answer: 0
+explain: |
+  Условие `if` должно иметь тип `bool`. `n`, `n = 1` (результат — `int`) и строка — не `bool`.
+```
+
+```quiz
+id: test-switch-stacked
+type: output
+part: "switch"
+prompt: Что выведет код?
+code: |
+  int day = 7;
+  switch (day)
+  {
+      case 6:
+      case 7:
+          Console.WriteLine("выходной");
+          break;
+      default:
+          Console.WriteLine("будний");
+          break;
+  }
+answer: выходной
+explain: |
+  Метки `case 6:` и `case 7:` стоят подряд без кода между ними — это одна общая ветка для обоих значений.
+```
+
+```quiz
+id: test-switch-order
+type: output
+part: "switch"
+prompt: Что выведет код?
+code: |
+  int code = 404;
+  string kind = code switch
+  {
+      200 or 201 => "успех",
+      >= 500 => "ошибка сервера",
+      >= 400 => "ошибка клиента",
+      _ => "другое",
+  };
+  Console.WriteLine(kind);
+answer: ошибка клиента
+explain: |
+  Ветки проверяются сверху вниз. 404 не 200 и не 201, не больше 500, но больше 400 — выбирается «ошибка клиента».
+variants:
+  - code: |
+      int code = 503;
+      string kind = code switch
+      {
+          200 or 201 => "успех",
+          >= 500 => "ошибка сервера",
+          >= 400 => "ошибка клиента",
+          _ => "другое",
+      };
+      Console.WriteLine(kind);
+    answer: ошибка сервера
+    explain: |
+      503 подходит под `>= 500`. Ветка `>= 400` тоже подошла бы, но выбирается первая подходящая.
+```
+
+```quiz
+id: test-switch-no-match
+type: choice
+part: "switch"
+prompt: Что произойдёт, если в выражении switch не подошла ни одна ветка?
+options:
+  - "Будет брошено исключение"
+  - "Выражение вернёт значение по умолчанию"
+  - "Ничего не произойдёт"
+  - "Программа не скомпилируется"
+answer: 0
+explain: |
+  Выражение обязано вернуть значение, поэтому без подходящей ветки бросается исключение. Компилятор лишь предупреждает, если ветки покрывают не всё, поэтому в конце ставят `_`.
+```
+
+```quiz
+id: test-foreach-variable
+type: choice
+part: "Циклы"
+prompt: Можно ли присвоить новое значение переменной цикла `foreach`?
+options:
+  - "Нет, это ошибка компиляции"
+  - "Да, и элемент коллекции тоже изменится"
+  - "Да, но изменится только переменная"
+  - "Да, но только для массивов"
+answer: 0
+explain: |
+  Переменная `foreach` только для чтения. Чтобы менять элементы массива, перебирают индексы обычным `for`.
+```
+
+```quiz
+id: test-for-scope
+type: find-bug
+part: "Циклы"
+prompt: Код не компилируется. В какой строке ошибка?
+code: |
+  for (int i = 0; i < 3; i++)
+  {
+      Console.Write(i);
+  }
+  Console.Write(i);
+answer: 5
+explain: |
+  Переменная, объявленная в заголовке `for`, существует только внутри цикла. После цикла имени `i` нет.
+```
+
+```quiz
+id: test-off-by-one
+type: output
+part: "Циклы"
+prompt: Что выведет код?
+code: |
+  int count = 0;
+  for (int i = 0; i <= 10; i++)
+      count++;
+  Console.WriteLine(count);
+answer: "11"
+explain: |
+  `i` пробегает значения от 0 до 10 включительно — это 11 повторов. Классическая ошибка на единицу.
+variants:
+  - code: |
+      int count = 0;
+      for (int i = 1; i < 10; i++)
+          count++;
+      Console.WriteLine(count);
+    answer: "9"
+    explain: |
+      `i` пробегает значения от 1 до 9: 10 не входит из-за строгого `<`. Это 9 повторов.
 ```
 
 ::::

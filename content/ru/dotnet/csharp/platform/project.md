@@ -7,7 +7,7 @@ minutes: 15
 order: 2
 requires: [csharp.platform.dotnet]
 quickCheck: [args-count, target-framework, one-file, using-meaning]
-testMinutes: 3
+testMinutes: 6
 ---
 
 ::::warmup
@@ -424,6 +424,7 @@ answer: |
 ```quiz
 id: test-implicit-usings
 type: choice
+part: "Пространства имён и using"
 prompt: Почему в новом консольном проекте `Console.WriteLine` работает без строки `using System;`?
 options:
   - "Пространство System подключено всегда, во всех версиях C#"
@@ -448,6 +449,7 @@ variants:
 ```quiz
 id: test-exit-code
 type: choice
+part: "Точка входа: Main и top-level statements"
 prompt: Что означает число, которое возвращает метод `Main`?
 options:
   - "Количество выведенных строк"
@@ -472,6 +474,7 @@ variants:
 ```quiz
 id: test-file-namespace
 type: fill
+part: "Пространства имён и using"
 prompt: Объявите пространство имён для всего файла.
 code: |
   namespace Shop.Orders___
@@ -494,6 +497,7 @@ variants:
 ```quiz
 id: test-compile-error
 type: choice
+part: "Ошибки компиляции и ошибки выполнения"
 prompt: Какая строка не даст программе собраться?
 options:
   - "`int count = int.Parse(\"ten\");`"
@@ -512,6 +516,156 @@ variants:
     answer: 0
     explain: |
       У `Console` нет метода `WritLine`, и компилятор видит это сразу. `int.Parse("abc")` соберётся, а исключение бросит уже при выполнении.
+```
+
+
+```quiz
+id: test-output-type
+type: choice
+part: "Проект"
+prompt: Что изменится, если удалить из `.csproj` строку `<OutputType>Exe</OutputType>`?
+options:
+  - "Проект соберётся как библиотека: получится .dll, которую нельзя запустить"
+  - "Ничего не изменится"
+  - "Проект перестанет собираться"
+  - "Программа будет собираться в Release"
+answer: 0
+explain: |
+  `OutputType` задаёт, что получится при сборке. Без `Exe` проект — библиотека: её подключают к другим проектам, но не запускают.
+```
+
+```quiz
+id: test-cs-files
+type: choice
+part: "Проект"
+prompt: Как добавить новый файл `Order.cs` в компиляцию проекта?
+options:
+  - "Положить его в папку проекта: все .cs-файлы компилируются автоматически"
+  - "Перечислить его в .csproj"
+  - "Написать using Order; в Program.cs"
+  - "Выполнить dotnet add file Order.cs"
+answer: 0
+explain: |
+  SDK-проект сам включает все `.cs`-файлы своей папки и подпапок. Перечислять их в `.csproj` не нужно.
+```
+
+```quiz
+id: test-dotnet-test
+type: choice
+part: "Проект"
+prompt: Какая команда собирает проект и запускает его тесты?
+options:
+  - "dotnet test"
+  - "dotnet run"
+  - "dotnet build"
+  - "dotnet check"
+answer: 0
+explain: |
+  `dotnet test` собирает проекты и запускает тесты. `dotnet run` запускает программу, `dotnet build` только собирает.
+```
+
+```quiz
+id: test-release
+type: choice
+part: "Проект"
+prompt: Чем конфигурация Release отличается от Debug?
+options:
+  - "Включены оптимизации компилятора"
+  - "Release работает только на Linux"
+  - "Debug-сборку нельзя запустить без отладчика"
+  - "В Release не бывает исключений"
+answer: 0
+explain: |
+  Debug собирается без оптимизаций и с подробной информацией для отладчика. Release включает оптимизации, так собирают для продакшена.
+```
+
+```quiz
+id: test-args-source
+type: choice
+part: "Точка входа: Main и top-level statements"
+prompt: Откуда в файле с top-level statements берётся переменная `args`?
+options:
+  - "Это параметр метода Main, который сгенерировал компилятор"
+  - "Это глобальная переменная .NET"
+  - "Она описана в .csproj"
+  - "Её нужно объявить самому"
+answer: 0
+explain: |
+  Компилятор переносит операторы файла в метод `Main(string[] args)`. Поэтому `args` доступна, хотя её никто не объявлял.
+```
+
+```quiz
+id: test-main-static
+type: choice
+part: "Точка входа: Main и top-level statements"
+prompt: Почему метод `Main` объявлен как `static`?
+options:
+  - "Его вызывают без создания объекта: создавать объект до старта программы некому"
+  - "Статические методы быстрее"
+  - "Чтобы Main нельзя было вызвать дважды"
+  - "Этого требует Windows"
+answer: 0
+explain: |
+  Для обычного метода нужен объект класса. Точка входа вызывается, когда объектов ещё нет, поэтому она статическая.
+```
+
+```quiz
+id: test-using-alias
+type: fill
+part: "Пространства имён и using"
+prompt: Вставьте ключевое слово, чтобы объявить псевдоним пространства имён.
+code: |
+  ___ Json = System.Text.Json;
+answer: using
+explain: |
+  `using Json = System.Text.Json;` вводит короткое имя `Json`. Помогает, когда в двух пространствах есть типы с одинаковыми именами.
+```
+
+```quiz
+id: test-build-guarantee
+type: choice
+part: "Ошибки компиляции и ошибки выполнения"
+prompt: Программа собралась без ошибок. Что это гарантирует?
+options:
+  - "Типы, имена и синтаксис в порядке, но при выполнении исключения всё ещё возможны"
+  - "Программа никогда не упадёт"
+  - "В программе нет логических ошибок"
+  - "Все тесты пройдут"
+answer: 0
+explain: |
+  Компилятор проверяет только то, что видно из кода. Неверный ввод, отсутствующий файл или деление на ноль в переменной обнаружатся только при выполнении.
+```
+
+```quiz
+id: test-partial-program
+type: choice
+part: "Точка входа: Main и top-level statements"
+level: middle
+prompt: Зачем в веб-проекте с top-level statements пишут `public partial class Program { }`?
+options:
+  - "Чтобы интеграционные тесты могли сослаться на класс Program приложения"
+  - "Чтобы приложение стартовало быстрее"
+  - "Чтобы в проекте было два метода Main"
+  - "Без этой строки проект не соберётся"
+answer: 0
+explain: |
+  Класс `Program`, который создаёт компилятор, по умолчанию не публичный. `partial` дополняет его и делает публичным, и тесты могут передать его, например, в `WebApplicationFactory<Program>`.
+```
+
+```quiz
+id: test-file-based
+type: choice
+part: "Точка входа: Main и top-level statements"
+level: middle
+prompt: Что делает команда `dotnet run app.cs` в .NET 10?
+options:
+  - "Запускает программу из одного файла без проекта"
+  - "Создаёт проект с именем app"
+  - "Компилирует app.cs в библиотеку"
+  - "Проверяет файл на ошибки, не запуская"
+answer: 0
+explain: |
+  С .NET 10 программу из одного файла можно запустить без `.csproj`. Пакеты подключаются директивами `#:package` в самом файле.
 ```
 
 ::::

@@ -7,7 +7,7 @@ minutes: 25
 order: 2
 requires: [csharp.basics.variables]
 quickCheck: [int-division, postfix, byte-sum, short-circuit]
-testMinutes: 4
+testMinutes: 6
 ---
 
 ::::warmup
@@ -529,6 +529,7 @@ answer: |
 ```quiz
 id: test-mixed-type
 type: choice
+part: "Арифметика"
 prompt: Какой тип у выражения `a + b`, если `a` — `int`, а `b` — `long`?
 options:
   - "int"
@@ -552,6 +553,7 @@ variants:
 ```quiz
 id: test-postfix
 type: output
+part: "Инкремент и составное присваивание"
 prompt: Что выведет код?
 code: |
   int count = 3;
@@ -577,6 +579,7 @@ variants:
 ```quiz
 id: test-decimal-overflow
 type: choice
+part: "Переполнение: checked и unchecked"
 prompt: Что произойдёт при переполнении `decimal` без `checked`?
 options:
   - "Значение завернётся через границу, как у int"
@@ -595,6 +598,7 @@ variants:
 ```quiz
 id: test-short-circuit
 type: choice
+part: "Сравнение и логические операторы"
 prompt: Почему строка не бросит исключение, даже если `name` равен `null`?
 code: |
   bool ok = name != null && name.Length > 0;
@@ -606,6 +610,159 @@ options:
 answer: 1
 explain: |
   `&&` вычисляет правую часть, только если левая истинна. При `name == null` до `name.Length` дело не доходит.
+```
+
+
+```quiz
+id: test-modulo
+type: output
+part: "Арифметика"
+prompt: Что выведет код?
+code: |
+  Console.WriteLine(-10 % 3);
+answer: "-1"
+explain: |
+  -10 = 3 × (-3) + (-1). Знак остатка совпадает со знаком делимого.
+variants:
+  - code: |
+      Console.WriteLine(10 % -3);
+    answer: "1"
+    explain: |
+      10 = (-3) × (-3) + 1. Знак остатка — как у делимого, а делимое положительное.
+```
+
+```quiz
+id: test-div-zero-int
+type: choice
+part: "Арифметика"
+prompt: Что произойдёт при выполнении кода?
+code: |
+  int zero = 0;
+  Console.WriteLine(10 / zero);
+options:
+  - "Будет брошено исключение DivideByZeroException"
+  - "Выведет ∞"
+  - "Выведет 0"
+  - "Ошибка компиляции"
+answer: 0
+explain: |
+  Целое деление на ноль бросает исключение. Компилятор его не ловит: делитель — переменная, а не константа.
+variants:
+  - code: |
+      double zero = 0;
+      Console.WriteLine(10 / zero);
+    answer: 1
+    explain: |
+      Дробное деление на ноль исключения не бросает: результат — положительная бесконечность.
+```
+
+```quiz
+id: test-compound
+type: output
+part: "Инкремент и составное присваивание"
+prompt: Что выведет код?
+code: |
+  int x = 10;
+  x -= 3;
+  x *= 2;
+  Console.WriteLine(x);
+answer: "14"
+explain: |
+  `x -= 3` — это `x = x - 3`, получается 7. `x *= 2` — это `x = x * 2`, получается 14.
+```
+
+```quiz
+id: test-const-overflow
+type: choice
+part: "Переполнение: checked и unchecked"
+prompt: Что будет со строкой `int x = int.MaxValue + 1;`?
+options:
+  - "Ошибка компиляции: переполнение в выражении из констант"
+  - "x станет равен -2147483648"
+  - "Будет брошено OverflowException"
+  - "x станет равен 2147483648"
+answer: 0
+explain: |
+  Выражения из констант вычисляет компилятор и проверяет их на переполнение всегда. С переменными по умолчанию было бы тихое заворачивание.
+```
+
+```quiz
+id: test-xor
+type: output
+part: "Сравнение и логические операторы"
+prompt: Что выведет код?
+code: |
+  Console.WriteLine(true ^ true);
+answer: "False"
+explain: |
+  `^` — исключающее или: `true`, только если ровно один операнд `true`. Здесь оба `true`, поэтому результат `False`.
+variants:
+  - code: |
+      Console.WriteLine(true ^ false);
+    answer: "True"
+    explain: |
+      Ровно один операнд `true`, поэтому исключающее или даёт `True`.
+```
+
+```quiz
+id: test-ternary
+type: output
+part: "Условный оператор и операторы для null"
+prompt: Что выведет код?
+code: |
+  int n = 7;
+  Console.WriteLine(n % 2 == 0 ? "чётное" : "нечётное");
+answer: нечётное
+explain: |
+  `7 % 2` равно 1, условие ложно, и тернарный оператор возвращает вторую ветку.
+```
+
+```quiz
+id: test-null-conditional
+type: choice
+part: "Условный оператор и операторы для null"
+prompt: Что вернёт `name?.Length`, если `name` равен `null`?
+options:
+  - "null"
+  - "0"
+  - "Будет брошено исключение"
+  - "-1"
+answer: 0
+explain: |
+  `?.` обращается к члену, только если объект есть. Иначе всё выражение даёт `null`, поэтому его тип — `int?`, а не `int`.
+```
+
+```quiz
+id: test-coalesce-precedence
+type: output
+part: "Приоритет операторов"
+prompt: Что выведет код? `int?` — `int`, который может хранить `null`.
+code: |
+  int? count = null;
+  Console.WriteLine(count ?? 0 + 5);
+answer: "5"
+explain: |
+  `??` ниже по приоритету, чем `+`, поэтому выражение читается как `count ?? (0 + 5)`. `count` равен `null`, и результат — 5.
+variants:
+  - code: |
+      int? count = 2;
+      Console.WriteLine(count ?? 0 + 5);
+    answer: "2"
+    explain: |
+      Выражение читается как `count ?? (0 + 5)`. `count` не `null`, поэтому результат — 2, а прибавления не происходит вовсе.
+```
+
+```quiz
+id: test-bitwise-odd
+type: output
+part: "Условный оператор и операторы для null"
+level: middle
+prompt: Что выведет код?
+code: |
+  Console.WriteLine(13 & 1);
+answer: "1"
+explain: |
+  `& 1` оставляет только младший бит. У нечётных чисел он равен 1, у чётных — 0. 13 нечётное.
 ```
 
 ::::

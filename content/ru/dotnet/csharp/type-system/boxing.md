@@ -7,7 +7,7 @@ minutes: 20
 order: 3
 requires: [csharp.types.value-reference, csharp.types.struct-class-record, csharp.oop.interfaces]
 quickCheck: [boxing-copy, boxing-where, unboxing-runtime, struct-interface-copy]
-testMinutes: 4
+testMinutes: 6
 ---
 
 ::::warmup
@@ -424,6 +424,7 @@ answer: |
 ```quiz
 id: test-box-size
 type: choice
+part: "Что происходит в памяти"
 prompt: Сколько памяти занимает обёртка для одного `int` на 64-битной платформе?
 options:
   - "4 байта"
@@ -438,6 +439,7 @@ explain: |
 ```quiz
 id: test-unbox-copy
 type: output
+part: "Unboxing: обратно из обёртки"
 prompt: Что выведет код?
 code: |
   object o = 7;
@@ -461,6 +463,7 @@ variants:
 ```quiz
 id: test-box-where
 type: multi
+part: "Что происходит в памяти"
 prompt: В каких строках происходит boxing?
 options:
   - "`Console.WriteLine(5);`"
@@ -476,6 +479,7 @@ explain: |
 ```quiz
 id: test-unbox-short
 type: choice
+part: "Unboxing: обратно из обёртки"
 prompt: Что произойдёт при выполнении этого кода?
 code: |
   object o = (short)5;
@@ -493,6 +497,81 @@ variants:
       int i = (int)o;
     explain: |
       `5L` — литерал типа `long`, в обёртке лежит `long`. Распаковка разрешает только ровно упакованный тип. Правильно: `(int)(long)o`.
+```
+
+
+```quiz
+id: test-box-when
+type: choice
+part: "Что происходит в памяти"
+prompt: Когда происходит boxing?
+options:
+  - "Когда значение значимого типа попадает туда, где ожидается ссылка: object или интерфейс"
+  - "При любом присваивании переменной"
+  - "При каждом вызове метода с аргументом int"
+  - "При создании массива int[]"
+answer: 0
+explain: |
+  Упаковка нужна, чтобы на значение можно было сослаться. `int[]` хранит сами числа, а метод с параметром `int` получает копию без обёртки.
+```
+
+```quiz
+id: test-box-shared
+type: output
+part: "Что происходит в памяти"
+prompt: Что выведет код?
+code: |
+  int a = 1;
+  object o = a;
+  object p = o;
+  a = 2;
+  Console.WriteLine(p);
+answer: "1"
+explain: |
+  `object o = a` создаёт обёртку с копией 1. `object p = o` копирует только ссылку на ту же обёртку. Изменение `a` её не касается.
+```
+
+```quiz
+id: test-unbox-exact
+type: choice
+part: "Unboxing: обратно из обёртки"
+prompt: Какая распаковка выполнится без ошибки, если `object o = 5;`?
+options:
+  - "(int)o"
+  - "(long)o"
+  - "(short)o"
+  - "(double)o"
+answer: 0
+explain: |
+  Литерал `5` — `int`, в обёртке лежит `int`. Распаковка разрешает только ровно упакованный тип.
+```
+
+```quiz
+id: test-unbox-chain
+type: fill
+part: "Unboxing: обратно из обёртки"
+prompt: Вставьте тип, чтобы получить `float` из упакованного числа без ошибки.
+code: |
+  object o = 3.5;
+  float f = (float)(___)o;
+answer: double
+explain: |
+  `3.5` — литерал типа `double`, в обёртке лежит `double`. Сначала распаковка в `double`, потом обычное приведение к `float`.
+```
+
+```quiz
+id: test-box-cost
+type: choice
+part: "Что происходит в памяти"
+prompt: Почему упаковка в часто выполняемом цикле вредна?
+options:
+  - "Каждая упаковка создаёт объект в куче, а потом его убирает сборщик мусора"
+  - "Упаковка блокирует другие потоки"
+  - "После упаковки значение нельзя прочитать"
+  - "Упаковка меняет исходную переменную"
+answer: 0
+explain: |
+  Одна упаковка — небольшая аллокация, но миллион в цикле — это миллион объектов в куче и работа для сборщика мусора.
 ```
 
 ::::

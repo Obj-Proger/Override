@@ -7,7 +7,7 @@ minutes: 30
 order: 4
 requires: [csharp.basics.control-flow]
 quickCheck: [by-value, missing-return, swap-ref, overload-pick]
-testMinutes: 4
+testMinutes: 6
 ---
 
 ::::warmup
@@ -636,6 +636,7 @@ answer: |
 ```quiz
 id: test-overload-return
 type: choice
+part: "Перегрузка"
 prompt: Что из этого не может отличать перегрузки метода?
 options:
   - "Количество параметров"
@@ -650,6 +651,7 @@ explain: |
 ```quiz
 id: test-ref-twice
 type: output
+part: "Передача аргументов: значение, ref, out, in"
 prompt: Что выведет код?
 code: |
   int total = 10;
@@ -677,6 +679,7 @@ variants:
 ```quiz
 id: test-out-init
 type: choice
+part: "Передача аргументов: значение, ref, out, in"
 prompt: Какой вызов скомпилируется, если переменная объявлена как `int n;` без значения?
 options:
   - "`Change(ref n);` для метода `void Change(ref int x)`"
@@ -691,6 +694,7 @@ explain: |
 ```quiz
 id: test-overload-char
 type: output
+part: "Перегрузка"
 prompt: Что выведет код?
 code: |
   Show('7');
@@ -709,6 +713,166 @@ variants:
     answer: double
     explain: |
       `7L` — `long`. В `int` он неявно не превращается, а в `double` — превращается, поэтому вызывается `Show(double)`.
+```
+
+
+```quiz
+id: test-nested-call
+type: output
+part: "Объявление и вызов"
+prompt: Что выведет код?
+code: |
+  Console.WriteLine(Square(Square(3)));
+
+  int Square(int n) => n * n;
+answer: "81"
+explain: |
+  Сначала вычисляется внутренний вызов: `Square(3)` = 9. Затем `Square(9)` = 81.
+```
+
+```quiz
+id: test-void-return
+type: choice
+part: "Объявление и вызов"
+prompt: Что делает `return;` без значения в методе `void`?
+options:
+  - "Завершает метод досрочно"
+  - "Возвращает 0"
+  - "Возвращает null"
+  - "Это ошибка компиляции"
+answer: 0
+explain: |
+  В `void`-методе `return;` просто выходит из метода. Значение после `return` в таком методе — ошибка.
+```
+
+```quiz
+id: test-early-return
+type: output
+part: "Объявление и вызов"
+prompt: Что выведет код?
+code: |
+  Console.WriteLine(Check(-5));
+
+  string Check(int n)
+  {
+      if (n < 0)
+          return "отрицательное";
+      return "неотрицательное";
+  }
+answer: отрицательное
+explain: |
+  `return` сразу завершает метод. Для -5 условие истинно, и до второго `return` выполнение не доходит.
+```
+
+```quiz
+id: test-tryparse
+type: output
+part: "Передача аргументов: значение, ref, out, in"
+prompt: Что выведет код? `$"{ok} {n}"` подставляет значения в строку через пробел.
+code: |
+  bool ok = int.TryParse("12a", out int n);
+  Console.WriteLine($"{ok} {n}");
+answer: False 0
+explain: |
+  "12a" — не число, поэтому `TryParse` возвращает `false` и записывает в `out`-параметр 0. Исключения нет.
+variants:
+  - code: |
+      bool ok = int.TryParse("-15", out int n);
+      Console.WriteLine($"{ok} {n}");
+    answer: True -15
+    explain: |
+      "-15" — корректное число, поэтому `TryParse` возвращает `true` и кладёт значение в `out`-параметр.
+```
+
+```quiz
+id: test-named-order
+type: output
+part: "Необязательные и именованные параметры, params"
+prompt: Что выведет код? `$"{name}, {age}"` подставляет значения в строку.
+code: |
+  Console.WriteLine(Describe(age: 30, name: "Анна"));
+
+  string Describe(string name, int age) => $"{name}, {age}";
+answer: Анна, 30
+explain: |
+  С именованными аргументами порядок при вызове не важен: каждое значение попадает в параметр со своим именем.
+```
+
+```quiz
+id: test-params-last
+type: find-bug
+part: "Необязательные и именованные параметры, params"
+prompt: Метод не компилируется. В какой строке ошибка?
+code: |
+  int Sum(params int[] numbers, int start)
+  {
+      int total = start;
+      foreach (int n in numbers)
+          total += n;
+      return total;
+  }
+answer: 1
+explain: |
+  `params` может быть только последним параметром: иначе непонятно, где кончаются его аргументы. Нужно `Sum(int start, params int[] numbers)`.
+```
+
+```quiz
+id: test-optional-value
+type: choice
+part: "Необязательные и именованные параметры, params"
+prompt: Каким может быть значение по умолчанию у необязательного параметра?
+options:
+  - "Константой, известной при компиляции"
+  - "Любым выражением, например вызовом метода"
+  - "Значением другой переменной"
+  - "Только нулём или null"
+answer: 0
+explain: |
+  Значение по умолчанию компилятор вписывает в место вызова, поэтому оно должно быть константой: число, строка, `null`, `default`.
+```
+
+```quiz
+id: test-overload-long
+type: output
+part: "Перегрузка"
+prompt: Что выведет код?
+code: |
+  Show(5);
+
+  void Show(long value) => Console.WriteLine("long");
+  void Show(double value) => Console.WriteLine("double");
+answer: long
+explain: |
+  Перегрузки для `int` нет, но `int` расширяется и до `long`, и до `double`. Выбирается `long`: он сам расширяется до `double`, значит, это более близкое расширение.
+```
+
+```quiz
+id: test-base-case
+type: choice
+part: "Рекурсия"
+prompt: Что обязательно должно быть в рекурсивном методе?
+options:
+  - "Базовый случай, при котором метод не вызывает себя"
+  - "Цикл"
+  - "out-параметр"
+  - "Модификатор static"
+answer: 0
+explain: |
+  Без базового случая вызовы не прекратятся, стек переполнится, и процесс аварийно завершится.
+```
+
+```quiz
+id: test-recursion-trace
+type: output
+part: "Рекурсия"
+prompt: Что выведет код?
+code: |
+  Console.WriteLine(F(3));
+
+  int F(int n) => n <= 0 ? 1 : 2 * F(n - 1);
+answer: "8"
+explain: |
+  `F(3) = 2 × F(2) = 2 × 2 × F(1) = 2 × 2 × 2 × F(0) = 8`. Базовый случай `F(0)` возвращает 1.
 ```
 
 ::::
