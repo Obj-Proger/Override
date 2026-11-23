@@ -1,8 +1,8 @@
 // The code editor of the site: CodeMirror 6 with C# and PostgreSQL, colored like the rest of the code.
 // Built into src/Override.Web/wwwroot/lib/editor/editor.js with `npm run build`; the site loads it on demand.
 
-import { autocompletion, closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
-import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
+import { autocompletion, closeBrackets, closeBracketsKeymap, insertBracket } from "@codemirror/autocomplete";
+import { cursorCharLeft, cursorCharRight, defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { PostgreSQL, sql } from "@codemirror/lang-sql";
 import {
     HighlightStyle,
@@ -187,8 +187,77 @@ const theme = EditorView.theme({
 const editors = new Map();
 let nextId = 1;
 
+// Symbols that a phone keyboard hides on its second and third pages.
+const keys = {
+    csharp: ["tab", "←", "→", "{", "}", "(", ")", "[", "]", ";", "=", "<", ">", "\"", ".", ",", "!", "&", "|", "+", "-", "*", "/", ":", "?", "_", "'"],
+    sql: ["tab", "←", "→", "(", ")", "*", ",", ";", "=", "<", ">", "'", ".", "\"", "%", "_", "+", "-", "/", ":"],
+};
+
+const brackets = new Set(["(", "[", "{", "\"", "'"]);
+
+function press(view, key) {
+    if (key === "←") {
+        cursorCharLeft(view);
+    } else if (key === "→") {
+        cursorCharRight(view);
+    } else if (brackets.has(key) && insertBracket(view.state, key)) {
+        view.dispatch(insertBracket(view.state, key));
+    } else {
+        view.dispatch({ ...view.state.replaceSelection(key === "tab" ? "    " : key), scrollIntoView: true, userEvent: "input" });
+    }
+}
+
+/**
+ * A row of symbol keys over the phone keyboard. It shows while the editor has the focus and follows the visual
+ * viewport, which shrinks when the keyboard opens. Taps do not take the focus, so the keyboard stays open.
+ */
+function createKeyBar(view, language) {
+    const bar = document.createElement("div");
+    bar.className = "code-keys";
+    bar.setAttribute("role", "toolbar");
+    bar.setAttribute("aria-label", "Символы");
+
+    for (const key of keys[language] ?? keys.csharp) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = key === "tab" ? "⇥" : key;
+        button.setAttribute("aria-label", key === "tab" ? "Отступ" : key === "←" ? "Влево" : key === "→" ? "Вправо" : key);
+        button.addEventListener("pointerdown", (event) => event.preventDefault());
+        button.addEventListener("click", () => {
+            press(view, key);
+            view.focus();
+        });
+        bar.append(button);
+    }
+
+    document.body.append(bar);
+
+    const viewport = window.visualViewport;
+    const place = () => {
+        const covered = viewport ? window.innerHeight - viewport.height - viewport.offsetTop : 0;
+        bar.style.bottom = `${Math.max(0, covered)}px`;
+    };
+    viewport?.addEventListener("resize", place);
+    viewport?.addEventListener("scroll", place);
+
+    return {
+        show(visible) {
+            bar.classList.toggle("is-visible", visible);
+            if (visible) {
+                place();
+            }
+        },
+        remove() {
+            viewport?.removeEventListener("resize", place);
+            viewport?.removeEventListener("scroll", place);
+            bar.remove();
+        },
+    };
+}
+
 /** Creates an editor inside host and returns its id for the other functions. */
 export function create(host, text, language) {
+    let bar = null;
     const view = new EditorView({
         parent: host,
         state: EditorState.create({
@@ -209,25 +278,38 @@ export function create(host, text, language) {
                 syntaxHighlighting(highlight),
                 theme,
                 EditorView.contentAttributes.of({ "aria-label": "Редактор кода", spellcheck: "false" }),
+                // The cursor line stays above the symbol keys when the editor scrolls to it.
+                EditorView.scrollMargins.of(() => ({ bottom: bar ? 60 : 0 })),
+                EditorView.domEventHandlers({
+                    focus: () => bar?.show(true),
+                    blur: () => bar?.show(false),
+                }),
             ],
         }),
     });
 
+    // Only touch screens get the keys: a real keyboard has all the symbols.
+    if (window.matchMedia("(pointer: coarse)").matches) {
+        bar = createKeyBar(view, language);
+    }
+
     const id = nextId++;
-    editors.set(id, view);
+    editors.set(id, { view, bar });
     return id;
 }
 
 export function getText(id) {
-    return editors.get(id)?.state.doc.toString() ?? "";
+    return editors.get(id)?.view.state.doc.toString() ?? "";
 }
 
 export function setText(id, text) {
-    const view = editors.get(id);
+    const view = editors.get(id)?.view;
     view?.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: text } });
 }
 
 export function dispose(id) {
-    editors.get(id)?.destroy();
+    const editor = editors.get(id);
+    editor?.bar?.remove();
+    editor?.view.destroy();
     editors.delete(id);
 }

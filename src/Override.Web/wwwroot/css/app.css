@@ -1534,6 +1534,43 @@ textarea.answer-input {
     tab-size: 4;
 }
 
+/* Symbol keys over the phone keyboard, made by the editor bundle */
+
+.code-keys {
+    position: fixed;
+    right: 0;
+    left: 0;
+    z-index: 25;
+    display: none;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 6px;
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+    scrollbar-width: none;
+}
+
+.code-keys.is-visible {
+    display: flex;
+}
+
+.code-keys button {
+    flex: 0 0 auto;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 8px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--text);
+    font: 16px var(--mono);
+    touch-action: manipulation;
+}
+
+.code-keys button:active {
+    background: var(--accent-soft);
+}
+
 /* Code run results */
 
 .run-result {
@@ -1815,11 +1852,15 @@ textarea.answer-input {
         overflow-x: auto;
     }
 
-    /* Phones zoom into a field with text smaller than 16px; with 16px they keep the page as is. */
-    .answer-input,
-    .code-fallback,
-    .code-editor .cm-content {
+    /* Answers are short, so they get large text; code gets smaller text to fit long lines. */
+    .answer-input {
         font-size: 16px;
+    }
+
+    pre,
+    .code-fallback,
+    .code-editor .cm-editor {
+        font-size: 13px;
     }
 
     .panel-list {
@@ -1842,8 +1883,14 @@ textarea.answer-input {
     }
 
     pre {
-        padding: 12px 14px;
-        font-size: 13px;
+        padding: 12px;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .code-fallback,
+    .code-editor .cm-editor {
+        font-size: 12px;
     }
 
     .dialog {
