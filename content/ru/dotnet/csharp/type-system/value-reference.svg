@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 280" role="img" aria-labelledby="t d">
+  <title id="t">Копирование значимого и ссылочного типа</title>
+  <desc id="d">Код: int x = 5; int y = x; int[] a = { 5 }; int[] b = a. В стеке x и y хранят каждая своё число 5 — это две независимые копии. a и b хранят одинаковые ссылки на один массив в куче.</desc>
+  <style>
+    .panel{fill:var(--fig-panel,#F3F2F7)}
+    .cell{fill:var(--fig-cell,#FFFFFF);stroke:var(--fig-line,#C9C9D1);stroke-width:1.5}
+    .hl{fill:var(--fig-accent-soft,#ECE8FF);stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .m{fill:var(--fig-muted,#5C5C66);font:13px Inter,system-ui,sans-serif}
+    .h{fill:var(--fig-text,#26262C);font:600 14px Inter,system-ui,sans-serif}
+    .code{fill:var(--fig-text,#26262C);font:500 14px 'JetBrains Mono',Consolas,monospace}
+    .big{fill:var(--fig-text,#26262C);font:600 18px 'JetBrains Mono',Consolas,monospace}
+    .arrow{fill:none;stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .dot{fill:var(--fig-accent,#5B3FD9)}
+  </style>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="dot"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="26" class="h">Стек (кадр метода)</text>
+  <rect x="20" y="38" width="300" height="230" rx="12" class="panel"/>
+
+  <rect x="36" y="56" width="268" height="40" rx="8" class="cell"/>
+  <text x="50" y="81" class="code">int x</text>
+  <text x="284" y="83" class="big" text-anchor="end">5</text>
+  <rect x="36" y="104" width="268" height="40" rx="8" class="cell"/>
+  <text x="50" y="129" class="code">int y</text>
+  <text x="284" y="131" class="big" text-anchor="end">5</text>
+  <text x="36" y="162" class="m">две независимые копии числа</text>
+
+  <rect x="36" y="174" width="268" height="40" rx="8" class="cell"/>
+  <text x="50" y="199" class="code">int[] a</text>
+  <circle cx="284" cy="194" r="6" class="dot"/>
+  <rect x="36" y="220" width="268" height="40" rx="8" class="cell"/>
+  <text x="50" y="245" class="code">int[] b</text>
+  <circle cx="284" cy="240" r="6" class="dot"/>
+
+  <text x="360" y="26" class="h">Куча</text>
+  <rect x="360" y="38" width="340" height="230" rx="12" class="panel"/>
+  <rect x="470" y="190" width="200" height="50" rx="8" class="hl"/>
+  <text x="570" y="221" class="code" text-anchor="middle">массив { 5 }</text>
+  <text x="380" y="80" class="m">a и b — две ссылки</text>
+  <text x="380" y="98" class="m">на один объект</text>
+
+  <path d="M290 194C370 194 400 205 462 210" class="arrow" marker-end="url(#ah)"/>
+  <path d="M290 240C370 240 400 228 462 222" class="arrow" marker-end="url(#ah)"/>
+</svg>

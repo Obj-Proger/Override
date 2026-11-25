@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 240" role="img" aria-labelledby="t d">
+  <title id="t">Строка не меняется, создаётся новая</title>
+  <desc id="d">До: переменная s ссылается на строку «кот» в куче. После s = s + "ик": в куче создана новая строка «котик», s ссылается на неё, а старая строка «кот» осталась без ссылок, и её уберёт сборщик мусора.</desc>
+  <style>
+    .panel{fill:var(--fig-panel,#F3F2F7)}
+    .cell{fill:var(--fig-cell,#FFFFFF);stroke:var(--fig-line,#C9C9D1);stroke-width:1.5}
+    .hl{fill:var(--fig-accent-soft,#ECE8FF);stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .old{fill:var(--fig-cell,#FFFFFF);stroke:var(--fig-line,#C9C9D1);stroke-width:1.5;stroke-dasharray:5 4}
+    .m{fill:var(--fig-muted,#5C5C66);font:13px Inter,system-ui,sans-serif}
+    .h{fill:var(--fig-text,#26262C);font:600 14px Inter,system-ui,sans-serif}
+    .code{fill:var(--fig-text,#26262C);font:500 15px 'JetBrains Mono',Consolas,monospace}
+    .faded{fill:var(--fig-muted,#5C5C66);font:500 15px 'JetBrains Mono',Consolas,monospace}
+    .arrow{fill:none;stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .dot{fill:var(--fig-accent,#5B3FD9)}
+  </style>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="dot"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="26" class="h">string s = "кот";</text>
+  <rect x="20" y="38" width="330" height="190" rx="12" class="panel"/>
+  <rect x="40" y="70" width="110" height="46" rx="8" class="cell"/>
+  <text x="56" y="99" class="code">s</text>
+  <circle cx="132" cy="93" r="6" class="dot"/>
+  <rect x="200" y="70" width="130" height="46" rx="8" class="hl"/>
+  <text x="265" y="99" class="code" text-anchor="middle">"кот"</text>
+  <path d="M138 93H192" class="arrow" marker-end="url(#ah)"/>
+  <text x="40" y="170" class="m">в куче один объект-строка</text>
+
+  <text x="370" y="26" class="h">s = s + "ик";</text>
+  <rect x="370" y="38" width="330" height="190" rx="12" class="panel"/>
+  <rect x="390" y="70" width="110" height="46" rx="8" class="cell"/>
+  <text x="406" y="99" class="code">s</text>
+  <circle cx="482" cy="93" r="6" class="dot"/>
+  <rect x="550" y="70" width="130" height="46" rx="8" class="hl"/>
+  <text x="615" y="99" class="code" text-anchor="middle">"котик"</text>
+  <path d="M488 93H542" class="arrow" marker-end="url(#ah)"/>
+  <rect x="550" y="140" width="130" height="46" rx="8" class="old"/>
+  <text x="615" y="169" class="faded" text-anchor="middle">"кот"</text>
+  <text x="390" y="160" class="m">новая строка;</text>
+  <text x="390" y="178" class="m">старую уберёт GC</text>
+</svg>

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 270" role="img" aria-labelledby="t d">
+  <title id="t">Массив в памяти</title>
+  <desc id="d">Переменные a и b лежат в стеке и хранят одну и ту же ссылку. Ссылка указывает на объект массива в куче: заголовок, указатель на тип, длина 3 и подряд три элемента 10, 20 и 30 с индексами 0, 1 и 2.</desc>
+  <style>
+    .panel{fill:var(--fig-panel,#F3F2F7)}
+    .cell{fill:var(--fig-cell,#FFFFFF);stroke:var(--fig-line,#C9C9D1);stroke-width:1.5}
+    .hl{fill:var(--fig-accent-soft,#ECE8FF);stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .m{fill:var(--fig-muted,#5C5C66);font:13px Inter,system-ui,sans-serif}
+    .h{fill:var(--fig-text,#26262C);font:600 14px Inter,system-ui,sans-serif}
+    .code{fill:var(--fig-text,#26262C);font:500 14px 'JetBrains Mono',Consolas,monospace}
+    .big{fill:var(--fig-text,#26262C);font:600 18px 'JetBrains Mono',Consolas,monospace}
+    .arrow{fill:none;stroke:var(--fig-accent,#5B3FD9);stroke-width:2}
+    .dot{fill:var(--fig-accent,#5B3FD9)}
+  </style>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" class="dot"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="26" class="h">Стек</text>
+  <rect x="20" y="38" width="180" height="220" rx="12" class="panel"/>
+  <rect x="36" y="70" width="148" height="48" rx="8" class="cell"/>
+  <text x="50" y="100" class="code">int[] a</text>
+  <circle cx="164" cy="94" r="6" class="dot"/>
+  <rect x="36" y="160" width="148" height="48" rx="8" class="cell"/>
+  <text x="50" y="190" class="code">int[] b</text>
+  <circle cx="164" cy="184" r="6" class="dot"/>
+
+  <text x="230" y="26" class="h">Куча</text>
+  <rect x="230" y="38" width="470" height="220" rx="12" class="panel"/>
+
+  <rect x="250" y="110" width="80" height="56" rx="6" class="cell"/>
+  <text x="290" y="143" class="m" text-anchor="middle">заголовок</text>
+  <rect x="330" y="110" width="80" height="56" rx="6" class="cell"/>
+  <text x="370" y="143" class="m" text-anchor="middle">тип int[]</text>
+  <rect x="410" y="110" width="70" height="56" rx="6" class="cell"/>
+  <text x="445" y="135" class="m" text-anchor="middle">длина</text>
+  <text x="445" y="156" class="code" text-anchor="middle">3</text>
+  <rect x="480" y="110" width="66" height="56" rx="6" class="hl"/>
+  <text x="513" y="145" class="big" text-anchor="middle">10</text>
+  <rect x="546" y="110" width="66" height="56" rx="6" class="hl"/>
+  <text x="579" y="145" class="big" text-anchor="middle">20</text>
+  <rect x="612" y="110" width="66" height="56" rx="6" class="hl"/>
+  <text x="645" y="145" class="big" text-anchor="middle">30</text>
+
+  <text x="513" y="190" class="m" text-anchor="middle">[0]</text>
+  <text x="579" y="190" class="m" text-anchor="middle">[1]</text>
+  <text x="645" y="190" class="m" text-anchor="middle">[2]</text>
+  <text x="579" y="228" class="m" text-anchor="middle">элементы лежат подряд</text>
+
+  <path d="M170 94C210 94 220 120 244 128" class="arrow" marker-end="url(#ah)"/>
+  <path d="M170 184C210 184 220 160 244 150" class="arrow" marker-end="url(#ah)"/>
+  <text x="250" y="78" class="m">int[] b = a — копируется ссылка, массив один</text>
+</svg>
