@@ -40,7 +40,8 @@ public static class AnswerChecker
             .Split('\n')
             .Select(line => line.Trim());
 
-        var normalized = string.Join('\n', lines).Trim('\n');
+        // «Ё» is often typed as «Е»; both spellings are right in Russian.
+        var normalized = string.Join('\n', lines).Trim('\n').Replace('ё', 'е').Replace('Ё', 'Е');
         return caseSensitive ? normalized : normalized.ToLowerInvariant();
     }
 

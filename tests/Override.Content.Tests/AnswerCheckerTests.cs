@@ -14,6 +14,17 @@ public sealed class AnswerCheckerTests
         Assert.False(AnswerChecker.Check(quiz, 0));
     }
 
+    [Theory]
+    [InlineData("нечетное")]
+    [InlineData("нечётное")]
+    [InlineData("НЕЧЁТНОЕ")]
+    public void TreatsYoAsYe(string answer)
+    {
+        var quiz = new OutputQuiz("q", null, "Print.", null, null, ["нечётное"], false);
+
+        Assert.True(AnswerChecker.Check(quiz, answer));
+    }
+
     [Fact]
     public void MultiNeedsExactlyTheCorrectOptions()
     {

@@ -42,6 +42,23 @@ public sealed class CodeHighlighterTests
     }
 
     [Fact]
+    public void ShowsPipesInTableCode()
+    {
+        var html = MarkdownRenderer.Block("| Оператор | Значение |\n|---|---|\n| `a \\|\\| b` | или |");
+
+        Assert.Contains("<code>a || b</code>", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void KeepsCaretsAndTildesAsText()
+    {
+        var html = MarkdownRenderer.Block("Умножение на 2^k, деление на 2^k, ~7 цифр и ~15 цифр.");
+
+        Assert.Contains("2^k, деление на 2^k", html, StringComparison.Ordinal);
+        Assert.Contains("~7 цифр и ~15", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ColorsEscapeSequences()
     {
         var html = CodeHighlighter.Highlight("char c = '\\n';\nstring s = \"a\\tb\";\nstring v = @\"a\\tb\";", "csharp");
