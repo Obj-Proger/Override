@@ -1443,6 +1443,53 @@ textarea.answer-input {
     border-left-color: var(--ok);
 }
 
+.test-review .options,
+.test-review .code-lines {
+    margin: 10px 0;
+}
+
+.answer-badge {
+    margin-left: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.option.is-right .answer-badge {
+    color: var(--ok);
+}
+
+.option.is-mistake .answer-badge,
+.code-line.is-mistake .answer-badge {
+    color: var(--err);
+}
+
+.answer-caption {
+    margin: 10px 0 4px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.answer-pair {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 14px;
+    margin: 10px 0;
+}
+
+.answer-pair dt {
+    color: var(--muted);
+}
+
+.answer-pair dd {
+    margin: 0;
+}
+
+.answer-value {
+    white-space: pre-wrap;
+}
+
 .test-review-status {
     font-size: 13px;
     font-weight: 600;

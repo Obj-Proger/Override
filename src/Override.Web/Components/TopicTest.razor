@@ -65,11 +65,7 @@
                     var outcome = _answers.TryGetValue(i, out var answer) ? answer.Outcome : (Outcome?)null;
                     <li class="@(outcome == Outcome.Correct ? "is-right" : "is-mistake")">
                         <div class="test-review-status">@StatusText(outcome)</div>
-                        <div class="question-prompt">@((MarkupString)item.Quiz.Prompt)</div>
-                        @if (item.Quiz.Explain is not null)
-                        {
-                            <div class="feedback-explain">@((MarkupString)item.Quiz.Explain)</div>
-                        }
+                        <AnsweredQuestion Question="item" Result="@(outcome is null ? null : answer)" />
                     </li>
                 }
             </ol>

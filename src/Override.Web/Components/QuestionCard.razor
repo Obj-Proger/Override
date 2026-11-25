@@ -349,8 +349,18 @@
         _correct = correct;
         var outcome = correct ? Outcome.Correct : Outcome.Wrong;
         var first = Progress.Record(TopicId, Quiz.Id, outcome);
-        _ = OnAnswered.InvokeAsync(new AnswerResult(outcome, first));
+        _ = OnAnswered.InvokeAsync(new AnswerResult(outcome, first, Given()));
     }
+
+    /// <summary>The answer as given, for the results of a test.</summary>
+    private GivenAnswer Given() => Quiz switch
+    {
+        ChoiceQuiz => new GivenAnswer(Options: _choice is { } choice ? [choice] : []),
+        MultiQuiz => new GivenAnswer(Options: [.. _selected.Order()]),
+        FindBugQuiz => new GivenAnswer(Line: _line),
+        ParsonsQuiz => new GivenAnswer(Order: [.. _order]),
+        _ => new GivenAnswer(Text: _text),
+    };
 
     /// <summary>
     /// "Recalled" is saved but never counts as knowledge: the user's own estimate can be too kind.

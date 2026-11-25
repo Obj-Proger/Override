@@ -1,0 +1,152 @@
+@*
+    A test question after the test: the prompt, the code, the options or lines, what the user answered and
+    what was right, and the explanation. Nothing here can be clicked.
+*@
+
+<div class="question-prompt">@((MarkupString)Quiz.Prompt)</div>
+
+@switch (Quiz)
+{
+    case ChoiceQuiz choice:
+        <CodeBlock Html="@Question.CodeHtml" />
+        <ul class="options">
+            @for (var i = 0; i < choice.Options.Count; i++)
+            {
+                var index = i;
+                <li>
+                    <div class="option @Mark(index == choice.Answer, Picked.Contains(index))">
+                        @((MarkupString)choice.Options[index])
+                        @Badge(index == choice.Answer, Picked.Contains(index))
+                    </div>
+                </li>
+            }
+        </ul>
+        break;
+
+    case MultiQuiz multi:
+        <CodeBlock Html="@Question.CodeHtml" />
+        <ul class="options">
+            @for (var i = 0; i < multi.Options.Count; i++)
+            {
+                var index = i;
+                <li>
+                    <div class="option @Mark(multi.Answers.Contains(index), Picked.Contains(index))">
+                        @((MarkupString)multi.Options[index])
+                        @Badge(multi.Answers.Contains(index), Picked.Contains(index))
+                    </div>
+                </li>
+            }
+        </ul>
+        break;
+
+    case FindBugQuiz findBug:
+        <ol class="code-lines" aria-label="Строки кода">
+            @for (var i = 0; i < Lines.Count; i++)
+            {
+                var line = i + 1;
+                <li>
+                    <div class="code-line @Mark(line == findBug.Line, Result?.Given?.Line == line)">
+                        <span class="line-number" aria-hidden="true">@line</span>
+                        <code>@((MarkupString)Lines[i])</code>
+                        @Badge(line == findBug.Line, Result?.Given?.Line == line)
+                    </div>
+                </li>
+            }
+        </ol>
+        break;
+
+    case ParsonsQuiz:
+        <p class="answer-caption">Правильный порядок:</p>
+        <ol class="parsons-answer">
+            @for (var i = 0; i < CorrectLines; i++)
+            {
+                <li><code>@((MarkupString)Lines[i])</code></li>
+            }
+        </ol>
+        @if (Result?.Given?.Order is { Count: > 0 } order)
+        {
+            <p class="answer-caption">Ваш порядок:</p>
+            <ol class="parsons-answer">
+                @foreach (var item in order)
+                {
+                    <li><code>@((MarkupString)Lines[item])</code></li>
+                }
+            </ol>
+        }
+        break;
+
+    default:
+        <CodeBlock Html="@Question.CodeHtml" />
+        <dl class="answer-pair">
+            <dt>Ваш ответ</dt>
+            <dd>@(Result?.Given?.Text is { Length: > 0 } text ? Pre(text) : Missing)</dd>
+            <dt>Правильный ответ</dt>
+            <dd>@Pre(ExpectedText)</dd>
+        </dl>
+        break;
+}
+
+@if (Result is null && Quiz is ChoiceQuiz or MultiQuiz or FindBugQuiz)
+{
+    <p class="answer-caption">Ответа не было.</p>
+}
+
+@if (Quiz.Explain is not null)
+{
+    <div class="feedback-explain">@((MarkupString)Quiz.Explain)</div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public QuestionBlock Question { get; set; } = default!;
+
+    /// <summary>The answer, or null if time ran out before it.</summary>
+    [Parameter]
+    public AnswerResult? Result { get; set; }
+
+    private Quiz Quiz => Question.Quiz;
+
+    private IReadOnlyList<string> Lines => Question.LinesHtml ?? [];
+
+    private IReadOnlyList<int> Picked => Result?.Given?.Options ?? [];
+
+    private int CorrectLines => Quiz is ParsonsQuiz parsons ? parsons.Lines.Count : 0;
+
+    private static readonly RenderFragment Missing = builder => builder.AddContent(0, "нет ответа");
+
+    /// <summary>The first accepted answer: the one the author wrote first.</summary>
+    private string ExpectedText => Quiz switch
+    {
+        InputQuiz input => input.Answers[0],
+        OutputQuiz output => output.Answers[0],
+        FillQuiz fill => fill.Answers[0],
+        _ => "",
+    };
+
+    private static RenderFragment Pre(string text) => builder =>
+    {
+        builder.OpenElement(0, "code");
+        builder.AddAttribute(1, "class", "answer-value");
+        builder.AddContent(2, text);
+        builder.CloseElement();
+    };
+
+    private static string Mark(bool isRight, bool isPicked) =>
+        isRight ? "is-right" : isPicked ? "is-mistake" : "is-dimmed";
+
+    private static RenderFragment? Badge(bool isRight, bool isPicked) => (isRight, isPicked) switch
+    {
+        (true, true) => Tag("ваш ответ, верно"),
+        (true, false) => Tag("правильный ответ"),
+        (false, true) => Tag("ваш ответ"),
+        _ => null,
+    };
+
+    private static RenderFragment Tag(string text) => builder =>
+    {
+        builder.OpenElement(0, "span");
+        builder.AddAttribute(1, "class", "answer-badge");
+        builder.AddContent(2, text);
+        builder.CloseElement();
+    };
+}

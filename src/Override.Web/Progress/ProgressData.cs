@@ -39,7 +39,14 @@ internal sealed partial class ProgressJsonContext : JsonSerializerContext
 }
 
 /// <summary>How an answer ended and whether it counted as a first attempt.</summary>
-public sealed record AnswerResult(Outcome Outcome, bool First);
+public sealed record AnswerResult(Outcome Outcome, bool First, GivenAnswer? Given = null);
+
+/// <summary>
+/// What the user answered, to show it again after a test: picked options, typed text, the line pointed at or the
+/// order of parsons lines (indices into the lines and distractors together).
+/// </summary>
+public sealed record GivenAnswer(
+    IReadOnlyList<int>? Options = null, string? Text = null, int? Line = null, IReadOnlyList<int>? Order = null);
 
 /// <summary>A finished topic test: right answers out of all, the time it took and whether time ran out.</summary>
 public sealed record TestResult(DateTimeOffset At, int Correct, int Total, int Seconds, bool TimedOut)
