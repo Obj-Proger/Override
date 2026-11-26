@@ -1,5 +1,5 @@
 @page "/transfer"
-@inject ProgressTransfer Transfer
+@inject ProgressTransfer Mover
 @inject IJSRuntime JS
 
 <PageTitle>Перенос прогресса · Override</PageTitle>
@@ -53,13 +53,13 @@
     private bool _creating;
     private bool _canShare;
 
-    protected override void OnInitialized() => _canShare = Transfer.CanShare();
+    protected override void OnInitialized() => _canShare = Mover.CanShare();
 
     private async Task CreateAsync()
     {
         _creating = true;
         _message = null;
-        _link = await Transfer.CreateLinkAsync();
+        _link = await Mover.CreateLinkAsync();
         _creating = false;
     }
 
@@ -72,6 +72,6 @@
     private async Task ShareAsync()
     {
         if (_link is not null)
-            await Transfer.ShareAsync(_link);
+            await Mover.ShareAsync(_link);
     }
 }
