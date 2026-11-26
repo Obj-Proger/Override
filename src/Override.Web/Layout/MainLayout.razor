@@ -6,6 +6,7 @@
 @inject ProfileStore Profile
 @inject ProgressStore Progress
 @inject Coach Coach
+@inject ProgressTransfer Transfer
 
 <a class="skip-link" href="@SkipHref">К содержанию</a>
 
@@ -93,6 +94,11 @@
     <SearchDialog OnClose="CloseSearch" />
 }
 
+@if (_importCode is not null)
+{
+    <ImportDialog Code="@_importCode" OnClose="() => _importCode = null" />
+}
+
 @if (_profileOpen)
 {
     <div class="dialog-backdrop" @onclick="CloseProfile"></div>
@@ -110,6 +116,9 @@
     private bool _focusMain;
     private ElementReference _main;
     private bool _profileOpen;
+
+    /// <summary>The code of a transfer link this page was opened with.</summary>
+    private string? _importCode;
     private bool _searchOpen;
     private int _dueCount;
     private DotNetObjectReference<MainLayout>? _self;
@@ -163,6 +172,12 @@
         {
             _self = DotNetObjectReference.Create(this);
             await JS.InvokeVoidAsync("overrideShortcuts.register", _self);
+
+            if (Transfer.TakeFromAddress() is { } code)
+            {
+                _importCode = code;
+                StateHasChanged();
+            }
         }
 
         if (_scrollToTop)

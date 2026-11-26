@@ -34,9 +34,13 @@ public sealed class ProgressData
     UseStringEnumConverter = true)]
 [JsonSerializable(typeof(ProgressData))]
 [JsonSerializable(typeof(LearnerProfile))]
+[JsonSerializable(typeof(TransferData))]
 internal sealed partial class ProgressJsonContext : JsonSerializerContext
 {
 }
+
+/// <summary>Everything a transfer link carries: the progress and the chosen level and direction.</summary>
+public sealed record TransferData(int Version, ProgressData Progress, LearnerProfile? Profile);
 
 /// <summary>How an answer ended and whether it counted as a first attempt.</summary>
 public sealed record AnswerResult(Outcome Outcome, bool First, GivenAnswer? Given = null);

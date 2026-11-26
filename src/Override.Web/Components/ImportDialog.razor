@@ -1,0 +1,74 @@
+@*
+    Offers to import progress from a transfer link: shows what the link holds and lets the person merge it with
+    what is here, replace it, or cancel. Merging is the safe default: nothing is lost on either side.
+*@
+@inject ProgressTransfer Transfer
+
+<div class="dialog-backdrop" @onclick="Cancel"></div>
+<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="import-title">
+    <h2 id="import-title">Перенос прогресса</h2>
+
+    @if (_loading)
+    {
+        <p role="status">Читаю ссылку…</p>
+    }
+    else if (_data is null)
+    {
+        <p>Ссылка повреждена или обрезана: прогресс из неё не прочитать. Создайте ссылку заново и скопируйте её целиком.</p>
+        <div class="dialog-actions">
+            <button type="button" class="button-primary" @onclick="Cancel">Закрыть</button>
+        </div>
+    }
+    else if (_done)
+    {
+        <p>Готово: прогресс перенесён.</p>
+        <div class="dialog-actions">
+            <button type="button" class="button-primary" @onclick="Cancel">Закрыть</button>
+        </div>
+    }
+    else
+    {
+        var summary = ProgressTransfer.Summarize(_data);
+        <p>
+            В ссылке: @Labels.Answers(summary.Answers), тем: @summary.Topics, тестов: @summary.Tests@(summary.LastAnswer is { } last ? $", последний ответ {last.LocalDateTime:dd.MM.yyyy HH:mm}" : "").
+        </p>
+        <p class="meta">«Объединить» сложит ответы с этого устройства и из ссылки. «Заменить» сотрёт прогресс на этом устройстве и возьмёт прогресс из ссылки.</p>
+        <div class="dialog-actions">
+            <button type="button" class="button" @onclick="Cancel">Отмена</button>
+            <button type="button" class="button" @onclick="() => Apply(true)">Заменить</button>
+            <button type="button" class="button-primary" @onclick="() => Apply(false)">Объединить</button>
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>A whole link or just its code.</summary>
+    [Parameter, EditorRequired]
+    public string Code { get; set; } = "";
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private TransferData? _data;
+    private bool _loading = true;
+    private bool _done;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _done = false;
+        _data = await Transfer.ReadAsync(Code);
+        _loading = false;
+    }
+
+    private void Apply(bool replace)
+    {
+        if (_data is null)
+            return;
+
+        Transfer.Apply(_data, replace);
+        _done = true;
+    }
+
+    private Task Cancel() => OnClose.InvokeAsync();
+}

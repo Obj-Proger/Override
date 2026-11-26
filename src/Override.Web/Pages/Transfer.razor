@@ -1,0 +1,77 @@
+@page "/transfer"
+@inject ProgressTransfer Transfer
+@inject IJSRuntime JS
+
+<PageTitle>Перенос прогресса · Override</PageTitle>
+
+<div class="catalog transfer">
+    <h1>Перенос прогресса</h1>
+    <p class="catalog-lead">Прогресс хранится только в этом браузере. Чтобы продолжить на другом устройстве, создайте ссылку и откройте её там: сайт предложит перенести прогресс. Обратно — так же.</p>
+
+    <section class="catalog-group">
+        <h2>Отсюда на другое устройство</h2>
+        <button type="button" class="button-check" @onclick="CreateAsync" disabled="@_creating">Создать ссылку</button>
+
+        @if (_link is not null)
+        {
+            <textarea class="transfer-link" readonly rows="4" aria-label="Ссылка с прогрессом">@_link</textarea>
+            <div class="skills-actions">
+                <button type="button" class="button" @onclick="CopyAsync">Скопировать</button>
+                @if (_canShare)
+                {
+                    <button type="button" class="button" @onclick="ShareAsync">Поделиться</button>
+                }
+                @if (_message is not null)
+                {
+                    <span class="meta" role="status">@_message</span>
+                }
+            </div>
+            <p class="meta">Ссылка — снимок на эту минуту: ответы после неё в неё не попадут. Данные лежат в самой ссылке, после знака #, и не отправляются ни на какой сервер. Не публикуйте её: по ней видно ваш прогресс.</p>
+        }
+    </section>
+
+    <section class="catalog-group">
+        <h2>Сюда с другого устройства</h2>
+        <p>Откройте ссылку в браузере этого устройства или вставьте её сюда.</p>
+        <textarea class="transfer-link" rows="3" placeholder="Ссылка с прогрессом" aria-label="Ссылка с прогрессом для импорта" @bind="_pasted" @bind:event="oninput"></textarea>
+        <div class="skills-actions">
+            <button type="button" class="button-check" disabled="@string.IsNullOrWhiteSpace(_pasted)" @onclick="() => _importing = _pasted">Перенести</button>
+        </div>
+    </section>
+</div>
+
+@if (_importing is not null)
+{
+    <ImportDialog Code="@_importing" OnClose="() => { _importing = null; _pasted = null; }" />
+}
+
+@code {
+    private string? _link;
+    private string? _message;
+    private string? _pasted;
+    private string? _importing;
+    private bool _creating;
+    private bool _canShare;
+
+    protected override void OnInitialized() => _canShare = Transfer.CanShare();
+
+    private async Task CreateAsync()
+    {
+        _creating = true;
+        _message = null;
+        _link = await Transfer.CreateLinkAsync();
+        _creating = false;
+    }
+
+    private async Task CopyAsync()
+    {
+        var copied = await JS.InvokeAsync<bool>("overrideClipboard.copy", _link);
+        _message = copied ? "Скопировано." : "Браузер не разрешил копирование: выделите ссылку и скопируйте вручную.";
+    }
+
+    private async Task ShareAsync()
+    {
+        if (_link is not null)
+            await Transfer.ShareAsync(_link);
+    }
+}

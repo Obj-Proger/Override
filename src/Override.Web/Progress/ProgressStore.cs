@@ -64,6 +64,60 @@ public sealed class ProgressStore
         }
     }
 
+    /// <summary>The stored data as is, for a transfer link.</summary>
+    internal ProgressData Data => _data;
+
+    /// <summary>
+    /// Takes progress from another device. Replace drops what is here; merge keeps both: answers and test results
+    /// are joined by time, the furthest step and the latest visit win.
+    /// </summary>
+    public void Import(ProgressData other, bool replace)
+    {
+        if (replace)
+        {
+            _data = other;
+            Save();
+            return;
+        }
+
+        foreach (var (key, attempts) in other.Questions)
+        {
+            var joined = (_data.Questions.TryGetValue(key, out var mine) ? mine.Concat(attempts) : attempts)
+                .DistinctBy(attempt => (attempt.At, attempt.Outcome))
+                .OrderBy(attempt => attempt.At)
+                .ToList();
+            if (joined.Count > MaxAttemptsPerQuestion)
+                joined.RemoveRange(0, joined.Count - MaxAttemptsPerQuestion);
+            _data.Questions[key] = joined;
+        }
+
+        foreach (var (id, visit) in other.Topics)
+        {
+            _data.Topics[id] = _data.Topics.TryGetValue(id, out var mine)
+                ? new TopicVisit(Math.Max(mine.FurthestStep, visit.FurthestStep), mine.LastVisit > visit.LastVisit ? mine.LastVisit : visit.LastVisit)
+                : visit;
+        }
+
+        foreach (var (id, at) in other.KnownTopics)
+        {
+            if (!_data.KnownTopics.TryGetValue(id, out var mine) || at < mine)
+                _data.KnownTopics[id] = at;
+        }
+
+        foreach (var (id, results) in other.Tests)
+        {
+            _data.Tests[id] = (_data.Tests.TryGetValue(id, out var mine) ? mine.Concat(results) : results)
+                .DistinctBy(result => result.At)
+                .OrderBy(result => result.At)
+                .ToList();
+        }
+
+        foreach (var (key, index) in other.Variants)
+            _data.Variants.TryAdd(key, index);
+
+        Save();
+    }
+
     public IReadOnlyList<Attempt> AttemptsOf(string topicId, string questionId) =>
         _data.Questions.TryGetValue(Key(topicId, questionId), out var attempts) ? attempts : [];
 

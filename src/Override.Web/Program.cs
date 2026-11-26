@@ -15,6 +15,7 @@ builder.Services.AddSingleton<ProfileStore>();
 builder.Services.AddSingleton<ProgressStore>();
 builder.Services.AddSingleton<Coach>();
 builder.Services.AddSingleton<SkillCard>();
+builder.Services.AddSingleton<ProgressTransfer>();
 builder.Services.AddSingleton<CodeRunService>();
 builder.Services.AddSingleton<SqlRunService>();
 

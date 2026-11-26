@@ -85,6 +85,8 @@ public static class Labels
 
     public static string Questions(int count) => $"{count} {Plural(count, "вопрос", "вопроса", "вопросов")}";
 
+    public static string Answers(int count) => $"{count} {Plural(count, "ответ", "ответа", "ответов")}";
+
     public static string Topics(int count) => $"{count} {Plural(count, "тема", "темы", "тем")}";
 
     /// <summary>Russian plural: 1 тема, 2 темы, 5 тем, 21 тема.</summary>

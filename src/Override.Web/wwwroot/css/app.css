@@ -1286,6 +1286,27 @@ textarea.answer-input {
     background: var(--accent);
 }
 
+.transfer-link {
+    width: 100%;
+    margin: 12px 0 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--text);
+    font: 13px var(--mono);
+    word-break: break-all;
+    resize: vertical;
+}
+
+.dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
 .skill-details {
     margin: 4px 0 14px 12px;
 }
