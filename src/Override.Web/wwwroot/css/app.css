@@ -1286,6 +1286,47 @@ textarea.answer-input {
     background: var(--accent);
 }
 
+.skill-details {
+    margin: 4px 0 14px 12px;
+}
+
+.skill-details summary {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.skill-mistakes {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+}
+
+.skill-mistakes li {
+    padding: 10px 14px;
+    border-left: 3px solid var(--err);
+    border-radius: 6px;
+    background: var(--card);
+}
+
+.skill-mistakes li.is-fixed {
+    border-left-color: var(--ok);
+}
+
+.skill-mistake-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.skill-mistake-state {
+    font-weight: 600;
+}
+
 .gaps-note {
     color: var(--err);
 }

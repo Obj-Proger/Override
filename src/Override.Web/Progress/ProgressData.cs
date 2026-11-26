@@ -48,6 +48,12 @@ public sealed record AnswerResult(Outcome Outcome, bool First, GivenAnswer? Give
 public sealed record GivenAnswer(
     IReadOnlyList<int>? Options = null, string? Text = null, int? Line = null, IReadOnlyList<int>? Order = null);
 
+/// <summary>
+/// The answers to one question: how many, how many were problems (wrong, forgotten, partly recalled), the last
+/// outcome and where the question stands in repetition.
+/// </summary>
+public sealed record QuestionStat(string Id, int Answers, int Problems, Outcome Last, ReviewState Review);
+
 /// <summary>A finished topic test: right answers out of all, the time it took and whether time ran out.</summary>
 public sealed record TestResult(DateTimeOffset At, int Correct, int Total, int Seconds, bool TimedOut)
 {

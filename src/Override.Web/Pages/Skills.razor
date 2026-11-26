@@ -9,7 +9,7 @@
 
 <div class="catalog skills">
     <h1>Карточка навыков</h1>
-    <p class="catalog-lead">Что пройдено, насколько прочно и где пробелы. Сводку можно скопировать текстом, например чтобы спланировать, что учить дальше.</p>
+    <p class="catalog-lead">Что пройдено, насколько прочно и где пробелы — вплоть до вопросов с ошибками. Сводку можно скопировать текстом, например чтобы спланировать, что учить дальше, вместе с помощником.</p>
 
     @if (_stacks is null)
     {
@@ -35,7 +35,7 @@
                     <ul class="topic-rows">
                         @foreach (var topic in section.Topics)
                         {
-                            <li>
+                            <li class="skill-item">
                                 <a class="topic-row skill-row" href="@topic.Topic.Path">
                                     <span class="topic-row-title">@topic.Topic.Title</span>
                                     <span class="skill-facts">
@@ -56,6 +56,35 @@
                                         }
                                     </span>
                                 </a>
+                                @if (topic.Answered > 0)
+                                {
+                                    <details class="skill-details" open="@(topic.Mistakes.Any(m => !m.Fixed))">
+                                        <summary>
+                                            Отвечено вопросов: @topic.Answered, с ошибками: @topic.Mistakes.Count
+                                            @if (topic.Mistakes.Count(m => !m.Fixed) is > 0 and var open)
+                                            {
+                                                <span class="gaps-note"> · не исправлено: @open</span>
+                                            }
+                                        </summary>
+                                        @if (topic.Mistakes.Count == 0)
+                                        {
+                                            <p class="meta">Ошибок не было.</p>
+                                        }
+                                        <ul class="skill-mistakes">
+                                            @foreach (var mistake in topic.Mistakes)
+                                            {
+                                                <li class="@(mistake.Fixed ? "is-fixed" : "is-open")">
+                                                    <div class="skill-mistake-head">
+                                                        <span class="skill-mistake-state">@(mistake.Fixed ? "исправлено" : "не исправлено")</span>
+                                                        <span class="meta">@SkillCard.StatText(mistake.Stat)</span>
+                                                    </div>
+                                                    <div class="question-prompt">@((MarkupString)mistake.PromptHtml)</div>
+                                                    <CodeBlock Html="@mistake.CodeHtml" />
+                                                </li>
+                                            }
+                                        </ul>
+                                    </details>
+                                }
                             </li>
                         }
                     </ul>
@@ -67,6 +96,9 @@
 
 @code {
     private SiteIndex? _index;
+
+    /// <summary>Pages of topics with answers: the card shows the text of the questions with mistakes.</summary>
+    private readonly Dictionary<string, TopicPage> _pages = [];
     private IReadOnlyList<SkillStack>? _stacks;
     private string? _copyMessage;
 
@@ -74,7 +106,17 @@
     {
         Progress.Changed += OnProgressChanged;
         _index = await Content.GetIndexAsync();
-        _stacks = Card.Build(_index);
+        await LoadPagesAsync();
+        _stacks = Card.Build(_index, _pages);
+    }
+
+    private async Task LoadPagesAsync()
+    {
+        foreach (var topic in _index!.AllTopics().Where(Progress.HasAnswers))
+        {
+            if (!_pages.ContainsKey(topic.Id))
+                _pages[topic.Id] = await Content.GetTopicAsync(topic.Id);
+        }
     }
 
     private async Task CopyAsync()
@@ -91,7 +133,7 @@
         if (_index is null)
             return;
 
-        _stacks = Card.Build(_index);
+        _stacks = Card.Build(_index, _pages);
         InvokeAsync(StateHasChanged);
     }
 

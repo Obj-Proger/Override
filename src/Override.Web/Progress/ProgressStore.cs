@@ -225,7 +225,21 @@ public sealed class ProgressStore
     /// <summary>The last counted answer to some question of the topic was a problem.</summary>
     public bool HasGaps(TopicEntry topic) => ReviewsOf(topic).Any(state => state.LastWasProblem);
 
-    private IEnumerable<(string Id, ReviewState State)> ReviewEntries(TopicEntry topic)
+    /// <summary>Every answered question of the topic at the reader's level, with its answers, for the skill card.</summary>
+    public IReadOnlyList<QuestionStat> QuestionStatsOf(TopicEntry topic) =>
+        AnsweredQuestions(topic)
+            .Select(entry => new QuestionStat(
+                entry.Id,
+                entry.Attempts.Count,
+                entry.Attempts.Count(attempt => attempt.Outcome.IsProblem()),
+                entry.Attempts[^1].Outcome,
+                ReviewSchedule.StateOf(entry.Attempts)))
+            .ToList();
+
+    private IEnumerable<(string Id, ReviewState State)> ReviewEntries(TopicEntry topic) =>
+        AnsweredQuestions(topic).Select(entry => (entry.Id, ReviewSchedule.StateOf(entry.Attempts))).ToList();
+
+    private IEnumerable<(string Id, List<Attempt> Attempts)> AnsweredQuestions(TopicEntry topic)
     {
         var hidden = topic.CheckedQuestions.Where(q => !_profile.Shows(q.Level, topic.Path)).Select(q => q.Id).ToHashSet();
         var existing = topic.QuestionIds?.ToHashSet();
@@ -235,9 +249,7 @@ public sealed class ProgressStore
         return _data.Questions
             .Where(pair => pair.Key.StartsWith(prefix, StringComparison.Ordinal))
             .Select(pair => (Id: pair.Key[prefix.Length..], Attempts: pair.Value))
-            .Where(entry => !hidden.Contains(entry.Id) && (existing is null || existing.Contains(entry.Id)))
-            .Select(entry => (entry.Id, ReviewSchedule.StateOf(entry.Attempts)))
-            .ToList();
+            .Where(entry => entry.Attempts.Count > 0 && !hidden.Contains(entry.Id) && (existing is null || existing.Contains(entry.Id)));
     }
 
     private IJSInProcessRuntime Storage => (IJSInProcessRuntime)_js;
