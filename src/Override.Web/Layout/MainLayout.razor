@@ -129,7 +129,7 @@
         Progress.Changed += OnProgressChanged;
         _index = await Content.GetIndexAsync();
         _trail = _index.Trail(_path);
-        _dueCount = Coach.PlanReview(_index).Questions.Count;
+        _dueCount = Coach.PlanReview(_index).TotalDue;
     }
 
     private void OnProgressChanged()
@@ -137,7 +137,7 @@
         if (_index is null)
             return;
 
-        _dueCount = Coach.PlanReview(_index).Questions.Count;
+        _dueCount = Coach.PlanReview(_index).TotalDue;
         InvokeAsync(StateHasChanged);
     }
 

@@ -7,8 +7,8 @@ namespace Override.Web.Progress;
 /// <summary>A topic that needs attention, why, and a required topic that may be the real cause.</summary>
 public sealed record WeakTopic(TopicEntry Topic, double Strength, string Reason, TopicEntry? StartWith);
 
-/// <summary>Today's review across the site.</summary>
-public sealed record ReviewPlan(IReadOnlyList<DueQuestion> Questions, int TopicCount)
+/// <summary>Today's review across the site: one session of questions, and how many are due in all.</summary>
+public sealed record ReviewPlan(IReadOnlyList<DueQuestion> Questions, int TopicCount, int TotalDue)
 {
     /// <summary>About half a minute per question.</summary>
     public int Minutes => Math.Max(1, (int)Math.Ceiling(Questions.Count * 0.5));
@@ -33,7 +33,7 @@ public sealed class Coach(ProgressStore progress)
             .ToList();
 
         var queue = ReviewQueue.Build(due);
-        return new ReviewPlan(queue, queue.Select(q => q.TopicId).Distinct().Count());
+        return new ReviewPlan(queue, queue.Select(q => q.TopicId).Distinct().Count(), due.Count);
     }
 
     /// <summary>

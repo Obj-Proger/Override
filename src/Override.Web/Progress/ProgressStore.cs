@@ -228,12 +228,14 @@ public sealed class ProgressStore
     private IEnumerable<(string Id, ReviewState State)> ReviewEntries(TopicEntry topic)
     {
         var hidden = topic.CheckedQuestions.Where(q => !_profile.Shows(q.Level, topic.Path)).Select(q => q.Id).ToHashSet();
+        var existing = topic.QuestionIds?.ToHashSet();
         var prefix = topic.Id + "/";
 
+        // A question removed or renamed in the content cannot be asked again, so its old answers are ignored.
         return _data.Questions
             .Where(pair => pair.Key.StartsWith(prefix, StringComparison.Ordinal))
             .Select(pair => (Id: pair.Key[prefix.Length..], Attempts: pair.Value))
-            .Where(entry => !hidden.Contains(entry.Id))
+            .Where(entry => !hidden.Contains(entry.Id) && (existing is null || existing.Contains(entry.Id)))
             .Select(entry => (entry.Id, ReviewSchedule.StateOf(entry.Attempts)))
             .ToList();
     }

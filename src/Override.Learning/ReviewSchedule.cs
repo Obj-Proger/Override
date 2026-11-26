@@ -40,8 +40,11 @@ public static class ReviewSchedule
                 continue;
             }
 
-            // Retries right after an answer tell nothing new. An admitted gap always counts.
-            var counts = attempt.First || attempt.Outcome is Outcome.Forgot or Outcome.Partial;
+            // Retries right after an answer tell nothing new. An admitted gap always counts, and so does an answer
+            // given when the question was due: that is the review itself, however recent the previous answer.
+            var counts = attempt.First
+                || attempt.Outcome is Outcome.Forgot or Outcome.Partial
+                || (state.Due is { } due && attempt.At >= due);
             if (!counts)
                 continue;
 

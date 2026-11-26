@@ -19,8 +19,17 @@
     }
     else if (_position >= _items.Count)
     {
-        <p class="catalog-lead">Готово: @Labels.Questions(_items.Count). Следующие вопросы появятся по расписанию.</p>
-        <a class="button" href="">На главную</a>
+        <p class="catalog-lead">
+            Готово: @Labels.Questions(_items.Count).
+            @(_left > 0 ? $"На сегодня осталось ещё {Labels.Questions(_left)}." : "Следующие вопросы появятся по расписанию.")
+        </p>
+        <div class="lesson-nav">
+            <a class="button" href="">На главную</a>
+            @if (_left > 0)
+            {
+                <button type="button" class="button-primary" @onclick="LoadAsync">Ещё подход</button>
+            }
+        </div>
     }
     else
     {
@@ -44,9 +53,17 @@
 
     private sealed record ReviewItem(TopicPage Topic, QuestionBlock Question, bool IsSummary);
 
-    /// <summary>The queue is fixed when the page opens, so answering does not reshuffle it.</summary>
-    protected override async Task OnInitializedAsync()
+    /// <summary>How many questions are still due after this session, offered as another one.</summary>
+    private int _left;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    /// <summary>A session is fixed when it starts, so answering does not reshuffle it.</summary>
+    private async Task LoadAsync()
     {
+        _items = null;
+        _position = 0;
+        _answered = false;
         var index = await Content.GetIndexAsync();
         var plan = Coach.PlanReview(index);
         var items = new List<ReviewItem>();
@@ -68,9 +85,12 @@
         _items = items;
     }
 
-    private void Next()
+    private async Task Next()
     {
         _position++;
         _answered = false;
+
+        if (_position >= (_items?.Count ?? 0))
+            _left = Coach.PlanReview(await Content.GetIndexAsync()).TotalDue;
     }
 }

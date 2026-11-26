@@ -12,7 +12,13 @@
             <div class="panel-title">Повторение</div>
             @if (_plan.Questions.Count > 0)
             {
-                <p class="today-text">Сегодня: @Labels.Questions(_plan.Questions.Count), тем: @_plan.TopicCount · примерно @Labels.MinutesLong(_plan.Minutes)</p>
+                <p class="today-text">
+                    Сегодня: @Labels.Questions(_plan.Questions.Count), тем: @_plan.TopicCount · примерно @Labels.MinutesLong(_plan.Minutes)
+                    @if (_plan.TotalDue > _plan.Questions.Count)
+                    {
+                        <span class="meta"> · всего к повторению @_plan.TotalDue, остальные — следующими подходами</span>
+                    }
+                </p>
                 <a class="button-check today-action" href="review">Начать повторение</a>
             }
             else

@@ -16,7 +16,8 @@ public sealed record SectionEntry(
 /// A topic in the table of contents. Path is its address on the site. Steps is the number of lesson steps;
 /// CheckedQuestions are the questions the site checks by itself, which decide whether the topic is done.
 /// Requires are the ids of the topics to know first. TestQuestions is the number of questions in one test attempt,
-/// 0 without a test.
+/// 0 without a test. QuestionIds lists every question of the topic, test included: answers to questions that are
+/// gone from the content are left out of reviews.
 /// </summary>
 public sealed record TopicEntry(
     string Id,
@@ -28,7 +29,8 @@ public sealed record TopicEntry(
     int Steps,
     IReadOnlyList<QuestionEntry> CheckedQuestions,
     IReadOnlyList<string> Requires,
-    int TestQuestions);
+    int TestQuestions,
+    IReadOnlyList<string>? QuestionIds = null);
 
 /// <summary>
 /// A question of a topic with the level it is meant for: its own, its block's or the topic's, whichever is higher.
