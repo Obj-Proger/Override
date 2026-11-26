@@ -58,9 +58,10 @@ public sealed class ProgressStore
             if (data is { Version: ProgressData.CurrentVersion })
                 _data = data;
         }
-        catch (JsonException)
+        catch (Exception exception) when (exception is JsonException or NotSupportedException or InvalidOperationException or ArgumentException)
         {
-            // Damaged data: start over. The site must open even if storage was edited by hand.
+            // Damaged or outdated data: start over. The site must open even if storage was edited by hand.
+            Console.Error.WriteLine($"Saved progress was not read: {exception.Message}");
         }
     }
 

@@ -29,9 +29,10 @@ public sealed class ProfileStore(IJSRuntime js)
         {
             Profile = JsonSerializer.Deserialize(json, ProgressJsonContext.Default.LearnerProfile);
         }
-        catch (JsonException)
+        catch (Exception exception) when (exception is JsonException or NotSupportedException or InvalidOperationException or ArgumentException)
         {
-            // Damaged data: the reader is asked again.
+            // Damaged or outdated data: the reader is asked again.
+            Console.Error.WriteLine($"Saved profile was not read: {exception.Message}");
         }
     }
 
