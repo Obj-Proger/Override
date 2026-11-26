@@ -43,6 +43,8 @@ public sealed partial class SkillCard(ProgressStore progress, ProfileStore profi
     /// <summary>From this strength a topic is listed among the strong ones.</summary>
     public const double StrongStrength = 0.7;
 
+    /// <summary>Builds the card for every stack of the site.</summary>
+    /// <param name="index">The site index with sections and topics.</param>
     /// <param name="pages">Loaded topic pages by id, for the text of questions; a topic without one lists no texts.</param>
     public IReadOnlyList<SkillStack> Build(SiteIndex index, IReadOnlyDictionary<string, TopicPage> pages) =>
         index.Sections.Select(stack => new SkillStack(stack, profile.LevelFor(stack.Path), SectionsOf(stack, pages))).ToList();
